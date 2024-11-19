@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'sb_cff_b1eb330aa001ae4915f07005b4e993c2' => $vendorDir . '/smashballoon/framework/Utilities/functions.php',
+    'sb_cff_free_b1eb330aa001ae4915f07005b4e993c2' => $vendorDir . '/smashballoon/framework/Utilities/functions.php',
 );

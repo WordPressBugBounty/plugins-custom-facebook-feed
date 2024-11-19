@@ -1049,4 +1049,155 @@ class CFF_Db {
 		);
 		return $number;
 	}
+	/**
+	 * Summary of get_feed_source_info
+	 *
+	 * @param mixed $feed_id
+	 *
+	 * @return array
+	 */
+	public static function get_feed_source_info($feed_id)
+	{
+		global $wpdb;
+		$feeds_table 	= $wpdb->prefix . 'cff_feeds';
+		$sources_table 	= $wpdb->prefix . 'cff_sources';
+		$feed = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $feeds_table WHERE id = %d",
+				$feed_id
+			),
+			ARRAY_A
+		);
+
+		if (empty($feed['settings'])) {
+			return [];
+		}
+
+		$settings = json_decode($feed['settings'], true);
+
+		//Sources can be array | so we get fist source
+		$source_id = is_array($settings['sources']) && !empty($settings['sources'][0])
+			? $settings['sources'][0]
+			: $settings['sources'];
+
+		// A feed can have No Source!!
+		if (empty($source_id)) {
+			return [];
+		}
+
+		$source = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $sources_table WHERE account_id = %s;",
+				$source_id
+			),
+			ARRAY_A
+		);
+
+		if (empty($source['info'])) {
+			return [];
+		}
+
+		$encryption = new SB_Facebook_Data_Encryption();
+		$data =  json_decode($encryption->maybe_decrypt($source['info']), true);
+
+		if (empty($data['name'])) {
+			return [];
+		}
+
+		return [
+			'id'        => $data['id'],
+			'name' 		=> $data['name'],
+			'picture' 	=> !empty($data['picture']['data']['url'])
+				? $data['picture']['data']['url']
+				: ''
+		];
+	}
+
+	/**
+	 * Summary of get_posts_by_ids
+	 *
+	 * @param mixed $post_ids
+	 *
+	 * @return array
+	 */
+	public static function get_posts_by_ids($post_ids)
+	{
+		global $wpdb;
+		$posts_table 	= $wpdb->prefix . 'cff_posts';
+
+		if (empty($post_ids)) {
+			return [];
+		}
+
+		$post_ids			= esc_sql($post_ids);
+		$sql_ids 			= "'" . implode('\', \'', $post_ids) . "'";
+
+		$posts = $wpdb->get_results("SELECT * FROM $posts_table
+			WHERE facebook_id IN ($sql_ids)",
+			ARRAY_A
+		);
+		$results = [];
+
+		$encryption = new SB_Facebook_Data_Encryption();
+
+		foreach ($posts as $post) {
+			$transformed = self::transform_single_post_schema($post, $encryption);
+			if (!empty($transformed)) {
+				array_push($results, $transformed);
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Summary of transform_single_post_schema
+	 *
+	 * @param mixed $post
+	 * @param mixed $encryption
+	 *
+	 * @return array
+	 */
+	public static function transform_single_post_schema($post, $encryption)
+	{
+		$data =  CFF_Utils::parse_json_data(
+			$encryption->maybe_decrypt($post['json_data'])
+		);
+		if (empty($data) || empty($data['id'])) {
+			return [];
+		}
+
+		return [
+			'plugin'           => [
+				'slug' => 'facebook',
+			],
+			'feed_post_id' => $data['id'],
+			'text'             => CFF_Utils::get_post_text($data),
+			'imageSrc'         => '',
+			'updated_time_ago' => !empty($data['created_time']) ? $data['created_time'] : '',
+			'profile' => [
+				'label' => !empty($data['from']['name']) ? $data['from']['name'] : '',
+				'url'   => !empty($data['from']['link']) ? $data['from']['link'] : '',
+				'id'    => !empty($data['from']['id']) 	? $data['from']['id'] : '',
+			]
+		];
+
+	}
+
+	/**
+	 * Query the cff_feeds table
+	 *
+	 * @param array $args
+	 *
+	 * @return array|bool
+	 *
+	 * @since 4.0
+	 */
+	public static function all_feeds_query()
+	{
+		global $wpdb;
+		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
+		$sql = "SELECT * FROM $feeds_table_name";
+		return $wpdb->get_results($sql, ARRAY_A);
+	}
 }

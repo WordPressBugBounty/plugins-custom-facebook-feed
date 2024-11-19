@@ -891,4 +891,41 @@ class CFF_Utils{
 		return $cff_connected_accounts;
 	}
 
+	/**
+	 * Summary of get_post_text
+	 *
+	 * @param array $post
+	 *
+	 * @return string
+	 */
+	public static function get_post_text($post)
+	{
+		if (!empty($post['story'])) {
+			return $post['story'];
+		}
+		if (!empty($post['message'])) {
+			return $post['message'];
+		}
+		if (!empty($post['name']) && empty($post['story']) && empty($post['message'])) {
+			return $post['name'];
+		}
+		return '';
+	}
+
+	/**
+	 * Summary of parse_json_data
+	 *
+	 * @param mixed $data
+	 *
+	 * @return array
+	 */
+	public static function parse_json_data($data)
+	{
+		$json = json_decode($data, true);
+		if (is_string($json)) {
+			$json = json_decode($json, true);
+		}
+		return is_array($json) ? $json : [];
+	}
+
 }

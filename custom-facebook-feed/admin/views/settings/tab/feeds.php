@@ -125,7 +125,7 @@
             </div>
         </div>
     </div>
-    <div class="sb-tab-box sb-custom-js-box clearfix" v-if="model.feeds.customJS !== ''">
+    <div class="sb-tab-box sb-custom-js-box clearfix"  v-if="model.feeds.customJS !== ''">
         <div class="tab-label">
             <h3>{{feedsTab.customJSBox.title}}</h3>
         </div>

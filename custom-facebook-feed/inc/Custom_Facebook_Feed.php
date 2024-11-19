@@ -10,6 +10,7 @@
 namespace CustomFacebookFeed;
 use CustomFacebookFeed\Admin\CFF_Admin_Notices;
 use CustomFacebookFeed\Admin\CFF_Onboarding_Wizard;
+use CustomFacebookFeed\Integrations\Analytics\SB_Analytics;
 use CustomFacebookFeed\SB_Facebook_Data_Manager;
 use CustomFacebookFeed\Admin\CFF_Admin;
 use CustomFacebookFeed\Admin\CFF_About;
@@ -294,6 +295,16 @@ final class Custom_Facebook_Feed{
 	 */
 	public $cff_admin_notices;
 
+	/**
+	 * Analytics Plugin Integration
+	 *
+	 * @since 4.4
+	 * @access public
+	 *
+	 * @var SB_Analytics
+	 */
+	public $cff_sb_analytics;
+
 
 	/**
 	 * Custom_Facebook_Feed Instance.
@@ -315,7 +326,7 @@ final class Custom_Facebook_Feed{
 			require_once CFF_PLUGIN_DIR . 'vendor/autoload.php';
 
 
-			add_action( 'plugins_loaded', [ self::$instance, 'load_textdomain' ], 10 );
+			add_action( 'init', [ self::$instance, 'load_textdomain' ], 10 );
 			add_action( 'plugins_loaded', [ self::$instance, 'init' ], 0 );
 
 
@@ -414,6 +425,8 @@ final class Custom_Facebook_Feed{
 
 		$this->platform_data_manager = new Platform_Data();
 		$this->platform_data_manager->register_hooks();
+
+		self::$instance->cff_sb_analytics = new SB_Analytics();
 	}
 
 	/**
