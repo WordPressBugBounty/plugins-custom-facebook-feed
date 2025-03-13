@@ -58,9 +58,14 @@ class CFF_Admin{
 			$notice_bubble = ' <span class="cff-notice-alert"><span>'.count( $notifications ).'</span></span>';
 		}
 
+
+		$callout = CFF_Callout::print_callout_ob_html('side-menu');
+		$print_callout = $callout !== false ? $callout : '';
+
+
 		add_menu_page(
 			'Facebook Feed',
-			'Facebook Feed'. $notice . $notice_bubble,
+			'Facebook Feed'. $notice . $notice_bubble . $print_callout,
 			$cap,
 			'cff-top',
 			'cff_settings_page'

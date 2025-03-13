@@ -2,6 +2,10 @@
 
 namespace CustomFacebookFeed\Helpers;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Class Util.
  * Holds utility functions for the plugin.
@@ -52,57 +56,57 @@ class Util {
 
 		$is_facebook_installed = false;
 		$facebook_plugin = 'custom-facebook-feed/custom-facebook-feed.php';
-		if( isset( $installed_plugins['custom-facebook-feed-pro/custom-facebook-feed.php'] ) 
+		if( isset( $installed_plugins['custom-facebook-feed-pro/custom-facebook-feed.php'] )
 			|| isset( $installed_plugins['custom-facebook-feed/custom-facebook-feed.php'] ) ) {
-			
+
 			$is_facebook_installed = true;
-			$facebook_plugin = is_plugin_active( 'custom-facebook-feed-pro/custom-facebook-feed.php' ) 
-				? 'custom-facebook-feed-pro/custom-facebook-feed.php' 
+			$facebook_plugin = is_plugin_active( 'custom-facebook-feed-pro/custom-facebook-feed.php' )
+				? 'custom-facebook-feed-pro/custom-facebook-feed.php'
 				: $facebook_plugin;
 		}
 
 		$is_instagram_installed = false;
 		$instagram_plugin = 'instagram-feed/instagram-feed.php';
-		if( isset( $installed_plugins['instagram-feed-pro/instagram-feed.php'] ) 
+		if( isset( $installed_plugins['instagram-feed-pro/instagram-feed.php'] )
 			|| isset( $installed_plugins['instagram-feed/instagram-feed.php'] ) ) {
-			
+
 			$is_instagram_installed = true;
-			$instagram_plugin = is_plugin_active( 'instagram-feed-pro/instagram-feed.php' ) 
-				? 'instagram-feed-pro/instagram-feed.php' 
+			$instagram_plugin = is_plugin_active( 'instagram-feed-pro/instagram-feed.php' )
+				? 'instagram-feed-pro/instagram-feed.php'
 				: $instagram_plugin;
 		}
 
 		$is_twitter_installed = false;
 		$twitter_plugin = 'custom-twitter-feeds/custom-twitter-feed.php';
 
-		if( isset( $installed_plugins['custom-twitter-feeds-pro/custom-twitter-feed.php'] ) 
+		if( isset( $installed_plugins['custom-twitter-feeds-pro/custom-twitter-feed.php'] )
 			|| isset( $installed_plugins['custom-twitter-feeds/custom-twitter-feed.php'] ) ) {
-			
+
 			$is_twitter_installed = true;
-			$twitter_plugin = is_plugin_active( 'custom-twitter-feeds-pro/custom-twitter-feed.php' ) 
-				? 'custom-twitter-feeds-pro/custom-twitter-feed.php' 
+			$twitter_plugin = is_plugin_active( 'custom-twitter-feeds-pro/custom-twitter-feed.php' )
+				? 'custom-twitter-feeds-pro/custom-twitter-feed.php'
 				: $twitter_plugin;
 		}
 
 		$is_youtube_installed = false;
 		$youtube_plugin       = 'feeds-for-youtube/youtube-feed.php';
-		if( isset( $installed_plugins['youtube-feed-pro/youtube-feed-pro.php'] ) 
+		if( isset( $installed_plugins['youtube-feed-pro/youtube-feed-pro.php'] )
 			|| isset( $installed_plugins['feeds-for-youtube/youtube-feed.php'] ) ) {
-			
+
 			$is_youtube_installed = true;
-			$youtube_plugin = is_plugin_active( 'youtube-feed-pro/youtube-feed-pro.php' ) 
-				? 'youtube-feed-pro/youtube-feed-pro.php' 
+			$youtube_plugin = is_plugin_active( 'youtube-feed-pro/youtube-feed-pro.php' )
+				? 'youtube-feed-pro/youtube-feed-pro.php'
 				: $youtube_plugin;
 		}
 
 		$is_reviews_installed = false;
 		$reviews_plugin       = 'reviews-feed/sb-reviews.php';
-		if( isset( $installed_plugins['reviews-feed-pro/sb-reviews-pro.php'] ) 
+		if( isset( $installed_plugins['reviews-feed-pro/sb-reviews-pro.php'] )
 			|| isset( $installed_plugins['reviews-feed/sb-reviews.php'] ) ) {
-			
+
 			$is_reviews_installed = true;
-			$reviews_plugin = is_plugin_active( 'reviews-feed-pro/sb-reviews-pro.php' ) 
-				? 'reviews-feed-pro/sb-reviews-pro.php' 
+			$reviews_plugin = is_plugin_active( 'reviews-feed-pro/sb-reviews-pro.php' )
+				? 'reviews-feed-pro/sb-reviews-pro.php'
 				: $reviews_plugin;
 		}
 
@@ -131,7 +135,7 @@ class Util {
 
 	/**
 	 * Get the info of the other active plugins of Smash Balloon
-	 * 
+	 *
 	 * @since 4.1.9
 	 */
 	public static function get_smash_plugins_status_info() {

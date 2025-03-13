@@ -588,7 +588,7 @@ class CFF_Tracking {
 			return false;
 		}
 
-		$request = wp_remote_post( 'https://usage.smashballoon.com/v1/checkin/', array(
+		$request = wp_safe_remote_post( 'https://usage.smashballoon.com/v1/checkin/', array(
 			'method'      => 'POST',
 			'timeout'     => 5,
 			'redirection' => 5,

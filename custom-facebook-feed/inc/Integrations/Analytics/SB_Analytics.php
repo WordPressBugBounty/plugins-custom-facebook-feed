@@ -9,6 +9,10 @@ namespace CustomFacebookFeed\Integrations\Analytics;
 
 use CustomFacebookFeed\Builder\CFF_Db;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class SB_Analytics
 {
 	/**

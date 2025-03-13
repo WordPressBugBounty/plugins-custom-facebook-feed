@@ -9,6 +9,10 @@ namespace CustomFacebookFeed\Builder;
 use CustomFacebookFeed\SB_Facebook_Data_Encryption;
 use CustomFacebookFeed\CFF_Utils;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Db {
 
 	const RESULTS_PER_PAGE = 20;
@@ -308,6 +312,7 @@ class CFF_Db {
 				$feeds_elementor[$feed->id] =  $feed->feed_name;
 			}
 		}
+		$feeds_elementor[0] = __('Select A Feed', 'custom-facebook-feed');
 		return $feeds_elementor;
 	}
 

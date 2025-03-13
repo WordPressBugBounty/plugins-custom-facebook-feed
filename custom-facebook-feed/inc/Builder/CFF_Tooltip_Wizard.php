@@ -7,6 +7,10 @@
  */
 namespace CustomFacebookFeed\Builder;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Tooltip_Wizard {
 
 	/**

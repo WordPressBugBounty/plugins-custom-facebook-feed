@@ -13,7 +13,13 @@
 					<img :src="plugin?.icon" :alt="plugin?.heading"/>
 				</div>
 				<div class="sb-onboarding-wizard-elem-text">
-					<strong v-if="plugin?.heading !== undefined" v-html="plugin?.heading"></strong>
+					<strong v-if="plugin?.heading !== undefined">
+						<span v-html="plugin?.heading"></span>
+						<span class="sb-onboarding-wizard-elem-text-installs">
+							<img :src="onboardingWizardStepContent['install-plugins']?.star_icons">
+							<e v-html="plugin?.installs_number"></e>
+						</span>
+					</strong>
 					<span v-if="plugin?.description !== undefined" v-html="plugin?.description"></span>
 				</div>
 
@@ -25,7 +31,13 @@
 
 	</div>
 
-
+	<div class="sb-onboarding-wizard-clicking">
+		<span v-html="svgIcons['info']"></span>
+		<span>
+			<?php echo __( 'Clicking Next will install ', 'custom-facebook-feed' ) ?>
+			<span v-for="(plugin, ind) in onboardingWizardStepContent['install-plugins']?.pluginsList" v-html="plugin?.data?.pluginName + (ind !== onboardingWizardStepContent['install-plugins']?.pluginsList.length - 1 ? ', ' : '.')"></span>
+		</span>
+	</div>
 
 </div>
 

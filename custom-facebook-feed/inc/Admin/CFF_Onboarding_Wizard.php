@@ -33,7 +33,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 	 * @since 6.0
 	 */
 	public function init() {
-		if ( is_admin() && self::should_init_wizard() ) {
+		if (is_admin()) {
 			add_action( 'admin_menu', array( $this, 'register_menu' ) );
 			// add ajax listeners
 			CFF_Feed_Saver_Manager::hooks();
@@ -83,8 +83,10 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		$cap = current_user_can( 'manage_custom_facebook_feed_options' ) ? 'manage_custom_facebook_feed_options' : 'manage_options';
 		$cap = apply_filters( 'cff_settings_pages_capability', $cap );
 
+		$submenu = self::should_init_wizard() ? 'cff-top' : 'sb';
+
 		$feed_builder = add_submenu_page(
-			'cff-top',
+			$submenu,
 			__( 'Setup', 'custom-facebook-feed' ),
 			__( 'Setup', 'custom-facebook-feed' ),
 			$cap,
@@ -206,8 +208,9 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 					'id' 		=> 'install-plugins',
 					'template'	=> CFF_BUILDER_DIR . 'templates/onboarding/install-plugins.php',
 					'heading' => __( 'You might also be interested in...', 'custom-facebook-feed' ),
-					'description' => __( 'Enable your favorite features and disable the ones you don\'t need', 'custom-facebook-feed' ),
-					'pluginsList' => self::get_awesomemotive_plugins()
+					'description' => __( 'Facebook Feed users also install these plugins', 'custom-facebook-feed' ),
+					'pluginsList' => self::get_awesomemotive_plugins(),
+					'star_icons' => CFF_PLUGIN_URL . 'admin/assets/img/stars.svg'
 				],
 				[
 					'id' 		=> 'success-page',
@@ -282,6 +285,17 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 			$description_plugins = implode(', ', $smash_plugin_list['text']);
 			$search = ',';
 			$description_plugins_text = strrev(preg_replace(strrev("/$search/"),strrev(' and '),strrev($description_plugins),1));
+
+			$plugins_info = [];
+			foreach ($smash_plugin_list['plugins'] as $p_item) {
+				if ($p_item['is_istalled'] === false) {
+					array_push(
+						$plugins_info,
+						$p_item
+					);
+				}
+			}
+
 			array_push($features_list,
 				[
 					'data' => [
@@ -289,11 +303,13 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 						'type' => 'install_plugins',
 						'plugins' => 'smash'
 					],
-					'heading' => __( 'Social Feed Collection', 'custom-facebook-feed' ),
-					'description' => __( 'Install' , 'custom-facebook-feed') . ' ' . $description_plugins_text . ' ' . __('feed plugins for more fresh content', 'custom-facebook-feed' ),
+					'heading' => __('Social Feed Collection', 'custom-facebook-feed'),
+					'description' => __('Install' , 'custom-facebook-feed') . ' ' . $description_plugins_text . ' ' . __('feed plugins for more fresh content', 'custom-facebook-feed' ),
 					'color'	=> 'blue',
 					'active'	=> true,
-					'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999Z" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22.08V12" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+					'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999Z" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.26953 6.95996L11.9995 12.01L20.7295 6.95996" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22.08V12" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+					'plugins' => $plugins_info,
+					'tooltip' => __('Smash Balloon offers the best social media feed solutions for WordPress. Enabling this feature will install additional plugins to power all of the supported platforms', 'custom-facebook-feed' ),
 				]
 			);
 		}
@@ -301,21 +317,10 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 
 		//Reviews Plugin
 		$reviews_plugin = self::get_smash_reviews_plugin();
-		if( $reviews_plugin !== false){
+		if($reviews_plugin !== false) {
 			array_push($features_list, $reviews_plugin);
 		}
 
-
-		/*
-			[
-				'id'	=> '',
-				'heading' => __( 'Post and Schedule on Social Media', 'custom-facebook-feed' ),
-				'description' => __( 'Install Click Social and get the ability to schedule Social media posts right from Wordpress', 'custom-facebook-feed' ),
-				'color'	=> 'blue',
-				'active'	=> true,
-				'icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2V6" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2V6" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10H21" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-			],
-			*/
 		return $features_list;
 
 	}
@@ -337,7 +342,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		if ( isset( $installed_plugins['custom-facebook-feed-pro/custom-facebook-feed.php'] ) ) {
 			$is_facebook_installed = true;
 			$facebook_plugin = 'custom-facebook-feed-pro/custom-facebook-feed.php';
-		} else if ( isset( $installed_plugins['custom-facebook-feed/custom-facebook-feed.php'] ) ) {
+		} elseif ( isset( $installed_plugins['custom-facebook-feed/custom-facebook-feed.php'] ) ) {
 			$is_facebook_installed = true;
 		}
 
@@ -346,7 +351,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		if ( isset( $installed_plugins['instagram-feed-pro/instagram-feed.php'] ) ) {
 			$is_instagram_installed = true;
 			$instagram_plugin = 'instagram-feed-pro/instagram-feed.php';
-		} else if ( isset( $installed_plugins['instagram-feed/instagram-feed.php'] ) ) {
+		} elseif ( isset( $installed_plugins['instagram-feed/instagram-feed.php'] ) ) {
 			$is_instagram_installed = true;
 		}
 
@@ -355,7 +360,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		if ( isset( $installed_plugins['custom-twitter-feeds-pro/custom-twitter-feed.php'] ) ) {
 			$is_twitter_installed = true;
 			$twitter_plugin = 'custom-twitter-feeds-pro/custom-twitter-feed.php';
-		} else if ( isset( $installed_plugins['custom-twitter-feeds/custom-twitter-feed.php'] ) ) {
+		} elseif ( isset( $installed_plugins['custom-twitter-feeds/custom-twitter-feed.php'] ) ) {
 			$is_twitter_installed = true;
 		}
 
@@ -364,8 +369,17 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		if ( isset( $installed_plugins['youtube-feed-pro/youtube-feed.php'] ) ) {
 			$is_youtube_installed = true;
 			$youtube_plugin = 'youtube-feed-pro/youtube-feed.php';
-		} else if ( isset( $installed_plugins['feeds-for-youtube/youtube-feed.php'] ) ) {
+		} elseif ( isset( $installed_plugins['feeds-for-youtube/youtube-feed.php'] ) ) {
 			$is_youtube_installed = true;
+		}
+
+		$is_tiktok_installed = false;
+		$tiktok_plugin = 'feeds-for-tiktok/feeds-for-tiktok.php';
+		if ( isset( $installed_plugins['tiktok-feeds-pro/tiktok-feeds-pro.php'] ) ) {
+			$is_tiktok_installed = true;
+			$tiktok_plugin = 'tiktok-feeds-pro/tiktok-feeds-pro.php';
+		} elseif ( isset( $installed_plugins['feeds-for-tiktok/feeds-for-tiktok.php'] ) ) {
+			$is_tiktok_installed = true;
 		}
 
 		$smash_list =  [
@@ -375,27 +389,37 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 					'type' => 'instagram',
 					'is_istalled' => $is_instagram_installed,
 					'download_link' => $instagram_plugin,
-					'min_php' => '5.6.0'
+					'min_php' => '5.6.0',
+					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/insta-icon.svg'
 				],
 				[
 					'type' => 'facebook',
 					'is_istalled' => $is_facebook_installed,
 					'download_link' => $facebook_plugin,
-					'min_php' => '5.6.0'
+					'min_php' => '5.6.0',
+					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/fb-icon.svg'
 				],
 				[
 					'type' => 'twitter',
 					'is_istalled' => $is_twitter_installed,
 					'download_link' => $twitter_plugin,
-					'min_php' => '5.6.0'
+					'min_php' => '5.6.0',
+					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/twitter-icon.svg'
 
 				],
 				[
 					'type' => 'youtube',
 					'is_istalled' => $is_youtube_installed,
 					'download_link' => $youtube_plugin,
-					'min_php' => '5.6.0'
-
+					'min_php' => '5.6.0',
+					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/youtube-icon.svg'
+				],
+				[
+					'type' => 'tiktok',
+					'is_istalled' => $is_tiktok_installed,
+					'download_link' => $tiktok_plugin,
+					'min_php' => '7.0',
+					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/tiktok-icon.svg'
 				]
 			]
 		];
@@ -430,7 +454,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		if ( isset( $installed_plugins['reviews-feed-pro/sb-reviews-pro.php'] ) ) {
 			$is_reviews_installed = true;
 			$reviews_plugin = 'reviews-feed-pro/sb-reviews-pro.php';
-		} else if ( isset( $installed_plugins['reviews-feed/sb-reviews.php'] ) ) {
+		} elseif ( isset( $installed_plugins['reviews-feed/sb-reviews.php'] ) ) {
 			$is_reviews_installed = true;
 		}
 
@@ -444,11 +468,21 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 					'id' => 'reviews',
 					'type' => 'install_plugins'
 				],
-				'heading' => __( 'Customer Reviews Plugin', 'custom-facebook-feed' ),
-				'description' => __( 'Install Reviews Feed to display customer reviews from Google or Yelp and build trust', 'custom-facebook-feed' ),
+				'heading' => __('Customer Reviews Plugin', 'custom-facebook-feed'),
+				'description' => __('Install Reviews Feed to display customer reviews from Google or Yelp and build trust', 'custom-facebook-feed'),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 9.50003C19.0034 10.8199 18.6951 12.1219 18.1 13.3C17.3944 14.7118 16.3098 15.8992 14.9674 16.7293C13.6251 17.5594 12.0782 17.9994 10.5 18C9.18013 18.0035 7.87812 17.6951 6.7 17.1L1 19L2.9 13.3C2.30493 12.1219 1.99656 10.8199 2 9.50003C2.00061 7.92179 2.44061 6.37488 3.27072 5.03258C4.10083 3.69028 5.28825 2.6056 6.7 1.90003C7.87812 1.30496 9.18013 0.996587 10.5 1.00003H11C13.0843 1.11502 15.053 1.99479 16.5291 3.47089C18.0052 4.94699 18.885 6.91568 19 9.00003V9.50003Z" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+				'icon' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 9.50003C19.0034 10.8199 18.6951 12.1219 18.1 13.3C17.3944 14.7118 16.3098 15.8992 14.9674 16.7293C13.6251 17.5594 12.0782 17.9994 10.5 18C9.18013 18.0035 7.87812 17.6951 6.7 17.1L1 19L2.9 13.3C2.30493 12.1219 1.99656 10.8199 2 9.50003C2.00061 7.92179 2.44061 6.37488 3.27072 5.03258C4.10083 3.69028 5.28825 2.6056 6.7 1.90003C7.87812 1.30496 9.18013 0.996587 10.5 1.00003H11C13.0843 1.11502 15.053 1.99479 16.5291 3.47089C18.0052 4.94699 18.885 6.91568 19 9.00003V9.50003Z" stroke="#696D80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+				'plugins' => [
+					[
+						'type' => 'reviews',
+						'is_istalled' => $is_reviews_installed,
+						'download_link' => $reviews_plugin,
+						'min_php' => $min_php,
+						'icon' => CFF_PLUGIN_URL . 'admin/assets/img/reviews-icon.svg'
+					]
+				],
+				'tooltip' => __('Enabling this feature will install Reviews Feed plugin. Reviews Feed by Smash Balloon helps users to display reviews from Google, TripAdvisor, TrustPilot and more.', 'custom-facebook-feed'),
 			];
 		}
 		return false;
@@ -478,7 +512,8 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'description' => __( 'Out-of-the-box SEO for WordPress. Features like XML Sitemaps, SEO for custom post types, SEO for blogs, business sites, or ecommerce sites, and much more.', 'custom-facebook-feed' ),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => CFF_BUILDER_URL . 'assets/img/allinoneseo.png'
+				'icon' => CFF_BUILDER_URL . 'assets/img/allinoneseo.png',
+				'installs_number' => '3 Million+ Installs'
 			],
 			[
 				'plugin' => 'monsterinsight',
@@ -492,6 +527,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'color'	=> 'blue',
 				'active'	=> true,
 				'icon' => CFF_BUILDER_URL . 'assets/img/monsterinsight.png',
+				'installs_number' => '3 Million+ Installs'
 			],
 			[
 				'plugin' => 'wpforms',
@@ -504,7 +540,8 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'description' => __( 'Create contact, subscription or payment forms with the most beginner friendly drag & drop WordPress forms plugin', 'custom-facebook-feed' ),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => CFF_BUILDER_URL . 'assets/img/wpforms.png'
+				'icon' => CFF_BUILDER_URL . 'assets/img/wpforms.png',
+				'installs_number' => '5 Million+ Installs'
 			],
 			[
 				'plugin' => 'seedprod',
@@ -517,7 +554,8 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'description' => __( 'A simple and powerful theme builder, landing page builder, "coming soon" page builder, and maintenance mode notice builder', 'custom-facebook-feed' ),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => CFF_BUILDER_URL . 'assets/img/seedprod.png'
+				'icon' => CFF_BUILDER_URL . 'assets/img/seedprod.png',
+				'installs_number' => '900 Thousand+ Installs'
 			],
 			[
 				'plugin' => 'optinmonster',
@@ -530,7 +568,8 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'description' => __( 'Make popups & opt-in forms to build your email newsletter subscribers, generate leads, and close sales', 'custom-facebook-feed' ),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => CFF_BUILDER_URL . 'assets/img/optinmonster.png'
+				'icon' => CFF_BUILDER_URL . 'assets/img/optinmonster.png',
+				'installs_number' => '1 Million+ Installs'
 			],
 			[
 				'plugin' => 'pushengage',
@@ -543,7 +582,8 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'description' => __( 'Create and send high-converting web push notifications to your website visitors.', 'custom-facebook-feed' ),
 				'color'	=> 'blue',
 				'active'	=> true,
-				'icon' => CFF_BUILDER_URL . 'assets/img/pushengage.svg'
+				'icon' => CFF_BUILDER_URL . 'assets/img/pushengage.svg',
+				'installs_number' => '10 Thousand+ Installs'
 			]
 		];
 
@@ -634,6 +674,9 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				break;
 			case 'youtube':
 				$plugin_download = 'https://downloads.wordpress.org/plugin/feeds-for-youtube.zip';
+				break;
+			case 'tiktok':
+				$plugin_download = 'https://downloads.wordpress.org/plugin/feeds-for-tiktok.zip';
 				break;
 			case 'reviews':
 				$plugin_download = 'https://downloads.wordpress.org/plugin/reviews-feed.zip';

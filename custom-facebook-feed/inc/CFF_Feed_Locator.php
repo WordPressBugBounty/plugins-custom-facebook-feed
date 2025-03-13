@@ -640,6 +640,10 @@ class CFF_Feed_Locator{
 			$can_do_background_tasks = true;
 		}
 
+		$nonce = isset($_POST['locator_nonce']) ? sanitize_text_field(wp_unslash($_POST['locator_nonce'])) : '';
+		if (!wp_verify_nonce($nonce, 'cff-locator-nonce-' . $post_id . '-' . $atts['feed'])) {
+			wp_send_json_error('nonce check failed, details do not match');
+		}
 
 		if ( $can_do_background_tasks ) {
 			CFF_Feed_Locator::do_background_tasks( $feed_details );

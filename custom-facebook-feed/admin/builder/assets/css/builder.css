@@ -4923,7 +4923,7 @@ width: calc(100% - 20px);
 
 .sb-onboarding-wizard-elements-list-hd {
     padding: 20px !important;
-    padding-top: 50px !important;
+    padding-top: 25px !important;
     background-color: #fff !important;
     border-bottom: 1px solid #E6E6EB !important;
     font-size: 18px !important;
@@ -5401,4 +5401,89 @@ div:not(.sb-onboarding-wizard-welcome-btns)>button.sb-btn-wizard-next {
     .sb-onboarding-wizard-sources-list {
         grid-template-columns: 49% 49%;
     }
+}
+
+.sb-onboarding-wizard-smash-list {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.sb-onboarding-wizard-smash-inside {
+    display: flex;
+    padding: 6px 10px;
+    border: 1px solid #E6E6EB;
+    border-radius: 4px;
+    column-gap: 10px;
+    align-items: center;
+}
+
+.sb-onboarding-wizard-smash-list svg {
+    float: left;
+    fill: #888;
+}
+
+.sb-onboarding-wizard-smash-elem {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+    text-transform: capitalize;
+}
+
+.sb-onboarding-wizard-smash-elem span {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sb-onboarding-wizard-smash-elem img {
+    width: 20px;
+    height: auto;
+    float: left;
+}
+
+.sb-onboarding-wizard-smash-inside .sb-control-elem-tltp {
+    margin-left: unset;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.sb-onboarding-wizard-smash-inside .sb-control-elem-tltp-content {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    top: -30px;
+    left: 7px;
+    -webkit-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+.sb-onboarding-wizard-smash-inside .sb-control-elem-tltp:hover .sb-control-elem-tltp-content {
+    opacity: 1;
+    visibility: visible;
+    top: -16px;
+    max-width: 300px;
+    width: auto;
+    left: 7px;
+}
+
+.sb-onboarding-wizard-clicking {
+    width: 300px;
+    font-size: 14px;
+    color: #3b4262;
+    line-height: 1.7em;
+    position: absolute;
+    bottom: -65px;
+    display: flex;
+    column-gap: 10px;
+}
+
+.sb-onboarding-wizard-clicking svg {
+    fill: currentColor;
+    margin-top: 5px;
+}
+
+.sb-onboarding-wizard-clicking span>span {
+    text-transform: capitalize;
 }

@@ -11,6 +11,10 @@ namespace CustomFacebookFeed\Builder;
 use CustomFacebookFeed\CFF_Cache_System;
 use CustomFacebookFeed\CFF_Parse;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Post_Set {
 
 	/**

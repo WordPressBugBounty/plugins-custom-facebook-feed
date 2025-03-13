@@ -107,7 +107,7 @@ class CFF_API_Connect
 		$args = array(
 			'timeout' => 20
 		);
-		$response = wp_remote_get($this->url, $args);
+		$response = wp_safe_remote_get($this->url, $args);
 		$body = json_decode(wp_remote_retrieve_body($response), true);
 		$this->response = $response;
 		if (is_wp_error($body) || isset($body['error'])) {

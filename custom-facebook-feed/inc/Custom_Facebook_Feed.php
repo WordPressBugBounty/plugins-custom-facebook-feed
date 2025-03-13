@@ -9,6 +9,7 @@
 
 namespace CustomFacebookFeed;
 use CustomFacebookFeed\Admin\CFF_Admin_Notices;
+use CustomFacebookFeed\Admin\CFF_Callout;
 use CustomFacebookFeed\Admin\CFF_Onboarding_Wizard;
 use CustomFacebookFeed\Integrations\Analytics\SB_Analytics;
 use CustomFacebookFeed\SB_Facebook_Data_Manager;
@@ -25,6 +26,7 @@ use CustomFacebookFeed\Admin\CFF_About_Us;
 use CustomFacebookFeed\Admin\CFF_Support;
 use CustomFacebookFeed\Admin\CFF_Support_Tool;
 use CustomFacebookFeed\Platform_Data;
+use CustomFacebookFeed\Integrations\Divi\CFF_Divi_Handler;
 use Smashballoon\Framework\Packages\Notification\Notices\SBNotices;
 
 
@@ -307,6 +309,28 @@ final class Custom_Facebook_Feed{
 
 
 	/**
+     * Callout
+     *
+     * @since
+     * @access public
+     *
+     * @var CFF_Callout
+     */
+
+	public $cff_callout;
+
+	/**
+	 * CFF_Divi_Handler
+	 *
+	 * Divi Module Handler.
+	 *
+	 * @since 4.3
+	 * @access public
+	 *
+	 * @var \CustomFacebookFeed\Integrations\Divi\CFF_Divi_Handler
+	 */
+	public $cff_divi_handler;
+	/**
 	 * Custom_Facebook_Feed Instance.
 	 *
 	 * Just one instance of the Custom_Facebook_Feed class
@@ -346,6 +370,8 @@ final class Custom_Facebook_Feed{
 			register_uninstall_hook( CFF_FILE, array('CustomFacebookFeed\Custom_Facebook_Feed','cff_uninstall'));
 
 			add_action('admin_init', [ self::$instance, 'cff_activation_plugin_redirect' ]);
+			add_action('wp_footer', [ self::$instance, 'cff_print_callout' ]);
+
 
 		}
 		return self::$instance;
@@ -404,6 +430,7 @@ final class Custom_Facebook_Feed{
 		}
 
 		self::$instance->cff_support_tool = new CFF_Support_Tool();
+		self::$instance->cff_divi_handler		= new CFF_Divi_Handler();
 
 		if ( is_admin() ) {
 			$this->cff_about		= new CFF_About();
@@ -425,6 +452,9 @@ final class Custom_Facebook_Feed{
 
 		$this->platform_data_manager = new Platform_Data();
 		$this->platform_data_manager->register_hooks();
+
+
+		$this->cff_callout			= new CFF_Callout();
 
 		self::$instance->cff_sb_analytics = new SB_Analytics();
 	}
@@ -1052,6 +1082,21 @@ final class Custom_Facebook_Feed{
 		//}
 
 
+	}
+
+	/**
+	 * Summary of print_callout
+	 *
+	 * @return void
+	 */
+	public function cff_print_callout()
+	{
+		if (is_user_logged_in()) {
+			$current_user = wp_get_current_user();
+			if (user_can($current_user, 'administrator')) {
+				CFF_Callout::print_callout();
+			}
+		}
 	}
 }
 

@@ -23,6 +23,7 @@
 	<?php
 		$smashballoon_info = CustomFacebookFeed\Builder\CFF_Feed_Builder::get_smashballoon_info();
 	?>
+
 	<div class="cff-stck-pop">
 
 		<div class="cff-stck-el cff-stck-el-upgrd cff-fb-fs sb-btn-orange">
@@ -122,3 +123,10 @@ ref="addSourceRef"
 :plugins="plugins[viewsActive.installPluginModal]"
 >
 </install-plugin-popup>
+
+<div v-if="viewsActive?.pageScreen === 'welcome'
+	&& isSetupPage === 'false'
+	&& customizerFeedData === undefined"
+>
+	<?php CustomFacebookFeed\Admin\CFF_Callout::print_callout('backend'); ?>
+</div>

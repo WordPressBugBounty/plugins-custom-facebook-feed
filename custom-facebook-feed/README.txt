@@ -4,7 +4,7 @@ Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 5.6
 Tested up to: 6.7
-Stable tag: 4.2.6
+Stable tag: 4.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,15 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.3.0 =
+* New: Added support for a new GDPR consent plugin [WPConsent](https://wpconsent.com/?utm_campaign=twitter-free-readme&utm_source=changelog&utm_medium=wpconsentannouncement).
+* New: Added support for GDPR Cookie Compliance by Moove Agency and Real Cookie Banner by devowl.io GDPR plugins.
+* Fix: Improved compatibility with the latest versions of Divi and Elementor.
+* Fix: Additional plugin hardening.
+
+= 4.2.7 =
+* New: Added support for GDPR Cookie Compliance by Moove Agency and Real Cookie Banner by devowl.io GDPR plugins.
+
 = 4.2.6 =
 * Tweak: Added support for our new [Feed Analytics](https://smashballoon.com/?utm_campaign=facebook-free-readme&utm_source=changelog&utm_medium=feedanalyticsannouncement) product. Get insights as to how your feeds are being used by site visitors.
 

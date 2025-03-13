@@ -10,6 +10,10 @@ use CustomFacebookFeed\Helpers\Util;
 use CustomFacebookFeed\Builder\CFF_Db;
 use CustomFacebookFeed\CFF_Utils;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Blocks {
 
 	/**

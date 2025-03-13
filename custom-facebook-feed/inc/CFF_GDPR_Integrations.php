@@ -54,6 +54,15 @@ class CFF_GDPR_Integrations {
 	 * @since 2.6/3.17
 	 */
 	public static function gdpr_plugins_active() {
+		if ( function_exists( 'WPConsent' ) ) {
+			return 'WPConsent by the WPConsent team';
+		}
+		if ( defined( 'RCB_ROOT_SLUG' ) ) {
+			return 'Real Cookie Banner by devowl.io';
+		}
+		if ( function_exists( 'gdpr_cookie_is_accepted' ) ) {
+			return 'GDPR Cookie Compliance by Moove Agency';
+		}
 		if ( class_exists( 'Cookie_Notice' ) ) {
 			return 'Cookie Notice by dFactory';
 		}
@@ -69,8 +78,11 @@ class CFF_GDPR_Integrations {
 		if ( class_exists( 'COMPLIANZ' ) ) {
 			return 'Complianz by Really Simple Plugins';
 		}
-		if ( function_exists('BorlabsCookieHelper') ) {
+		if (function_exists('BorlabsCookieHelper')  || ( defined('BORLABS_COOKIE_VERSION') && version_compare(BORLABS_COOKIE_VERSION, '3.0', '>=') )) {
 			return 'Borlabs Cookie by Borlabs';
+		}
+		if ( is_admin() && ! empty( $_GET['page'] ) && $_GET['page'] === 'cff-feed-builder' ) {
+			return false;
 		}
 
 		return false;

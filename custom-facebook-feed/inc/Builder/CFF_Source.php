@@ -9,6 +9,10 @@ namespace CustomFacebookFeed\Builder;
 use CustomFacebookFeed\CFF_Response;
 use CustomFacebookFeed\CFF_Utils;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Source {
 
 	const BATCH_SIZE = 15;
@@ -313,7 +317,7 @@ class CFF_Source {
 			$featured_event_url = 'https://graph.facebook.com/v4.0/'.$full_id.'?fields=id,name,attending_count,ticket_uri,cover,start_time,end_time,timezone,place,description,interested_count&access_token='.$access_token;
 		}
 
-		$response = wp_remote_get( $featured_post_url );
+		$response = wp_safe_remote_get( $featured_post_url );
 		$return = '{}';
 		if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_wp_error( $response ) ) {
 			if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_fb_error( $response['body'] ) ) {
@@ -323,7 +327,7 @@ class CFF_Source {
 			}
 		}
 
-		$response = wp_remote_get( $featured_event_url );
+		$response = wp_safe_remote_get( $featured_event_url );
 		if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_wp_error( $response ) ) {
 			if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_fb_error( $response['body'] ) ) {
 				return $response['body'];
@@ -353,7 +357,7 @@ class CFF_Source {
 
 		$url = 'https://graph.facebook.com/v3.2/'.$playlist_id.'/videos/?access_token='.$access_token.'&fields=published,source,updated_time,created_time,title,description,embed_html,format{picture}&locale=en_US&limit=5';
 
-		$response = wp_remote_get( $url );
+		$response = wp_safe_remote_get( $url );
 		$return = '{}';
 		if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_wp_error( $response ) ) {
 			if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_fb_error( $response['body'] ) ) {

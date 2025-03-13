@@ -1,5 +1,11 @@
 <?php
 namespace CustomFacebookFeed;
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+
 class CFF_Elementor_Base{
 	const VERSION = CFFVER;
 	const MINIMUM_ELEMENTOR_VERSION = '2.0.0';
@@ -40,7 +46,6 @@ class CFF_Elementor_Base{
     public function register_frontend_scripts(){
     	$data = array(
 			'placeholder' => CFF_PLUGIN_URL. 'assets/img/placeholder.png',
-			#'resized_url' => Cff_Utils::cff_get_resized_uploads_url(),
 		);
 
     	wp_register_script(

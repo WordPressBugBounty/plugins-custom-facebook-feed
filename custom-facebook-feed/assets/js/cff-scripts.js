@@ -399,8 +399,9 @@ if(!cff_js_exists){
             if (consentGiven || !gdpr) {
                 return true;
             }
-			if (typeof window.cookieyes !== "undefined") { // CookieYes | GDPR Cookie Consent by CookieYes
-				console.log('here');
+			if (typeof window.WPConsent !== 'undefined') {
+				consentGiven =  window.WPConsent.hasConsent('marketing');
+			} else if (typeof window.cookieyes !== "undefined") { // CookieYes | GDPR Cookie Consent by CookieYes
 				if (typeof window.cookieyes._ckyConsentStore.get !== 'undefined') {
 					consentGiven = window.cookieyes._ckyConsentStore.get('functional') === 'yes';
 				}
@@ -430,7 +431,10 @@ if(!cff_js_exists){
                 consentGiven = Cookiebot.consented;
             } else if (typeof window.BorlabsCookie !== 'undefined') { // Borlabs Cookie by Borlabs
                 consentGiven = window.BorlabsCookie.checkCookieConsent('facebook');
-            }
+            } else if (cffCmplzGetCookie('moove_gdpr_popup')) { // Moove GDPR Popup
+				var moove_gdpr_popup = JSON.parse(decodeURIComponent(cffCmplzGetCookie('moove_gdpr_popup')));
+				consentGiven = typeof moove_gdpr_popup.thirdparty !== "undefined" && moove_gdpr_popup.thirdparty === "1";
+			}
             return consentGiven; // GDPR not enabled
 		}
 
@@ -609,6 +613,53 @@ if(!cff_js_exists){
                     }
                 });
             }
+
+			// devowl.io
+		if (typeof window.consentApi !== 'undefined') {
+			window.consentApi?.consent("custom-facebook-feed").then(() => {
+				try {
+					// applies full features to feed
+					setTimeout(function() {
+						jQuery('.cff-wrapper').each(function(index){
+							afterConsentToggled( true, jQuery(this) );
+						});
+					},1000);
+				}
+				catch (error) {
+					// do nothing
+				}
+			});
+		}
+
+		// Moove Agency
+		$('.moove-gdpr-infobar-allow-all').on('click',function() {
+			setTimeout(function() {
+				jQuery('.cff-wrapper').each(function(index){
+					afterConsentToggled( true, jQuery(this) );
+				});
+			},1000);
+		});
+
+		// WPConsent
+		window.addEventListener('wpconsent_consent_saved', function(event) {
+			setTimeout(function() {
+				jQuery('.cff-wrapper').each(function(index){
+					if (typeof window.WPConsent !== 'undefined') {
+						afterConsentToggled( window.WPConsent.hasConsent('marketing'), jQuery(this) );
+					}
+				});
+			},1000);
+		});
+
+		window.addEventListener('wpconsent_consent_updated', function(event) {
+			setTimeout(function() {
+				jQuery('.cff-wrapper').each(function(index){
+					if (typeof window.WPConsent !== 'undefined') {
+						afterConsentToggled( window.WPConsent.hasConsent('marketing'), jQuery(this) );
+					}
+				});
+			},1000);
+		});
 	})
 
 } //End cff_js_exists check

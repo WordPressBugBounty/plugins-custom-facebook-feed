@@ -4,6 +4,10 @@ namespace CustomFacebookFeed;
 
 use \CustomFacebookFeed\CFF_Education;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Class Email_Notification
  */

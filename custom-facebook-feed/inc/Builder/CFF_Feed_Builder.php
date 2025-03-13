@@ -2195,7 +2195,7 @@ class CFF_Feed_Builder {
 		$onboarding_statuses = get_user_meta( get_current_user_id(), 'cff_onboarding', true );
 		$status = false;
 		if ( ! empty( $onboarding_statuses ) ) {
-			$statuses = maybe_unserialize( $onboarding_statuses );
+			$statuses = unserialize( $onboarding_statuses, ['allowed_classes' => false] );
 			$status = isset( $statuses[ $type ] ) ? $statuses[ $type ] : false;
 		}
 
@@ -2212,7 +2212,7 @@ class CFF_Feed_Builder {
 	public static function update_onboarding_meta( $value, $type = 'newuser' ) {
 		$onboarding_statuses = get_user_meta( get_current_user_id(), 'cff_onboarding', true );
 		if ( ! empty( $onboarding_statuses ) ) {
-			$statuses = maybe_unserialize( $onboarding_statuses );
+			$statuses = unserialize( $onboarding_statuses, ['allowed_classes' => false] );
 			$statuses[ $type ] = $value;
 		} else {
 			$statuses = array(
@@ -2760,4 +2760,87 @@ class CFF_Feed_Builder {
 		include_once CFF_BUILDER_DIR . 'templates/builder.php';
 	}
 
+	/**
+	 * Get Smahballoon Plugins Info
+	 *
+	 * @since 4.3
+	 */
+	public static function get_smashballoon_plugins_info()
+	{
+
+		$installed_plugins = get_plugins();
+		// check whether the pro or free plugins are installed
+		$is_facebook_installed = false;
+		$facebook_plugin = 'custom-facebook-feed/custom-facebook-feed.php';
+		if (isset($installed_plugins['custom-facebook-feed-pro/custom-facebook-feed.php'])) {
+			$is_facebook_installed = true;
+			$facebook_plugin = 'custom-facebook-feed-pro/custom-facebook-feed.php';
+		} elseif (isset($installed_plugins['custom-facebook-feed/custom-facebook-feed.php'])) {
+			$is_facebook_installed = true;
+		}
+
+		$is_instagram_installed = false;
+		$instagram_plugin = 'instagram-feed/instagram-feed.php';
+		if (isset($installed_plugins['instagram-feed-pro/instagram-feed.php'])) {
+			$is_instagram_installed = true;
+			$instagram_plugin = 'instagram-feed-pro/instagram-feed.php';
+		} elseif (isset($installed_plugins['instagram-feed/instagram-feed.php'])) {
+			$is_instagram_installed = true;
+		}
+
+		$is_twitter_installed = false;
+		$twitter_plugin = 'custom-twitter-feeds/custom-twitter-feed.php';
+		if (isset($installed_plugins['custom-twitter-feeds-pro/custom-twitter-feed.php'])) {
+			$is_twitter_installed = true;
+			$twitter_plugin = 'custom-twitter-feeds-pro/custom-twitter-feed.php';
+		} elseif (isset($installed_plugins['custom-twitter-feeds/custom-twitter-feed.php'])) {
+			$is_twitter_installed = true;
+		}
+
+		$is_youtube_installed = false;
+		$youtube_plugin = 'feeds-for-youtube/youtube-feed.php';
+		if (isset($installed_plugins['youtube-feed-pro/youtube-feed.php'])) {
+			$is_youtube_installed = true;
+			$youtube_plugin = 'youtube-feed-pro/youtube-feed.php';
+		} elseif (isset($installed_plugins['feeds-for-youtube/youtube-feed.php'])) {
+			$is_youtube_installed = true;
+		}
+
+
+		$icons = self::builder_svg_icons();
+		return [
+			'facebook' => [
+				'installed' => $is_facebook_installed,
+				'class' => 'CFF_Elementor_Widget',
+				'link' => 'https://smashballoon.com/custom-facebook-feed/',
+				'icon' => $icons['facebook'],
+				'description' => __('Custom Facebook Feeds is a highly customizable way to display tweets from your Facebook account. Promote your latest content and update your site content automatically.', 'custom-facebook-feed'),
+				'download_plugin' => 'https://downloads.wordpress.org/plugin/custom-facebook-feed.zip',
+			],
+			'instagram' => [
+				'installed' => $is_instagram_installed,
+				'class' => 'SBI_Elementor_Widget',
+				'link' => 'https://smashballoon.com/instagram-feed/',
+				'icon' => $icons['instagram'],
+				'description' => __('Instagram Feeds is a highly customizable way to display tweets from your Instagram account. Promote your latest content and update your site content automatically.', 'custom-facebook-feed'),
+				'download_plugin' => 'https://downloads.wordpress.org/plugin/instagram-feed.zip',
+			],
+			'twitter' => [
+				'installed' => $is_twitter_installed,
+				'class' => 'CTF_Elementor_Widget',
+				'link' => 'https://smashballoon.com/custom-twitter-feeds/',
+				'icon' => $icons['twitter'],
+				'description' => __('Custom Twitter Feeds is a highly customizable way to display tweets from your Twitter account. Promote your latest content and update your site content automatically.', 'custom-facebook-feed'),
+				'download_plugin' => 'https://downloads.wordpress.org/plugin/custom-twitter-feeds.zip',
+			],
+			'youtube' => [
+				'installed' => $is_youtube_installed,
+				'class' => 'SBY_Elementor_Widget',
+				'link' => 'https://smashballoon.com/youtube-feed/',
+				'icon' => $icons['youtube'],
+				'description' => __('YouTube Feeds is a highly customizable way to display tweets from your YouTube account. Promote your latest content and update your site content automatically.', 'custom-facebook-feed'),
+				'download_plugin' => 'https://downloads.wordpress.org/plugin/feeds-for-youtube.zip',
+			]
+		];
+	}
 }

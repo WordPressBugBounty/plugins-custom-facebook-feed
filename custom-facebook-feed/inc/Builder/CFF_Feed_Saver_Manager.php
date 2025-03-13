@@ -6,6 +6,11 @@
  */
 
 namespace CustomFacebookFeed\Builder;
+
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Feed_Saver_Manager {
 
 	/**

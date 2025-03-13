@@ -10,6 +10,10 @@ namespace CustomFacebookFeed\Admin;
 
 use CustomFacebookFeed\Custom_Facebook_Feed;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Upgrader {
 
 	/**
@@ -70,7 +74,7 @@ class CFF_Upgrader {
 
 		$api_url = trailingslashit( self::STORE_URL );
 
-		$request = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => true, 'body' => $api_params ) );
+		$request = wp_safe_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => true, 'body' => $api_params ) );
 
 		if ( ! is_wp_error( $request ) ) {
 			$version_info = json_decode( wp_remote_retrieve_body( $request ) );
@@ -126,7 +130,7 @@ class CFF_Upgrader {
 			'timeout'     => '20',
 		);
 
-		$response = wp_remote_get( $url, $remote_request_args );
+		$response = wp_safe_remote_get( $url, $remote_request_args );
 
 		if ( ! is_wp_error( $response ) ) {
 			$body = wp_remote_retrieve_body( $response );

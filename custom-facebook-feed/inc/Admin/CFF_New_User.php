@@ -464,69 +464,91 @@ class CFF_New_User extends CFF_Notifications {
 		return $content;
 	}
 
-	/**
+/**
 	 * Hide messages permanently or some can be dismissed temporarily
-     *
-     * @since 2.18
+	 *
+	 * @since 2.18
 	 */
-	public function dismiss() {
+	public function dismiss()
+	{
 		global $current_user;
+		$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+		$cap = apply_filters('cff_settings_pages_capability', $cap);
+		if (!current_user_can($cap)) {
+			return;
+		}
 		$user_id = $current_user->ID;
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
+		$cff_statuses_option = get_option('cff_statuses', array());
+		if (isset($_GET['cff_ignore_rating_notice_nag'])) {
+			$rating_ignore = false;
+			if (isset($_GET['cff_nonce']) && wp_verify_nonce($_GET['cff_nonce'], 'cff-review')) {
+				$rating_ignore = isset($_GET['cff_ignore_rating_notice_nag']) ? sanitize_text_field($_GET['cff_ignore_rating_notice_nag']) : false;
+			}
 
-		if ( isset( $_GET['cff_ignore_rating_notice_nag'] ) ) {
-			if ( (int)$_GET['cff_ignore_rating_notice_nag'] === 1 ) {
-				update_option( 'cff_rating_notice', 'dismissed', false );
+			if (1 === (int)$rating_ignore) {
+				update_option('cff_rating_notice', 'dismissed', false);
 				$cff_statuses_option['rating_notice_dismissed'] = cff_get_current_time();
-				update_option( 'cff_statuses', $cff_statuses_option, false );
-
-			} elseif ( $_GET['cff_ignore_rating_notice_nag'] === 'later' ) {
-				set_transient( 'custom_facebook_rating_notice_waiting', 'waiting', 2 * WEEK_IN_SECONDS );
-				update_option( 'cff_rating_notice', 'pending', false );
+				update_option('cff_statuses', $cff_statuses_option, false);
+			} elseif ('later' === $rating_ignore) {
+				set_transient('custom_facebook_rating_notice_waiting', 'waiting', 2 * WEEK_IN_SECONDS);
+				update_option('cff_rating_notice', 'pending', false);
 			}
 		}
 
-		if ( isset( $_GET['cff_ignore_new_user_sale_notice'] ) ) {
-			$response = sanitize_text_field( $_GET['cff_ignore_new_user_sale_notice'] );
-			if ( $response === 'always' ) {
-				update_user_meta( $user_id, 'cff_ignore_new_user_sale_notice', 'always' );
+		if (isset($_GET['cff_ignore_new_user_sale_notice'])) {
+			$new_user_ignore = false;
+			if (isset($_GET['cff_nonce']) && wp_verify_nonce($_GET['cff_nonce'], 'cff-discount')) {
+				$new_user_ignore = isset($_GET['cff_ignore_new_user_sale_notice']) ? sanitize_text_field($_GET['cff_ignore_new_user_sale_notice']) : false;
+			}
 
-				$current_month_number = (int)date('n', cff_get_current_time() );
+			if ('always' === $new_user_ignore) {
+				update_user_meta($user_id, 'cff_ignore_new_user_sale_notice', 'always');
+
+				$current_month_number = (int)date('n', cff_get_current_time());
 				$not_early_in_the_year = ($current_month_number > 5);
 
-				if ( $not_early_in_the_year ) {
-					update_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice', date( 'Y', cff_get_current_time() ) );
+				if ($not_early_in_the_year) {
+					update_user_meta($user_id, 'cff_ignore_bfcm_sale_notice', date('Y', cff_get_current_time()));
 				}
 
 			}
 		}
 
-		if ( isset( $_GET['cff_ignore_bfcm_sale_notice'] ) ) {
-			$response = sanitize_text_field( $_GET['cff_ignore_bfcm_sale_notice'] );
-			if ( $response === 'always' ) {
-				update_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice', 'always' );
-			} elseif ( $response === date( 'Y', cff_get_current_time() ) ) {
-				update_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice', date( 'Y', cff_get_current_time() ) );
+		if (isset($_GET['cff_ignore_bfcm_sale_notice'])) {
+			$bfcm_ignore = false;
+			if (isset($_GET['cff_nonce']) && wp_verify_nonce($_GET['cff_nonce'], 'cff-bfcm')) {
+				$bfcm_ignore = isset($_GET['cff_ignore_bfcm_sale_notice']) ? sanitize_text_field($_GET['cff_ignore_bfcm_sale_notice']) : false;
 			}
-			update_user_meta( $user_id, 'cff_ignore_new_user_sale_notice', 'always' );
+
+			if ('always' === $bfcm_ignore) {
+				update_user_meta($user_id, 'cff_ignore_bfcm_sale_notice', 'always');
+			} elseif (date('Y', cff_get_current_time()) === $bfcm_ignore) {
+				update_user_meta($user_id, 'cff_ignore_bfcm_sale_notice', date('Y', cff_get_current_time()));
+			}
+			update_user_meta($user_id, 'cff_ignore_new_user_sale_notice', 'always');
 		}
 
-		if ( isset( $_GET['cff_dismiss'] ) ) {
-			if ( $_GET['cff_dismiss'] === 'review' ) {
-				update_option( 'cff_rating_notice', 'dismissed', false );
-				$cff_statuses_option['rating_notice_dismissed'] = cff_get_current_time();
-				update_option( 'cff_statuses', $cff_statuses_option, false );
-			} elseif ( $_GET['cff_dismiss'] === 'discount' ) {
-				update_user_meta( $user_id, 'cff_ignore_new_user_sale_notice', 'always' );
+		if (isset($_GET['cff_dismiss'])) {
+			$notice_dismiss = false;
+			if (isset($_GET['cff_nonce']) && wp_verify_nonce($_GET['cff_nonce'], 'cff-review')) {
+				$notice_dismiss = sanitize_text_field($_GET['cff_dismiss']);
+			}
 
-				$current_month_number = (int)date('n', cff_get_current_time() );
+			if ('review' === $notice_dismiss) {
+				update_option('cff_rating_notice', 'dismissed', false);
+				$cff_statuses_option['rating_notice_dismissed'] = cff_get_current_time();
+				update_option('cff_statuses', $cff_statuses_option, false);
+			} elseif ('discount' === $notice_dismiss) {
+				update_user_meta($user_id, 'cff_ignore_new_user_sale_notice', 'always');
+
+				$current_month_number = (int)date('n', cff_get_current_time());
 				$not_early_in_the_year = ($current_month_number > 5);
 
-				if ( $not_early_in_the_year ) {
-					update_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice', date( 'Y', cff_get_current_time() ) );
+				if ($not_early_in_the_year) {
+					update_user_meta($user_id, 'cff_ignore_bfcm_sale_notice', date('Y', cff_get_current_time()));
 				}
 			}
-			update_user_meta( $user_id, 'cff_ignore_new_user_sale_notice', 'always' );
+			update_user_meta($user_id, 'cff_ignore_new_user_sale_notice', 'always');
 		}
-    }
+	}
 }

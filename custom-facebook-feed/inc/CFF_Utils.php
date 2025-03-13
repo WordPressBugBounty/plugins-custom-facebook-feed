@@ -10,6 +10,10 @@ namespace CustomFacebookFeed;
 use CustomFacebookFeed\SB_Facebook_Data_Encryption;
 
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 
 
 class CFF_Utils{
@@ -21,7 +25,7 @@ class CFF_Utils{
 	 * @since 2.19
 	 */
 	public static function cff_fetchUrl( $url, $check_admin = true){
-		$response = wp_remote_get( $url );
+		$response = wp_safe_remote_get( $url );
 		do_action('cff_api_connect_response', $response, $url);
 
 		if ( ! CFF_Utils::cff_is_wp_error( $response ) ) {

@@ -2,6 +2,10 @@
 namespace CustomFacebookFeed\Admin;
 use CustomFacebookFeed\Helpers\PluginSilentUpgraderSkin;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Skin for on-the-fly addon installations.
  *

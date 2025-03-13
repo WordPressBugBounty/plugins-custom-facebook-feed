@@ -15,7 +15,7 @@ class CFF_Elementor_Widget  extends Widget_Base {
         return esc_html__('Custom Facebook Feed', 'booster-addons');
     }
     public function get_icon() {
-        return 'fa fa-facebook';
+        return 'sb-elem-icon sb-elem-facebook';
     }
     public function get_categories() {
         return array('smash-balloon');

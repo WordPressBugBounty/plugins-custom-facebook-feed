@@ -1085,7 +1085,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display{
 	        $cff_content .= CFF_Utils::print_template_part( 'credit', get_defined_vars());
 
 	    //End the feed
-	         $cff_content .= '<input class="cff-pag-url" type="hidden" data-locatornonce="'.esc_attr( wp_create_nonce( 'cff-locator-nonce-' . get_the_ID() ) ) .'" data-cff-shortcode="'.$data_att_html.'" data-post-id="' . get_the_ID() . '" data-feed-id="'.$atts['id'].'">';
+	        $cff_content .= '<input class="cff-pag-url" type="hidden" data-locatornonce="'.esc_attr( wp_create_nonce( 'cff-locator-nonce-' . get_the_ID() ) ) .'" data-cff-shortcode="'.$data_att_html.'" data-post-id="' . get_the_ID() . '" data-feed-id="'.$atts['id'].'">';
 	        $cff_content .= '</div></div><div class="cff-clear"></div>';
 
 	   	 	//Add the Like Box outside

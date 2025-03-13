@@ -13,6 +13,20 @@
 				<div class="sb-onboarding-wizard-elem-text">
 					<strong v-if="feature?.heading !== undefined" v-html="feature?.heading"></strong>
 					<span v-if="feature?.description !== undefined" v-html="feature?.description"></span>
+					<div v-if="feature?.data?.type === 'install_plugins' && feature?.plugins.length > 0" class="sb-onboarding-wizard-smash-list">
+						<div class="sb-onboarding-wizard-smash-inside">
+							<div class="sb-control-elem-tltp">
+								<div v-html="svgIcons['info']"></div>
+								<div class="sb-control-elem-tltp-content">
+									<div class="sb-control-elem-tltp-txt" v-html="feature?.tooltip"></div>
+								</div>
+							</div>
+							<div class="sb-onboarding-wizard-smash-elem" v-for="sPlugin in feature?.plugins">
+								<img :src="sPlugin.icon" :alt="sPlugin.type">
+								<span v-html="sPlugin.type"></span>
+							</div>
+						</div>
+					</div>
 				</div>
 
 			</div>

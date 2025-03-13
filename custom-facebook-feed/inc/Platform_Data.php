@@ -8,6 +8,10 @@ namespace CustomFacebookFeed;
 
 use CustomFacebookFeed\Builder\CFF_Db;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Class Platform_Data
  *

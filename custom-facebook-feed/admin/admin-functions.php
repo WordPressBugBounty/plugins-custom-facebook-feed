@@ -51,11 +51,19 @@ add_action( 'wp_ajax_cff_lite_dismiss', 'cff_lite_dismiss' );
 //If PPCA notice is dismissed then don't show again
 add_action('admin_init', 'cff_nag_ppca_ignore');
 function cff_nag_ppca_ignore() {
-    global $current_user;
-        $user_id = $current_user->ID;
-        if ( isset($_GET['cff_nag_ppca_ignore']) && '0' == $_GET['cff_nag_ppca_ignore'] ) {
-             add_user_meta($user_id, 'cff_ignore_ppca_notice', 'true', true);
-    }
+global $current_user;
+	$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+	$cap = apply_filters('cff_settings_pages_capability', $cap);
+	if (!current_user_can($cap)) {
+		return;
+	}
+
+	$user_id = $current_user->ID;
+	if (isset($_GET['cff_nag_ppca_ignore']) && '0' == $_GET['cff_nag_ppca_ignore']) {
+		if (!empty($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'cff_nonce')) {
+			add_user_meta($user_id, 'cff_ignore_ppca_notice', 'true', true);
+		}
+	}
 }
 
 

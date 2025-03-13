@@ -10,6 +10,10 @@ namespace CustomFacebookFeed\Builder;
 use CustomFacebookFeed\CFF_FB_Settings;
 use CustomFacebookFeed\SB_Facebook_Data_Encryption;
 
+if (!defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 class CFF_Feed_Saver {
 
 	/**
