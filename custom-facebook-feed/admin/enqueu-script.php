@@ -1,4 +1,6 @@
 <?php
+
+use CustomFacebookFeed\Builder\CFF_Feed_Builder;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 require_once trailingslashit( CFF_PLUGIN_DIR ) . 'admin/addon-functions.php';
@@ -76,6 +78,7 @@ function enqueue_admin_scripts_assets(){
 		'plugin_install_activate_confirm' => esc_html__( 'needs to be installed and activated to import its forms. Would you like us to install and activate it for you?', 'custom-facebook-feed' ),
 		'plugin_activate_btn'             => esc_html__( 'Activate', 'custom-facebook-feed' ),
 		'oembed_connectionURL'            => cffGetOembedConnectionUrl(),
+		'smashPlugins'					=> CFF_Feed_Builder::get_smashballoon_plugins_info()
 	);
 	$strings = apply_filters( 'cff_admin_strings', $strings );
 	wp_localize_script(

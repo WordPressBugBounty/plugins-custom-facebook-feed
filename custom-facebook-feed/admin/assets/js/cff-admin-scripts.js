@@ -1302,7 +1302,16 @@ jQuery(document).ready(function($) {
 				SmashCFFAdmin.addonToggle( $( this ) );
 			});
 		},
-
+		 /**
+         * Return possible plugins/addons URLs
+         *
+         * @since 1.3.9
+         */
+        filterPossibleAddonInstallation : function() {
+          return cff_admin?.smashPlugins
+            ? Object.values(cff_admin?.smashPlugins).map((singlePlugin) => singlePlugin.download_plugin)
+            : [];
+        },
 		/**
 		 * Toggle addon state.
 		 *
@@ -1321,8 +1330,11 @@ jQuery(document).ready(function($) {
 				successText;
 
 			if ( $btn.hasClass( 'status-go-to-url' ) ) {
-				// Open url in new tab.
-				window.open( $btn.attr('data-plugin'), '_blank' );
+				const possibleUrls = this.filterPossibleAddonInstallation();
+                const gotoUrl = $btn.attr('data-plugin');
+                if (possibleUrls.includes(gotoUrl)) {
+                  window.open(gotoUrl, '_blank');
+                }
 				return;
 			}
 
