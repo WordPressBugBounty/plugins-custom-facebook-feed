@@ -3,8 +3,8 @@ Contributors: smashballoon, craig-at-smash-balloon, am, smub
 Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 5.6
-Tested up to: 6.8
-Stable tag: 4.3.1
+Tested up to: 6.8.1
+Stable tag: 4.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,9 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.3.2 =
+* Fix: Additional plugin hardening.
+
 = 4.3.1 =
 * Fix: Additional plugin hardening.
 
