@@ -311,10 +311,6 @@ class CFF_FB_Settings {
 					'name' => $cff_connected_accounts->{ $cff_account }->{'name'},
 					'pagetype' => $cff_connected_accounts->{ $cff_account }->{'pagetype'}
 				];
-	            //Replace the encryption string in the Access Token
-	            if (strpos($id_and_token['token'], '02Sb981f26534g75h091287a46p5l63') !== false) {
-	                $id_and_token['token'] = str_replace("02Sb981f26534g75h091287a46p5l63","",$id_and_token['token']);
-	            }
 	        }
 	    }else{
 	        if( !empty($cff_connected_accounts) ){

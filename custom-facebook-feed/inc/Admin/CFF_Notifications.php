@@ -606,12 +606,13 @@ class CFF_Notifications {
 						$btn['class'] = '';
 					}
 					$buttons_html .= sprintf(
-						'<a href="%1$s" class="cff-btn %2$s %3$s"%4$s>%5$s</a>',
+						'<a href="%1$s" class="cff-btn %2$s %3$s %6$s"%4$s>%5$s</a>',
 						! empty( $btn['url'] ) ? esc_url( $this->replace_merge_fields( $btn['url'], $notification ) ) : '',
 						$btn['class'],
 						$btn_class,
 						! empty( $btn['target'] ) && $btn['target'] === '_blank' ? ' target="_blank" rel="noopener noreferrer"' : '',
-						! empty( $btn['text'] ) ? sanitize_text_field( $btn['text'] ) : ''
+						! empty( $btn['text'] ) ? sanitize_text_field( $btn['text'] ) : '',
+						!empty($notification['id']) && $notification['id'] === 'review' ? ' cff_notice_dismiss' : ''
 					);
 				}
 				$buttons_html = ! empty( $buttons_html ) ? '<div class="buttons">' . $buttons_html . '</div>' : '';

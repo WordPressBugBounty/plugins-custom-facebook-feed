@@ -829,7 +829,7 @@ class CFF_Utils{
 			$header_access_token = $encryption->decrypt($header_access_token) ? $encryption->decrypt($header_access_token) : $header_access_token;
 
 
-		    $header_details_json_url = 'https://graph.facebook.com/v4.0/'.$page_id.'?fields=id,picture.height(150).width(150),cover,name,link'.$page_only_fields.'&access_token='. $header_access_token;
+		    $header_details_json_url = 'https://graph.facebook.com/v23.0/'.$page_id.'?fields=id,picture.height(150).width(150),cover,name,link'.$page_only_fields.'&access_token='. $header_access_token;
 
 		    //Get the data
 			$header_details = CFF_Utils::cff_get_set_cache( $header_details_json_url, $transient_name, $cff_cache_time, WEEK_IN_SECONDS, $data_att_html, false, $access_token, true );

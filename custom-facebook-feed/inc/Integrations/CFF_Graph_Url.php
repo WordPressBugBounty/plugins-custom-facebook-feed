@@ -37,7 +37,7 @@ class CFF_Graph_Url
 
 		$url_builder = [
 			'query' => 'posts',
-			'version' => '4.0',
+			'version' => '23.0',
 			'source_id' => $source_id
 		];
 

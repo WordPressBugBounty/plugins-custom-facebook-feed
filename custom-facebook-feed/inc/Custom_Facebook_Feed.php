@@ -14,7 +14,6 @@ use CustomFacebookFeed\Admin\CFF_Onboarding_Wizard;
 use CustomFacebookFeed\Integrations\Analytics\SB_Analytics;
 use CustomFacebookFeed\SB_Facebook_Data_Manager;
 use CustomFacebookFeed\Admin\CFF_Admin;
-use CustomFacebookFeed\Admin\CFF_About;
 use CustomFacebookFeed\Admin\CFF_New_User;
 use CustomFacebookFeed\Admin\CFF_Notifications;
 use CustomFacebookFeed\Admin\CFF_Tracking;
@@ -59,18 +58,6 @@ final class Custom_Facebook_Feed{
 	 */
 	public $cff_admin;
 
-
-	/**
-	 * CFF_About.
-	 *
-	 * About page panel.
-	 *
-	 * @since 2.19
-	 * @access public
-	 *
-	 * @var CFF_About
-	 */
-	public $cff_about;
 
 	/**
 	 * CFF_Error_Reporter.
@@ -433,7 +420,6 @@ final class Custom_Facebook_Feed{
 		self::$instance->cff_divi_handler		= new CFF_Divi_Handler();
 
 		if ( is_admin() ) {
-			$this->cff_about		= new CFF_About();
 			$this->cff_tooltip_wizard		    = new Builder\CFF_Tooltip_Wizard();
 			if ( version_compare( PHP_VERSION,  '5.3.0' ) >= 0 && version_compare( get_bloginfo('version'), '4.6' , '>' ) ) {
 				$this->cff_notifications = new CFF_Notifications();

@@ -715,6 +715,17 @@ class CFF_Tracking {
 	}
 
 	public function usage_opt_in_or_out() {
+		check_ajax_referer( 'cff_nonce' , 'cff_nonce');
+
+		$cap = current_user_can( 'manage_custom_facebook_feed_options' )
+			? 'manage_custom_facebook_feed_options'
+			: 'manage_options';
+
+		$cap = apply_filters( 'cff_settings_pages_capability', $cap );
+		if ( ! current_user_can( $cap ) ) {
+			wp_send_json_error(); // This auto-dies.
+		}
+
 		if ( ! isset( $_POST['opted_in'] ) ) {
 			die ( 'You did not do this the right way!' );
 		}

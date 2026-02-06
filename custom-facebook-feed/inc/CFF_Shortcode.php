@@ -83,7 +83,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display{
 		$attachments_desc = ( $this->atts['salesposts'] == 'true' ) ? '' : ',description';
         $story_tags = ( $this->atts['storytags'] == 'true' ) ? '' : ',story_tags';
 
-		$cff_posts_json_url = 'https://graph.facebook.com/v4.0/' . $this->page_id . '/' . $graph_query . '?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story'. $story_tags .',status_type,created_time,backdated_time,call_to_action,attachments{title'. $attachments_desc . ',media_type,unshimmed_url,target{id},media{source}}&access_token=' . $this->access_token . '&limit=' . $cff_post_limit . '&locale=' . $cff_locale . $cff_ssl;
+		$cff_posts_json_url = 'https://graph.facebook.com/v23.0/' . $this->page_id . '/' . $graph_query . '?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story'. $story_tags .',status_type,created_time,backdated_time,call_to_action,attachments{title'. $attachments_desc . ',media_type,unshimmed_url,target{id},media{source}}&access_token=' . $this->access_token . '&limit=' . $cff_post_limit . '&locale=' . $cff_locale . $cff_ssl;
 		//Create the transient name
 		//Split the Page ID in half and stick it together so we definitely have the beginning and end of it
 		$trans_page_id = substr($this->page_id, 0, 16) . substr($this->page_id, -15);
@@ -165,14 +165,6 @@ class CFF_Shortcode extends CFF_Shortcode_Display{
 
 	    //If an access token is set in the shortcode then set "use own access token" to be enabled
 	    if( isset($feed_options['accesstoken']) ){
-	        //Add an encryption string to protect token
-	        if ( strpos($feed_options['accesstoken'], ',') !== false ) {
-	            //If there are multiple tokens then just add the string after the colon to avoid having to de/reconstruct the array
-	            $feed_options['accesstoken'] = str_replace(":", ":02Sb981f26534g75h091287a46p5l63", $feed_options['accesstoken']);
-	        } else {
-	            //Add an encryption string to protect token
-	            $feed_options['accesstoken'] = substr_replace($feed_options['accesstoken'], '02Sb981f26534g75h091287a46p5l63', 25, 0);
-	        }
 	        $feed_options['ownaccesstoken'] = 'on';
 	    }
 
@@ -252,17 +244,10 @@ class CFF_Shortcode extends CFF_Shortcode_Display{
 
 				}
 
-	            //Replace the encryption string in the Access Token
-				if (strpos($feed_options['accesstoken'], '02Sb981f26534g75h091287a46p5l63') !== false) {
-					$feed_options['accesstoken'] = str_replace("02Sb981f26534g75h091287a46p5l63","",$feed_options['accesstoken']);
-				}
 			}
 		}
 
-	    //Replace the encryption string in the Access Token
-		if (strpos($feed_options['accesstoken'], '02Sb981f26534g75h091287a46p5l63') !== false) {
-			$feed_options['accesstoken'] = str_replace("02Sb981f26534g75h091287a46p5l63","",$feed_options['accesstoken']);
-		}
+
 		$cff_connected_accounts = get_option('cff_connected_accounts');
 		if(!empty($cff_connected_accounts)){
 			$connected_accounts = (array)json_decode(stripcslashes($cff_connected_accounts));
@@ -1867,7 +1852,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display{
 		if (is_ssl()) $cff_ssl = '&return_ssl_resources=true';
 
 		//Get the contents of the event
-		$event_json_url = 'https://graph.facebook.com/v3.3/'.$eventID.'?fields=cover,place,name,owner,start_time,timezone,id,comments.summary(true){message,created_time},description&access_token=' . $access_token . $cff_ssl;
+		$event_json_url = 'https://graph.facebook.com/v23.0/'.$eventID.'?fields=cover,place,name,owner,start_time,timezone,id,comments.summary(true){message,created_time},description&access_token=' . $access_token . $cff_ssl;
 
 		// Get any existing copy of our transient data
 		$transient_name = 'cff_tle_' . $eventID;

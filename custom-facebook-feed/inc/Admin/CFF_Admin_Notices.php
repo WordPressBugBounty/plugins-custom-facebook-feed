@@ -33,6 +33,7 @@ class CFF_Admin_Notices
 		}
 		add_action('cff_admin_notices', [$this, 'cff_group_deprecation_dismiss_notice']);
 		add_action('admin_notices', [$this, 'cff_group_deprecation_dismiss_notice']);
+		add_action('wp_ajax_cff_review_notice_dismiss', [ $this, 'cff_review_notice_dismiss' ]);
 	}
 
 	/**
@@ -76,5 +77,31 @@ class CFF_Admin_Notices
 				</p>
 			</div>
 		<?php
+	}
+	public function cff_review_notice_dismiss()
+	{
+		check_ajax_referer('cff_nonce', 'cff_nonce');
+
+		$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+		$cap = apply_filters('cff_settings_pages_capability', $cap);
+		if (! current_user_can($cap)) {
+			wp_send_json_error(); // This auto-dies.
+		}
+
+		$this->cff_review_notice_dismiss_action();
+		wp_send_json_success();
+	}
+
+	public function cff_review_notice_dismiss_action($action = 1)
+	{
+		if (intval($action) === 1) {
+			update_option('cff_rating_notice', 'dismissed', false);
+			$statuses = get_option('cff_statuses', []);
+			$statuses['rating_notice_dismissed'] = cff_get_current_time();
+			update_option('cff_statuses', $statuses);
+		} elseif (strtolower($action) === 'later') {
+			set_transient('custom_facebook_rating_notice_waiting', 'waiting', 2 * WEEK_IN_SECONDS);
+			update_option('cff_rating_notice', 'pending', false);
+		}
 	}
 }

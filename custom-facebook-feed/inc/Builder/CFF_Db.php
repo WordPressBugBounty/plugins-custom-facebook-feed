@@ -864,9 +864,7 @@ class CFF_Db {
 
 						$args         = array( 'id' => $feed_options['id'] );
 						$access_token = $feed_options['accesstoken'];
-						if ( strpos( $feed_options['accesstoken'], '02Sb981f26534g75h091287a46p5l63' ) !== false ) {
-							$access_token = str_replace( "02Sb981f26534g75h091287a46p5l63", "", $feed_options['accesstoken'] );
-						}
+
 						$source_query = \CustomFacebookFeed\Builder\CFF_Db::source_query( $args );
 
 						if ( empty( $source_query ) ) {

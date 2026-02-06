@@ -518,7 +518,7 @@ class CFF_Support_Tool
 				$graph_query = 'visitor_posts';
 			}
 
-			$url = 'https://graph.facebook.com/v4.0/'. $source_info['account_id'].'/'. $graph_query .'?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,call_to_action,privacy&access_token='.$token.'&limit='.$limit.'&locale='.$locale;
+			$url = 'https://graph.facebook.com/v23.0/'. $source_info['account_id'].'/'. $graph_query .'?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,call_to_action,privacy&access_token='.$token.'&limit='.$limit.'&locale='.$locale;
 			$data_response = wp_remote_get($url);
 
 		}

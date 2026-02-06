@@ -149,19 +149,19 @@ function cff_notices_html() {
     /*
     global $current_user;
     $user_id = $current_user->ID;
-    // delete_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice' );
-    // delete_user_meta( $user_id, 'cff_ignore_new_user_sale_notice' );
-    // $cff_statuses_option = array( 'first_install' => strtotime( 'December 8, 2017' ) );
-    // $cff_statuses_option = array( 'first_install' => time() );
+    delete_user_meta( $user_id, 'cff_ignore_bfcm_sale_notice' );
+     delete_user_meta( $user_id, 'cff_ignore_new_user_sale_notice' );
+     $cff_statuses_option = array( 'first_install' => strtotime( 'December 8, 2017' ) );
+     $cff_statuses_option = array( 'first_install' => time() );
 
-    // update_option( 'cff_statuses', $cff_statuses_option, false );
-    // delete_option( 'cff_rating_notice');
-    // delete_transient( 'custom_facebook_rating_notice_waiting' );
+     update_option( 'cff_statuses', $cff_statuses_option, false );
+     delete_option( 'cff_rating_notice');
+     delete_transient( 'custom_facebook_rating_notice_waiting' );
 
-    // set_transient( 'custom_facebook_rating_notice_waiting', 'waiting', 2 * WEEK_IN_SECONDS );
-    delete_transient('custom_facebook_rating_notice_waiting');
-    update_option( 'cff_rating_notice', 'pending', false );
-    */
+     // set_transient( 'custom_facebook_rating_notice_waiting', 'waiting', 2 * WEEK_IN_SECONDS );
+     delete_transient('custom_facebook_rating_notice_waiting');
+     update_option( 'cff_rating_notice', 'pending', false );
+     */
 }
 
 function cff_get_future_date( $month, $year, $week, $day, $direction ) {

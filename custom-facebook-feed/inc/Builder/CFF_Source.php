@@ -309,12 +309,12 @@ class CFF_Source {
 		if ( function_exists( 'cff_featured_post_id' ) ) {
 			$featured_post_url = cff_featured_post_id( $full_id, $access_token);
 		} else {
-			$featured_post_url = 'https://graph.facebook.com/v4.0/'.$full_id.'?fields=id,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,comments.summary(true){message,created_time},likes.summary(true).limit(0),call_to_action,privacy&access_token=' . $access_token;
+			$featured_post_url = 'https://graph.facebook.com/v23.0/'.$full_id.'?fields=id,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,comments.summary(true){message,created_time},likes.summary(true).limit(0),call_to_action,privacy&access_token=' . $access_token;
 		}
 		if ( function_exists( 'cff_featured_event_id' ) ) {
 			$featured_event_url = cff_featured_event_id( $full_id, $access_token);
 		} else {
-			$featured_event_url = 'https://graph.facebook.com/v4.0/'.$full_id.'?fields=id,name,attending_count,ticket_uri,cover,start_time,end_time,timezone,place,description,interested_count&access_token='.$access_token;
+			$featured_event_url = 'https://graph.facebook.com/v23.0/'.$full_id.'?fields=id,name,attending_count,ticket_uri,cover,start_time,end_time,timezone,place,description,interested_count&access_token='.$access_token;
 		}
 
 		$response = wp_safe_remote_get( $featured_post_url );
@@ -878,7 +878,7 @@ class CFF_Source {
 	 */
 	public static function update_single_source( $connected_account ) {
 		$cff_page_slugs = get_option( 'cff_page_slugs', array() );
-		$access_token = str_replace("02Sb981f26534g75h091287a46p5l63","", $connected_account['accesstoken'] );
+		$access_token = $connected_account['accesstoken'];
 		$id = str_replace( ' ', '', $connected_account['id'] );
 		$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data( $id, $connected_account['pagetype'] === 'group', $access_token, 0, false, '' );
 
@@ -1105,7 +1105,7 @@ class CFF_Source {
 		$errors = get_option( 'cff_error_reporter', [] );
 		$add_error = (isset( $errors['connection'] ) && isset( $errors['connection']['error_id'] ) && $errors['connection']['error_id'] == 190) ? false : true;
 		if( $add_error ){
-			$url = 'https://graph.facebook.com/v4.0/'.$account['account_id'].'/posts?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,status_type,created_time,backdated_time,call_to_action,attachments{title,description,media_type,unshimmed_url,target{id},media{source}}&access_token='. $account['access_token'].'&limit=7&locale=en_US';
+			$url = 'https://graph.facebook.com/v23.0/'.$account['account_id'].'/posts?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,status_type,created_time,backdated_time,call_to_action,attachments{title,description,media_type,unshimmed_url,target{id},media{source}}&access_token='. $account['access_token'].'&limit=7&locale=en_US';
 			CFF_Utils::cff_fetchUrl($url, false);
 		}
 

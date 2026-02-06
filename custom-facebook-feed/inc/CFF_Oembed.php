@@ -271,13 +271,12 @@ class CFF_Oembed
 		if ( ! empty( $oembed_token_settings['access_token'] )
 		     && (! $will_expire || $will_expire > time()) ) {
 			$oembed_token_settings['access_token'] = $encryption->maybe_decrypt( $oembed_token_settings['access_token'] );
-
-			return str_replace(":", ":02Sb981f26534g75h091287a46p5l63", $oembed_token_settings['access_token']);
+			return $oembed_token_settings['access_token'];
 		} else {
 			$settings_access_token = trim(get_option('cff_access_token'));
 			$settings_access_token = $encryption->maybe_decrypt( $settings_access_token );
 			if ( ! empty( $settings_access_token ) ) {
-				return str_replace(":", ":02Sb981f26534g75h091287a46p5l63", $settings_access_token);
+				return $settings_access_token;
 			}
 
 			if ( class_exists( 'SB_Instagram_Oembed' ) ) {

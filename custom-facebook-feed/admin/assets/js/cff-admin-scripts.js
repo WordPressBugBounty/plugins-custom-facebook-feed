@@ -1,4 +1,24 @@
 jQuery(document).ready(function($) {
+		//Dismiss Review Notice
+	jQuery(document).on('click', '.cff_notice_dismiss', function(event) {
+		event.preventDefault();
+		$.ajax({
+			url : cffA.ajax_url,
+			type : 'post',
+			data : {
+				action : 'cff_review_notice_dismiss',
+				cff_nonce: cffA.cff_nonce
+			}
+		});
+		const elem = jQuery(this);
+		setTimeout(function() {
+			const url = elem.attr('href');
+			if(url) {
+				const target = elem.attr('target') || '_self';
+				window.open(url, target);
+			}
+		}, 100);
+	});
 	//Tooltips
 	jQuery('#cff-admin .cff-tooltip-link').on('click', function(){
 		jQuery(this).closest('tr, h3, div').find('.cff-tooltip').slideToggle();
@@ -977,6 +997,7 @@ jQuery(document).ready(function($) {
 			data : {
 				action : 'cff_usage_opt_in_or_out',
 				opted_in: choice,
+				cff_nonce: cffA.cff_nonce
 			},
 			success : function(data) {
 				$('.cff-no-usage-opt-out').closest('.cff-usage-tracking-notice').fadeOut();
