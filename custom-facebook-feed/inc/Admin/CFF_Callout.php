@@ -1,7 +1,7 @@
 <?php
+
 /**
  * Callouts
- *
  *
  * @since X.X
  */
@@ -19,6 +19,7 @@ class CFF_Callout
 {
 	/**
 	 * Summary of PLUGIN_NAME
+	 *
 	 * @var string
 	 */
 	const PLUGIN_NAME = 'facebook';
@@ -35,18 +36,21 @@ class CFF_Callout
 
 	/**
 	 * Summary of TWO_WEEKS_WAIT
+	 *
 	 * @var int
 	 */
 	const TWO_WEEKS_WAIT = 1209600;
 
 	/**
 	 * Summary of plugins_list
+	 *
 	 * @var
 	 */
 	public $plugins_list;
 
 	/**
 	 * Summary of should_show_callout
+	 *
 	 * @var
 	 */
 	public $should_show_callout;
@@ -243,7 +247,15 @@ class CFF_Callout
 	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . $table_name;
-		return $wpdb->get_var("SELECT COUNT(*) FROM $feeds_table_name");
+
+		// Check if table exists before querying
+		$table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $feeds_table_name));
+		if ($table_exists !== $feeds_table_name) {
+			return 0;
+		}
+
+		$count = $wpdb->get_var("SELECT COUNT(*) FROM `" . esc_sql($feeds_table_name) . "`");
+		return $count !== null ? (int) $count : 0;
 	}
 
 	/**
@@ -361,9 +373,9 @@ class CFF_Callout
 					</div>
 				<?php } ?>
 				<?php
-						if (sizeof($plugins_list) > 1 && $process !== sizeof($plugins_list)) {
-							$next_p = self::next_plugin($plugins_list);
-							?>
+				if (sizeof($plugins_list) > 1 && $process !== sizeof($plugins_list)) {
+					$next_p = self::next_plugin($plugins_list);
+					?>
 					<div class="sb-callout-bottom-btns sb-fs">
 						<span  <?php echo self::js_open_link(esc_url(admin_url('admin.php?page=' . $plugins_list[$next_p]['page']))) ?> class="sb-callout-item-btn">
 							<?php echo __('Go to', 'custom-facebook-feed') . ' ' . ucfirst($next_p) . ' ' . __('Plugin', 'custom-facebook-feed') ?>
@@ -375,7 +387,7 @@ class CFF_Callout
 				<?php } ?>
 			</div>
 		</div>
-	<?php
+		<?php
 	}
 
 	/**
@@ -509,5 +521,4 @@ class CFF_Callout
 		}
 		return $should_show || $type !== 'side-menu';
 	}
-
 }

@@ -1,26 +1,31 @@
 <?php
+
 /**
  * Class CFF_Feed_Locator
  *
- *
  * @since X.X.X
  */
+
 namespace CustomFacebookFeed;
+
 use CustomFacebookFeed\Builder\CFF_Db;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (! defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
 
-class CFF_Feed_Locator{
-
+class CFF_Feed_Locator
+{
 	private $feed_details;
 
 	private $expiration_time;
 
 	private $matching_entries;
 
-	public function __construct( $feed_details ) {
+	public function __construct($feed_details)
+	{
 		// for non-legacy feeds. A simple ID based on the CFF_Feeds table will be more useful
-		if ( isset( $feed_details['atts'] ) && ! empty( $feed_details['atts']['feed'] ) ) {
+		if (isset($feed_details['atts']) && ! empty($feed_details['atts']['feed'])) {
 			$feed_details['feed_id'] = '*' . $feed_details['atts']['feed'];
 		}
 		$this->feed_details = $feed_details;
@@ -38,15 +43,16 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public function retrieve_matching_entries() {
+	public function retrieve_matching_entries()
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		$results = $wpdb->get_results( $wpdb->prepare("
+		$results = $wpdb->get_results($wpdb->prepare("
 			SELECT *
 			FROM $feed_locator_table_name
 			WHERE post_id = %d
-		  	AND feed_id = %s", $this->feed_details['location']['post_id'], $this->feed_details['feed_id'] ),ARRAY_A );
+		  	AND feed_id = %s", $this->feed_details['location']['post_id'], $this->feed_details['feed_id']), ARRAY_A);
 
 		return $results;
 	}
@@ -56,32 +62,34 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public function insert_entry() {
+	public function insert_entry()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
-		$two_minutes_ago = date( 'Y-m-d H:i:s', time() - 120 );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
+		$two_minutes_ago = date('Y-m-d H:i:s', time() - 120);
 
-		$results_recent_entries = $wpdb->get_results( $wpdb->prepare("
+		$results_recent_entries = $wpdb->get_results($wpdb->prepare("
 			SELECT COUNT(*) AS num_entries
             FROM $feed_locator_table_name
             WHERE last_update > %s;
-            ", $two_minutes_ago ), ARRAY_A );
+            ", $two_minutes_ago), ARRAY_A);
 
 		// Only allow 5 new entries within 5 minutes
-		if ( isset( $results_recent_entries[0]['num_entries'] ) && (int)$results_recent_entries[0]['num_entries'] > 5 ) {
+		if (isset($results_recent_entries[0]['num_entries']) && (int)$results_recent_entries[0]['num_entries'] > 5) {
 			return;
 		}
 
 		// Only allow 1000 total entries
-		$results_total_entries = $wpdb->get_results( "
+		$results_total_entries = $wpdb->get_results("
 			SELECT COUNT(*) AS num_entries
-            FROM $feed_locator_table_name", ARRAY_A );
-		if ( isset( $results_total_entries[0]['num_entries'] ) && (int)$results_total_entries[0]['num_entries'] > 1000 ) {
+            FROM $feed_locator_table_name", ARRAY_A);
+		if (isset($results_total_entries[0]['num_entries']) && (int)$results_total_entries[0]['num_entries'] > 1000) {
 			$this->delete_oldest_entry();
 		}
 
-		$affected = $wpdb->query( $wpdb->prepare( "INSERT INTO $feed_locator_table_name
+		$affected = $wpdb->query($wpdb->prepare(
+			"INSERT INTO $feed_locator_table_name
       	(feed_id,
       	post_id,
       	html_location,
@@ -96,19 +104,21 @@ class CFF_Feed_Locator{
 			$this->feed_details['feed_id'],
 			$this->feed_details['location']['post_id'],
 			$this->feed_details['location']['html'],
-			CFF_Utils::cff_json_encode( $this->feed_details['atts'] ),
-			date( 'Y-m-d H:i:s' ) ) );
+			CFF_Utils::cff_json_encode($this->feed_details['atts']),
+			date('Y-m-d H:i:s')
+		));
 	}
-	public function delete_oldest_entry() {
+	public function delete_oldest_entry()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . SBI_INSTAGRAM_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . SBI_INSTAGRAM_FEED_LOCATOR);
 
 		$affected = $wpdb->query(
 			"DELETE FROM $feed_locator_table_name
 					ORDER BY last_update ASC
-					LIMIT 1;" );
-
+					LIMIT 1;"
+		);
 	}
 
 	/**
@@ -120,15 +130,16 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public function update_entry( $id, $location ) {
+	public function update_entry($id, $location)
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		$query = $wpdb->query( $wpdb->prepare( "
+		$query = $wpdb->query($wpdb->prepare("
 			UPDATE $feed_locator_table_name
 			SET last_update = %s, html_location = %s
-			WHERE id = %d;", date( 'Y-m-d H:i:s' ), $location, $id ) );
+			WHERE id = %d;", date('Y-m-d H:i:s'), $location, $id));
 	}
 
 	/**
@@ -138,14 +149,15 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public function add_or_update_entry() {
-		if ( empty( $this->feed_details['feed_id'] ) ) {
+	public function add_or_update_entry()
+	{
+		if (empty($this->feed_details['feed_id'])) {
 			return;
 		}
 
 		$this->matching_entries = $this->retrieve_matching_entries();
 
-		if ( empty( $this->matching_entries ) ) {
+		if (empty($this->matching_entries)) {
 			$this->insert_entry();
 		} else {
 			$matching_indices = array();
@@ -153,19 +165,19 @@ class CFF_Feed_Locator{
 			$non_unknown_match = false;
 			$unknown_match = false;
 
-			foreach ( $this->matching_entries as $index => $matching_entry ) {
-				$shortcode_atts = json_decode( $matching_entry['shortcode_atts'], true );
+			foreach ($this->matching_entries as $index => $matching_entry) {
+				$shortcode_atts = json_decode($matching_entry['shortcode_atts'], true);
 				$shortcode_atts = ( $shortcode_atts == null ) ? [] : $shortcode_atts;
-				$atts = is_array( $this->feed_details['atts'] ) ? $this->feed_details['atts'] : array();
-				$atts_diff = array_diff($shortcode_atts , $atts); // determines if the shortcode settings match the shortcode settings of an existing feed
+				$atts = is_array($this->feed_details['atts']) ? $this->feed_details['atts'] : array();
+				$atts_diff = array_diff($shortcode_atts, $atts); // determines if the shortcode settings match the shortcode settings of an existing feed
 
-				if ( empty( $atts_diff ) ) {
+				if (empty($atts_diff)) {
 					$matching_indices[] = $matching_entry['id'];
-					if ( $matching_entry['html_location'] === $this->feed_details['location']['html'] ) {
+					if ($matching_entry['html_location'] === $this->feed_details['location']['html']) {
 						$matched_location = $index;
-						$this->update_entry( $matching_entry['id'], $matching_entry['html_location'] );
+						$this->update_entry($matching_entry['id'], $matching_entry['html_location']);
 					}
-					if ( $matching_entry['html_location'] !== 'unknown' ) {
+					if ($matching_entry['html_location'] !== 'unknown') {
 						$non_unknown_match = $index;
 					} else {
 						$unknown_match = $index;
@@ -173,22 +185,25 @@ class CFF_Feed_Locator{
 				}
 			}
 
-			if ( false === $matched_location  ) {
+			if (false === $matched_location) {
 				// if there is no matched location, there is only one feed on the page, and the feed being checked has an unknown location, update the known location
-				if ( count( $matching_indices ) === 1
-				     && $this->feed_details['location']['html'] === 'unknown'
-				     && false !== $non_unknown_match ) {
-					$this->update_entry( $this->matching_entries[ $non_unknown_match ]['id'], $this->matching_entries[ $non_unknown_match ]['html_location'] );
+				if (
+					count($matching_indices) === 1
+					 && $this->feed_details['location']['html'] === 'unknown'
+					 && false !== $non_unknown_match
+				) {
+					$this->update_entry($this->matching_entries[ $non_unknown_match ]['id'], $this->matching_entries[ $non_unknown_match ]['html_location']);
 				} else {
-					if ( $this->feed_details['location']['html'] !== 'unknown'
-					     && false !== $unknown_match ) {
-						$this->update_entry( $this->matching_entries[ $unknown_match ]['id'], $this->feed_details['location']['html'] );
+					if (
+						$this->feed_details['location']['html'] !== 'unknown'
+						 && false !== $unknown_match
+					) {
+						$this->update_entry($this->matching_entries[ $unknown_match ]['id'], $this->feed_details['location']['html']);
 					} else {
 						$this->insert_entry();
 					}
 				}
 			}
-
 		}
 	}
 
@@ -201,47 +216,48 @@ class CFF_Feed_Locator{
 	 *
 	 * @since 4.0
 	 */
-	public static function facebook_feed_locator_query( $args ) {
+	public static function facebook_feed_locator_query($args)
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
 		$group_by = '';
-		if ( isset( $args['group_by'] ) ) {
-			$group_by = "GROUP BY " . esc_sql( $args['group_by'] );
+		if (isset($args['group_by'])) {
+			$group_by = "GROUP BY " . esc_sql($args['group_by']);
 		}
 
 		$location_string = 'content';
-		if ( isset( $args['html_location'] ) ) {
-			$locations = array_map( 'esc_sql', $args['html_location'] );
-			$location_string = implode( "', '", $locations );
+		if (isset($args['html_location'])) {
+			$locations = array_map('esc_sql', $args['html_location']);
+			$location_string = implode("', '", $locations);
 		}
 
 		$page = 0;
-		if ( isset( $args['page'] ) ) {
+		if (isset($args['page'])) {
 			$page = (int)$args['page'] - 1;
-			unset( $args['page'] );
+			unset($args['page']);
 		}
 
-		$offset = max( 0, $page * CFF_Db::RESULTS_PER_PAGE );
+		$offset = max(0, $page * CFF_Db::RESULTS_PER_PAGE);
 
-		if ( isset( $args['shortcode_atts'] ) ) {
-			$results = $wpdb->get_results( $wpdb->prepare("
+		if (isset($args['shortcode_atts'])) {
+			$results = $wpdb->get_results($wpdb->prepare("
 			SELECT *
 			FROM $feed_locator_table_name
 			WHERE shortcode_atts = %s
 		  	AND html_location IN ( '$location_string' )
 		  	$group_by
 		  	LIMIT %d
-			OFFSET %d;", $args['shortcode_atts'], CFF_Db::RESULTS_PER_PAGE, $offset ),ARRAY_A );
+			OFFSET %d;", $args['shortcode_atts'], CFF_Db::RESULTS_PER_PAGE, $offset), ARRAY_A);
 		} else {
-			$results = $wpdb->get_results( $wpdb->prepare("
+			$results = $wpdb->get_results($wpdb->prepare("
 			SELECT *
 			FROM $feed_locator_table_name
 			WHERE feed_id = %s
 		  	AND html_location IN ( '$location_string' )
 		  	$group_by
 		  	LIMIT %d
-			OFFSET %d;", $args['feed_id'], CFF_Db::RESULTS_PER_PAGE, $offset ),ARRAY_A );
+			OFFSET %d;", $args['feed_id'], CFF_Db::RESULTS_PER_PAGE, $offset), ARRAY_A);
 		}
 
 
@@ -257,56 +273,59 @@ class CFF_Feed_Locator{
 	 *
 	 * @since 4.0
 	 */
-	public static function legacy_facebook_feed_locator_query( $args ) {
+	public static function legacy_facebook_feed_locator_query($args)
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
 		$group_by = '';
-		if ( isset( $args['group_by'] ) ) {
-			$group_by = "GROUP BY " . esc_sql( $args['group_by'] );
+		if (isset($args['group_by'])) {
+			$group_by = "GROUP BY " . esc_sql($args['group_by']);
 		}
 
 		$location_string = 'content';
-		if ( isset( $args['html_location'] ) ) {
-			$locations = array_map( 'esc_sql', $args['html_location'] );
-			$location_string = implode( "', '", $locations );
+		if (isset($args['html_location'])) {
+			$locations = array_map('esc_sql', $args['html_location']);
+			$location_string = implode("', '", $locations);
 		}
 
 		$page = 0;
-		if ( isset( $args['page'] ) ) {
+		if (isset($args['page'])) {
 			$page = (int)$args['page'] - 1;
-			unset( $args['page'] );
+			unset($args['page']);
 		}
 
-		$offset = max( 0, $page * CFF_Db::RESULTS_PER_PAGE );
+		$offset = max(0, $page * CFF_Db::RESULTS_PER_PAGE);
 		$limit = CFF_Db::RESULTS_PER_PAGE;
 
-		$results = $wpdb->get_results( "
+		$results = $wpdb->get_results("
 			SELECT *
 			FROM $feed_locator_table_name
 			WHERE feed_id NOT LIKE '*%'
 		  	AND html_location IN ( '$location_string' )
 		  	$group_by
 		  	LIMIT $limit
-			OFFSET $offset;", ARRAY_A );
+			OFFSET $offset;", ARRAY_A);
 
 		return $results;
 	}
 
-	public static function update_legacy_to_builder( $args ) {
+	public static function update_legacy_to_builder($args)
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
 		$data = array(
-			'feed_id' => '*'.$args['new_feed_id'],
-			'shortcode_atts' => '{"feed":"'.$args['new_feed_id'].'"}'
+			'feed_id' => '*' . $args['new_feed_id'],
+			'shortcode_atts' => '{"feed":"' . $args['new_feed_id'] . '"}'
 		);
 
 		$affected = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $feed_locator_table_name
          				SET feed_id = %s, shortcode_atts = %s",
-				$data['feed_id'], $data['shortcode_atts']
+				$data['feed_id'],
+				$data['shortcode_atts']
 			)
 		);
 
@@ -322,26 +341,27 @@ class CFF_Feed_Locator{
 	 *
 	 * @since 4.0
 	 */
-	public static function count( $args ) {
+	public static function count($args)
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		if ( isset( $args['shortcode_atts'] ) ) {
-			$results = $wpdb->get_results( $wpdb->prepare("
+		if (isset($args['shortcode_atts'])) {
+			$results = $wpdb->get_results($wpdb->prepare("
 			SELECT COUNT(*) AS num_entries
             FROM $feed_locator_table_name
             WHERE shortcode_atts = %s
-            ", $args['shortcode_atts'] ), ARRAY_A );
+            ", $args['shortcode_atts']), ARRAY_A);
 		} else {
-			$results = $wpdb->get_results( $wpdb->prepare("
+			$results = $wpdb->get_results($wpdb->prepare("
 			SELECT COUNT(*) AS num_entries
             FROM $feed_locator_table_name
             WHERE feed_id = %s
-            ", $args['feed_id'] ), ARRAY_A );
+            ", $args['feed_id']), ARRAY_A);
 		}
 
 
-		if ( isset( $results[0]['num_entries'] ) ) {
+		if (isset($results[0]['num_entries'])) {
 			return (int)$results[0]['num_entries'];
 		}
 
@@ -355,9 +375,10 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function should_clear_old_locations() {
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
-		$last_old_feed_check = isset( $cff_statuses_option['feed_locator']['last_check'] ) ? $cff_statuses_option['feed_locator']['last_check'] : 0;
+	public static function should_clear_old_locations()
+	{
+		$cff_statuses_option = get_option('cff_statuses', array());
+		$last_old_feed_check = isset($cff_statuses_option['feed_locator']['last_check']) ? $cff_statuses_option['feed_locator']['last_check'] : 0;
 
 		return $last_old_feed_check < time() - DAY_IN_SECONDS;
 	}
@@ -367,22 +388,25 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function delete_old_locations() {
+	public static function delete_old_locations()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
-		$two_weeks_ago = date( 'Y-m-d H:i:s', time() - 2 * WEEK_IN_SECONDS );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
+		$two_weeks_ago = date('Y-m-d H:i:s', time() - 2 * WEEK_IN_SECONDS);
 
-		$affected = $wpdb->query( $wpdb->prepare(
-			"DELETE FROM $feed_locator_table_name WHERE last_update < %s;", $two_weeks_ago ) );
+		$affected = $wpdb->query($wpdb->prepare(
+			"DELETE FROM $feed_locator_table_name WHERE last_update < %s;",
+			$two_weeks_ago
+		));
 
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
+		$cff_statuses_option = get_option('cff_statuses', array());
 		$cff_statuses_option['feed_locator']['last_check'] = time();
-		if ( ! isset( $cff_statuses_option['feed_locator']['initialized'] ) ) {
+		if (! isset($cff_statuses_option['feed_locator']['initialized'])) {
 			$cff_statuses_option['feed_locator']['initialized'] = time();
 		}
 
-		update_option( 'cff_statuses', $cff_statuses_option, true );
+		update_option('cff_statuses', $cff_statuses_option, true);
 	}
 
 	/**
@@ -396,15 +420,18 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function should_do_locating() {
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
-		if ( isset( $cff_statuses_option['feed_locator']['initialized'] )
-		     && $cff_statuses_option['feed_locator']['initialized'] < (time() - 300) ) {
-			$should_do_locating = rand( 1, 10 ) === 10;
+	public static function should_do_locating()
+	{
+		$cff_statuses_option = get_option('cff_statuses', array());
+		if (
+			isset($cff_statuses_option['feed_locator']['initialized'])
+			 && $cff_statuses_option['feed_locator']['initialized'] < (time() - 300)
+		) {
+			$should_do_locating = rand(1, 10) === 10;
 		} else {
-			$should_do_locating = rand( 1, 30 ) === 30;
+			$should_do_locating = rand(1, 30) === 30;
 		}
-		$should_do_locating = apply_filters( 'cff_should_do_locating', $should_do_locating );
+		$should_do_locating = apply_filters('cff_should_do_locating', $should_do_locating);
 
 		return $should_do_locating;
 	}
@@ -422,19 +449,22 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function should_do_ajax_locating( $feed_id, $post_id ) {
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
-		if ( isset( $cff_statuses_option['feed_locator']['initialized'] )
-		     && $cff_statuses_option['feed_locator']['initialized'] < (time() - 300) ) {
-			$should_do_locating = rand( 1, 10 ) === 10;
+	public static function should_do_ajax_locating($feed_id, $post_id)
+	{
+		$cff_statuses_option = get_option('cff_statuses', array());
+		if (
+			isset($cff_statuses_option['feed_locator']['initialized'])
+			 && $cff_statuses_option['feed_locator']['initialized'] < (time() - 300)
+		) {
+			$should_do_locating = rand(1, 10) === 10;
 		} else {
-			$should_do_locating = rand( 1, 30 ) === 30;
+			$should_do_locating = rand(1, 30) === 30;
 		}
-		if ( $should_do_locating ) {
-			$should_do_locating = CFF_Feed_Locator::entries_need_locating( $feed_id, $post_id );
+		if ($should_do_locating) {
+			$should_do_locating = CFF_Feed_Locator::entries_need_locating($feed_id, $post_id);
 		}
 
-		$should_do_locating = apply_filters( 'cff_should_do_ajax_locating', $should_do_locating );
+		$should_do_locating = apply_filters('cff_should_do_ajax_locating', $should_do_locating);
 
 		return $should_do_locating;
 	}
@@ -453,22 +483,23 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function entries_need_locating( $feed_id, $post_id ) {
+	public static function entries_need_locating($feed_id, $post_id)
+	{
 		global $wpdb;
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		$one_day_ago = date( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS );
+		$one_day_ago = date('Y-m-d H:i:s', time() - DAY_IN_SECONDS);
 
-		$results = $wpdb->get_results( $wpdb->prepare("
+		$results = $wpdb->get_results($wpdb->prepare("
 			SELECT id
 			FROM $feed_locator_table_name
 			WHERE html_location = 'unknown'
 			AND last_update < %s
 			AND feed_id = %s
 			AND post_id = %d
-			LIMIT 1;", $one_day_ago, $feed_id, $post_id ),ARRAY_A );
+			LIMIT 1;", $one_day_ago, $feed_id, $post_id), ARRAY_A);
 
-		return isset( $results[0] );
+		return isset($results[0]);
 	}
 
 
@@ -478,12 +509,13 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function create_table() {
+	public static function create_table()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		if ( $wpdb->get_var( "show tables like '$feed_locator_table_name'" ) != $feed_locator_table_name ) {
+		if ($wpdb->get_var("show tables like '$feed_locator_table_name'") != $feed_locator_table_name) {
 			$sql = "CREATE TABLE " . $feed_locator_table_name . " (
 				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 feed_id VARCHAR(50) DEFAULT '' NOT NULL,
@@ -495,14 +527,13 @@ class CFF_Feed_Locator{
                 KEY feed_id (feed_id),
                 KEY post_id (post_id)
             );";
-			$wpdb->query( $sql );
+			$wpdb->query($sql);
 		}
 		$error = $wpdb->last_error;
 		$query = $wpdb->last_query;
 		$had_error = false;
-		if ( $wpdb->get_var( "show tables like '$feed_locator_table_name'" ) != $feed_locator_table_name ) {
+		if ($wpdb->get_var("show tables like '$feed_locator_table_name'") != $feed_locator_table_name) {
 			$had_error = true;
-			#\cff_main()->cff_error_reporter->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'custom-facebook-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
 		}
 	}
 
@@ -513,30 +544,31 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function count_unique() {
+	public static function count_unique()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
-		$results_content = $wpdb->get_results( "
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
+		$results_content = $wpdb->get_results("
 			SELECT COUNT(*) AS num_entries
             FROM $feed_locator_table_name
             WHERE html_location = 'content'
-            ", ARRAY_A );
+            ", ARRAY_A);
 
-		$results_other = $wpdb->get_results( "
+		$results_other = $wpdb->get_results("
 			SELECT COUNT(*) AS num_entries
             FROM $feed_locator_table_name
             WHERE html_location != 'content'
             AND html_location != 'unknown'
             GROUP BY feed_id
-            ", ARRAY_A );
-		//var_dump( $results_other );
+            ", ARRAY_A);
+		// var_dump( $results_other );
 
 		$total = 0;
-		if ( isset( $results_content[0]['num_entries'] ) ) {
+		if (isset($results_content[0]['num_entries'])) {
 			$total += (int)$results_content[0]['num_entries'];
 		}
-		if ( isset( $results_other[0]['num_entries'] ) ) {
+		if (isset($results_other[0]['num_entries'])) {
 			$total += (int)$results_other[0]['num_entries'];
 		}
 
@@ -550,28 +582,29 @@ class CFF_Feed_Locator{
 	 *
 	 * @since X.X.X
 	 */
-	public static function summary() {
+	public static function summary()
+	{
 		global $wpdb;
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
 		$locations = array(
 			array(
-				'label' => __( 'Content', 'custom-facebook-feed' ),
+				'label' => __('Content', 'custom-facebook-feed'),
 				'html_locations' => array( 'content', 'unknown' )
 			),
 			array(
-				'label' => __( 'Header', 'custom-facebook-feed' ),
+				'label' => __('Header', 'custom-facebook-feed'),
 				'html_locations' => array( 'header' ),
 				'group_by' => 'feed_id'
 			),
 			array(
-				'label' => __( 'Sidebar', 'custom-facebook-feed' ),
+				'label' => __('Sidebar', 'custom-facebook-feed'),
 				'html_locations' => array( 'sidebar' ),
 				'group_by' => 'feed_id'
 			),
 			array(
-				'label' => __( 'Footer', 'custom-facebook-feed' ),
+				'label' => __('Footer', 'custom-facebook-feed'),
 				'html_locations' => array( 'footer' ),
 				'group_by' => 'feed_id'
 			)
@@ -579,24 +612,24 @@ class CFF_Feed_Locator{
 
 		$one_result_found = false;
 
-		foreach ( $locations as $key => $location ) {
-			$in = implode( "', '", $location['html_locations'] );
-			$group_by = isset( $location['group_by'] ) ? "GROUP BY " . $location['group_by'] : "";
+		foreach ($locations as $key => $location) {
+			$in = implode("', '", $location['html_locations']);
+			$group_by = isset($location['group_by']) ? "GROUP BY " . $location['group_by'] : "";
 			$results = $wpdb->get_results("
 			SELECT *
 			FROM $feed_locator_table_name
 			WHERE html_location IN ('$in')
 		  	$group_by
-		  	ORDER BY last_update ASC",ARRAY_A );
+		  	ORDER BY last_update ASC", ARRAY_A);
 
-			if ( isset( $results[0] ) ) {
+			if (isset($results[0])) {
 				$one_result_found = true;
 			}
 
 			$locations[ $key ]['results'] = $results;
 		}
 
-		if ( ! $one_result_found ) {
+		if (! $one_result_found) {
 			return array();
 		}
 
@@ -606,24 +639,24 @@ class CFF_Feed_Locator{
 	/**
 	 * Do Locator Ajax Process
 	 *
-	 *
 	 * @since X.X.X
 	 */
-	public static function cff_do_locator(){
-		if ( ! isset( $_POST['feed_id'] )  ) {
-			die( 'invalid feed ID');
+	public static function cff_do_locator()
+	{
+		if (! isset($_POST['feed_id'])) {
+			die('invalid feed ID');
 		}
-		$feed_id = sanitize_text_field( $_POST['feed_id'] );
-		$atts_raw = isset( $_POST['atts'] ) ? json_decode( stripslashes( $_POST['atts'] ), true ) : array();
-		if ( is_array( $atts_raw ) ) {
-			array_map( 'sanitize_text_field', $atts_raw );
+		$feed_id = sanitize_text_field($_POST['feed_id']);
+		$atts_raw = isset($_POST['atts']) ? json_decode(stripslashes($_POST['atts']), true) : array();
+		if (is_array($atts_raw)) {
+			array_map('sanitize_text_field', $atts_raw);
 		} else {
 			$atts_raw = array();
 		}
 		$atts = $atts_raw; // now sanitized
 
-		$location = isset( $_POST['location'] ) && in_array( $_POST['location'], array( 'header', 'footer', 'sidebar', 'content' ), true ) ? sanitize_text_field( $_POST['location'] ) : 'unknown';
-		$post_id = isset( $_POST['post_id'] ) && $_POST['post_id'] !== 'unknown' ? (int)$_POST['post_id'] : 'unknown';
+		$location = isset($_POST['location']) && in_array($_POST['location'], array( 'header', 'footer', 'sidebar', 'content' ), true) ? sanitize_text_field($_POST['location']) : 'unknown';
+		$post_id = isset($_POST['post_id']) && $_POST['post_id'] !== 'unknown' ? (int)$_POST['post_id'] : 'unknown';
 		$feed_details = array(
 			'feed_id' => $feed_id,
 			'atts' => $atts,
@@ -634,9 +667,9 @@ class CFF_Feed_Locator{
 		);
 		$can_do_background_tasks = false;
 
-		$cap = current_user_can( 'manage_custom_facebook_feed_options' ) ? 'manage_custom_facebook_feed_options' : 'manage_options';
-		$cap = apply_filters( 'cff_settings_pages_capability', $cap );
-		if ( current_user_can( $cap ) ) {
+		$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+		$cap = apply_filters('cff_settings_pages_capability', $cap);
+		if (current_user_can($cap)) {
 			$can_do_background_tasks = true;
 		}
 
@@ -645,33 +678,30 @@ class CFF_Feed_Locator{
 			wp_send_json_error('nonce check failed, details do not match');
 		}
 
-		if ( $can_do_background_tasks ) {
-			CFF_Feed_Locator::do_background_tasks( $feed_details );
-			wp_die( 'locating success' );
+		if ($can_do_background_tasks) {
+			CFF_Feed_Locator::do_background_tasks($feed_details);
+			wp_die('locating success');
 		}
 
-		wp_die( 'skipped locating' );
+		wp_die('skipped locating');
 	}
 
 
 	/**
 	 * Do Background tasks
 	 *
-	 *
 	 * @since X.X.X
 	 */
-
-	public static function do_background_tasks( $feed_details ){
-		if(isset($feed_details['shortcode_atts']) && trim( $feed_details['shortcode_atts'] ) == ""){
+	public static function do_background_tasks($feed_details)
+	{
+		if (isset($feed_details['shortcode_atts']) && trim($feed_details['shortcode_atts']) == "") {
 			$feed_details['shortcode_atts'] = [];
 		}
 
-		$locator = new CFF_Feed_Locator( $feed_details );
+		$locator = new CFF_Feed_Locator($feed_details);
 		$locator->add_or_update_entry();
-		if ( $locator->should_clear_old_locations() ) {
+		if ($locator->should_clear_old_locations()) {
 			$locator->delete_old_locations();
 		}
 	}
-
-
 }

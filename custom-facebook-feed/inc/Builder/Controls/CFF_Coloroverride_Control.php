@@ -1,16 +1,20 @@
 <?php
+
 /**
  * Customizer Builder
  * Color Override Field Control
  *
  * @since 4.0
  */
+
 namespace CustomFacebookFeed\Builder\Controls;
 
-if(!defined('ABSPATH'))	exit;
+if (!defined('ABSPATH')) {
+	exit;
+}
 
-class CFF_Coloroverride_Control extends CFF_Controls_Base{
-
+class CFF_Coloroverride_Control extends CFF_Controls_Base
+{
 	/**
 	 * Get control type.
 	 *
@@ -20,21 +24,22 @@ class CFF_Coloroverride_Control extends CFF_Controls_Base{
 	 * @access public
 	 *
 	 * @return string
-	*/
-	public function get_type(){
+	 */
+	public function get_type()
+	{
 		return 'coloroverride';
 	}
 
 	/**
 	 * Output Control
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return HTML
-	*/
-	public function get_control_output($controlEditingTypeModel){
+	 */
+	public function get_control_output($controlEditingTypeModel)
+	{
 		?>
 		<div class="sb-control-input-ctn cff-fb-fs sb-control-coloroverride-ctn">
 			<div class="sb-control-coloroverride-content">
@@ -45,5 +50,4 @@ class CFF_Coloroverride_Control extends CFF_Controls_Base{
 		</div>
 		<?php
 	}
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Custom Facebook Feed Database
  *
@@ -6,6 +7,7 @@
  */
 
 namespace CustomFacebookFeed\Builder;
+
 use CustomFacebookFeed\SB_Facebook_Data_Encryption;
 use CustomFacebookFeed\CFF_Utils;
 
@@ -13,8 +15,8 @@ if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-class CFF_Db {
-
+class CFF_Db
+{
 	const RESULTS_PER_PAGE = 20;
 
 	const RESULTS_PER_CRON_UPDATE = 6;
@@ -28,22 +30,22 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function source_query( $args = array() ) {
+	public static function source_query($args = array())
+	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
-	   	$encryption = new SB_Facebook_Data_Encryption();
+		$encryption = new SB_Facebook_Data_Encryption();
 
 		$page = 0;
-		if ( isset( $args['page'] ) ) {
+		if (isset($args['page'])) {
 			$page = (int)$args['page'] - 1;
-			unset( $args['page'] );
+			unset($args['page']);
 		}
 
-		$offset = max( 0, $page * self::RESULTS_PER_PAGE );
+		$offset = max(0, $page * self::RESULTS_PER_PAGE);
 
-		if ( empty( $args ) ) {
-
+		if (empty($args)) {
 			$limit = 200;
 			$sql = "SELECT s.id, s.account_id, s.account_type, s.privilege, s.access_token, s.username, s.info, s.error, s.expires, count(f.id) as used_in
 				FROM $sources_table_name s
@@ -53,16 +55,16 @@ class CFF_Db {
 				OFFSET $offset;
 				";
 
-			$results = $wpdb->get_results( $sql, ARRAY_A );
+			$results = $wpdb->get_results($sql, ARRAY_A);
 
-			if ( empty( $results ) ) {
+			if (empty($results)) {
 				return array();
 			}
 
 			$i = 0;
-			foreach ( $results as $result ) {
-				if ( (int)$result['used_in'] > 0 ) {
-					$account_id = "'" . esc_sql( $result['account_id'] ) . "'";
+			foreach ($results as $result) {
+				if ((int)$result['used_in'] > 0) {
+					$account_id = "'" . esc_sql($result['account_id']) . "'";
 					$sql = "SELECT *
 						FROM $feeds_table_name
 						WHERE settings LIKE CONCAT('%', $account_id, '%')
@@ -70,70 +72,69 @@ class CFF_Db {
 						LIMIT 100;
 						";
 
-					$results[ $i ]['instances'] = $wpdb->get_results( $sql, ARRAY_A );
+					$results[ $i ]['instances'] = $wpdb->get_results($sql, ARRAY_A);
 				}
 				$i++;
-				if ( isset( $result['access_token'] ) && strpos( $result['access_token'], 'IG' ) === false && strpos( $result['access_token'], 'EA' ) === false && ! $encryption->decrypt( $result['access_token'] ) ) {
-					//Add the Error for global notifications
-				    CFF_Source::add_report_error_option($result);
+				if (isset($result['access_token']) && strpos($result['access_token'], 'IG') === false && strpos($result['access_token'], 'EA') === false && ! $encryption->decrypt($result['access_token'])) {
+					// Add the Error for global notifications
+					CFF_Source::add_report_error_option($result);
 				}
 			}
 
 
 			return $results;
 		}
-		if ( isset( $args['access_token'] ) && ! isset( $args['id'] ) ) {
-			$sql = $wpdb->prepare( "
+		if (isset($args['access_token']) && ! isset($args['id'])) {
+			$sql = $wpdb->prepare("
 			SELECT * FROM $sources_table_name
 			WHERE access_token = %s;
-		 ", $args['access_token'] );
+		 ", $args['access_token']);
 
-			return $wpdb->get_results( $sql, ARRAY_A );
+			return $wpdb->get_results($sql, ARRAY_A);
 		}
 
-		if ( isset( $args['type'] ) && ! isset( $args['id'] ) ) {
-			$sql = $wpdb->prepare( "
+		if (isset($args['type']) && ! isset($args['id'])) {
+			$sql = $wpdb->prepare("
 			SELECT * FROM $sources_table_name
 			WHERE account_type = %s;
-		 ", $args['type'] );
+		 ", $args['type']);
 
-			return $wpdb->get_results( $sql, ARRAY_A );
+			return $wpdb->get_results($sql, ARRAY_A);
 		}
 
-		if ( ! isset( $args['id'] ) ) {
+		if (! isset($args['id'])) {
 			return false;
 		}
 
-		if ( is_array( $args['id'] ) ) {
+		if (is_array($args['id'])) {
 			$id_array = array();
-			foreach ( $args['id'] as $id ) {
-				$id_array[] = esc_sql( $id );
+			foreach ($args['id'] as $id) {
+				$id_array[] = esc_sql($id);
 			}
-		} elseif( strpos( $args['id'], ',' ) !== false ) {
-			$id_array = explode( ',', str_replace( ' ' , '', esc_sql( $args['id'] ) ) );
+		} elseif (strpos($args['id'], ',') !== false) {
+			$id_array = explode(',', str_replace(' ', '', esc_sql($args['id'])));
 		}
-		if ( isset( $id_array ) ) {
-			$id_string = "'" . implode( "' , '", array_map( 'esc_sql', $id_array ) ) . "'";
+		if (isset($id_array)) {
+			$id_string = "'" . implode("' , '", array_map('esc_sql', $id_array)) . "'";
 		}
 
-		$privilege = isset( $args['privilege'] ) ? $args['privilege'] : '';
+		$privilege = isset($args['privilege']) ? $args['privilege'] : '';
 
-		if ( isset( $id_string ) ) {
-			$sql = $wpdb->prepare( "
+		if (isset($id_string)) {
+			$sql = $wpdb->prepare("
 			SELECT * FROM $sources_table_name
 			WHERE account_id IN ($id_string)
 			AND privilege = %s;
-		 ", $privilege );
-
+		 ", $privilege);
 		} else {
-			$sql = $wpdb->prepare( "
+			$sql = $wpdb->prepare("
 			SELECT * FROM $sources_table_name
 			WHERE account_id = %s
 			AND privilege = %s;
-		 ", $args['id'], $privilege );
+		 ", $args['id'], $privilege);
 		}
 
-		return $wpdb->get_results( $sql, ARRAY_A );
+		return $wpdb->get_results($sql, ARRAY_A);
 	}
 
 	/**
@@ -146,7 +147,8 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function source_update( $to_update, $where_data ) {
+	public static function source_update($to_update, $where_data)
+	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$encryption = new SB_Facebook_Data_Encryption();
@@ -155,69 +157,69 @@ class CFF_Db {
 		$where = array();
 		$format = array();
 		$where_format = array();
-		if ( isset( $to_update['type'] ) ) {
+		if (isset($to_update['type'])) {
 			$data['account_type'] = $to_update['type'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['privilege'] ) ) {
+		if (isset($to_update['privilege'])) {
 			$data['privilege'] = $to_update['privilege'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['id'] ) ) {
+		if (isset($to_update['id'])) {
 			$where['account_id'] = $to_update['id'];
 			$where_format[] = '%s';
 		}
-		if ( isset( $to_update['access_token'] ) ) {
-			$data['access_token'] = $encryption->maybe_encrypt( $to_update['access_token'] );
+		if (isset($to_update['access_token'])) {
+			$data['access_token'] = $encryption->maybe_encrypt($to_update['access_token']);
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['username'] ) ) {
+		if (isset($to_update['username'])) {
 			$data['username'] = $to_update['username'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['info'] ) ) {
-			$data['info'] = $encryption->maybe_encrypt( $to_update['info'] );
+		if (isset($to_update['info'])) {
+			$data['info'] = $encryption->maybe_encrypt($to_update['info']);
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['error'] ) ) {
+		if (isset($to_update['error'])) {
 			$data['error'] = $to_update['error'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['expires'] ) ) {
+		if (isset($to_update['expires'])) {
 			$data['expires'] = $to_update['expires'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['last_updated'] ) ) {
+		if (isset($to_update['last_updated'])) {
 			$data['last_updated'] = $to_update['last_updated'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_update['author'] ) ) {
+		if (isset($to_update['author'])) {
 			$data['author'] = $to_update['author'];
 			$format[] = '%d';
 		}
 
-		if ( isset( $where_data['type'] ) ) {
+		if (isset($where_data['type'])) {
 			$where['account_type'] = $where_data['type'];
 			$where_format[] = '%s';
 		}
-		if ( isset( $where_data['privilege'] ) ) {
+		if (isset($where_data['privilege'])) {
 			$where['privilege'] = $where_data['privilege'];
 			$where_format[] = '%s';
 		}
-		if ( isset( $where_data['author'] ) ) {
+		if (isset($where_data['author'])) {
 			$where['author'] = $where_data['author'];
 			$where_format[] = '%d';
 		}
-		if ( isset( $where_data['id'] ) ) {
+		if (isset($where_data['id'])) {
 			$where['account_id'] = $where_data['id'];
 			$where_format[] = '%s';
 		}
-		if ( isset( $where_data['record_id'] ) ) {
+		if (isset($where_data['record_id'])) {
 			$where['id'] = $where_data['record_id'];
 			$where_format[] = '%d';
 		}
 
-		$affected = $wpdb->update( $sources_table_name, $data, $where, $format, $where_format );
+		$affected = $wpdb->update($sources_table_name, $data, $where, $format, $where_format);
 
 		return $affected;
 	}
@@ -232,54 +234,55 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function source_insert( $to_insert ) {
+	public static function source_insert($to_insert)
+	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$encryption = new SB_Facebook_Data_Encryption();
 
 		$data = array();
 		$format = array();
-		if ( isset( $to_insert['id'] ) ) {
+		if (isset($to_insert['id'])) {
 			$data['account_id'] = $to_insert['id'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['type'] ) ) {
+		if (isset($to_insert['type'])) {
 			$data['account_type'] = $to_insert['type'];
 			$format[] = '%s';
 		} else {
 			$data['account_type'] = 'page';
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['privilege'] ) ) {
+		if (isset($to_insert['privilege'])) {
 			$data['privilege'] = $to_insert['privilege'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['access_token'] ) ) {
-			$data['access_token'] = $encryption->maybe_encrypt( $to_insert['access_token'] );
+		if (isset($to_insert['access_token'])) {
+			$data['access_token'] = $encryption->maybe_encrypt($to_insert['access_token']);
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['username'] ) ) {
+		if (isset($to_insert['username'])) {
 			$data['username'] = $to_insert['username'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['info'] ) ) {
-			$data['info'] = $encryption->maybe_encrypt( $to_insert['info'] );
+		if (isset($to_insert['info'])) {
+			$data['info'] = $encryption->maybe_encrypt($to_insert['info']);
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['error'] ) ) {
+		if (isset($to_insert['error'])) {
 			$data['error'] = $to_insert['error'];
 			$format[] = '%s';
 		}
-		if ( isset( $to_insert['expires'] ) ) {
+		if (isset($to_insert['expires'])) {
 			$data['expires'] = $to_insert['expires'];
 			$format[] = '%s';
 		} else {
 			$data['expires'] = '2100-12-30 00:00:00';
 			$format[] = '%s';
 		}
-		$data['last_updated'] = date( 'Y-m-d H:i:s' );
+		$data['last_updated'] = date('Y-m-d H:i:s');
 		$format[] = '%s';
-		if ( isset( $to_insert['author'] ) ) {
+		if (isset($to_insert['author'])) {
 			$data['author'] = $to_insert['author'];
 			$format[] = '%d';
 		} else {
@@ -287,7 +290,7 @@ class CFF_Db {
 			$format[] = '%d';
 		}
 
-		$affected = $wpdb->insert( $sources_table_name, $data, $format );
+		$affected = $wpdb->insert($sources_table_name, $data, $format);
 
 		return $affected;
 	}
@@ -299,16 +302,16 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function elementor_feeds_query() {
+	public static function elementor_feeds_query()
+	{
 		global $wpdb;
 		$feeds_elementor = [];
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
-		$feeds_list = $wpdb->get_results( "
+		$feeds_list = $wpdb->get_results("
 			SELECT id, feed_name FROM $feeds_table_name;
-			"
-		);
-		if ( ! empty( $feeds_list ) ) {
-			foreach($feeds_list as $feed) {
+			");
+		if (! empty($feeds_list)) {
+			foreach ($feeds_list as $feed) {
 				$feeds_elementor[$feed->id] =  $feed->feed_name;
 			}
 		}
@@ -326,11 +329,13 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function feeds_count() {
+	public static function feeds_count()
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 		$results = $wpdb->get_results(
-			"SELECT COUNT(*) AS num_entries FROM $feeds_table_name", ARRAY_A
+			"SELECT COUNT(*) AS num_entries FROM $feeds_table_name",
+			ARRAY_A
 		);
 		return isset($results[0]['num_entries']) ? (int)$results[0]['num_entries'] : 0;
 	}
@@ -345,30 +350,31 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function feeds_query( $args = array() ) {
+	public static function feeds_query($args = array())
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 		$page = 0;
-		if ( isset( $args['page'] ) ) {
+		if (isset($args['page'])) {
 			$page = (int)$args['page'] - 1;
-			unset( $args['page'] );
+			unset($args['page']);
 		}
 
-		$offset = max( 0, $page * self::RESULTS_PER_PAGE );
+		$offset = max(0, $page * self::RESULTS_PER_PAGE);
 
-		if ( isset( $args['id'] ) ) {
-			$sql = $wpdb->prepare( "
+		if (isset($args['id'])) {
+			$sql = $wpdb->prepare("
 			SELECT * FROM $feeds_table_name
 			WHERE id = %d;
-		 ", $args['id'] );
+		 ", $args['id']);
 		} else {
-			$sql = $wpdb->prepare( "
+			$sql = $wpdb->prepare("
 			SELECT * FROM $feeds_table_name
 			LIMIT %d
-			OFFSET %d;", self::RESULTS_PER_PAGE, $offset );
+			OFFSET %d;", self::RESULTS_PER_PAGE, $offset);
 		}
 
-		return $wpdb->get_results( $sql, ARRAY_A );
+		return $wpdb->get_results($sql, ARRAY_A);
 	}
 
 	/**
@@ -381,34 +387,35 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function feeds_update( $to_update, $where_data ) {
+	public static function feeds_update($to_update, $where_data)
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 
 		$data = array();
 		$where = array();
 		$format = array();
-		foreach ( $to_update as $single_insert ) {
-			if ( $single_insert['key'] ) {
+		foreach ($to_update as $single_insert) {
+			if ($single_insert['key']) {
 				$data[ $single_insert['key'] ] = $single_insert['values'][0];
 				$format[] = '%s';
 			}
 		}
 
-		if ( isset( $where_data['id'] ) ) {
+		if (isset($where_data['id'])) {
 			$where['id'] = $where_data['id'];
 			$where_format = array( '%d' );
-		} elseif ( isset( $where_data['feed_name'] ) ) {
+		} elseif (isset($where_data['feed_name'])) {
 			$where['feed_name'] = $where_data['feed_name'];
 			$where_format = array( '%s' );
 		} else {
 			return false;
 		}
 
-		$data['last_modified'] = date( 'Y-m-d H:i:s' );
+		$data['last_modified'] = date('Y-m-d H:i:s');
 		$format[] = '%s';
 
-		$affected = $wpdb->update( $feeds_table_name, $data, $where, $format, $where_format );
+		$affected = $wpdb->update($feeds_table_name, $data, $where, $format, $where_format);
 
 		return $affected;
 	}
@@ -423,26 +430,27 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function feeds_insert( $to_insert ) {
+	public static function feeds_insert($to_insert)
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 
 		$data = array();
 		$format = array();
-		foreach ( $to_insert as $single_insert ) {
-			if ( $single_insert['key'] ) {
+		foreach ($to_insert as $single_insert) {
+			if ($single_insert['key']) {
 				$data[ $single_insert['key'] ] = $single_insert['values'][0];
 				$format[] = '%s';
 			}
 		}
 
-		$data['last_modified'] = date( 'Y-m-d H:i:s' );
+		$data['last_modified'] = date('Y-m-d H:i:s');
 		$format[] = '%s';
 
 		$data['author'] = get_current_user_id();
 		$format[] = '%d';
 
-		$wpdb->insert( $feeds_table_name, $data, $format );
+		$wpdb->insert($feeds_table_name, $data, $format);
 		return $wpdb->insert_id;
 	}
 
@@ -456,7 +464,8 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function feeds_query_name( $sourcename ) {
+	public static function feeds_query_name($sourcename)
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 		$sql = $wpdb->prepare(
@@ -464,8 +473,8 @@ class CFF_Db {
 			WHERE feed_name LIKE %s;",
 			$wpdb->esc_like($sourcename) . '%'
 		);
-		$count = sizeof($wpdb->get_results( $sql, ARRAY_A ));
-		return ($count == 0) ? $sourcename : $sourcename .' ('. ($count+1) .')';
+		$count = sizeof($wpdb->get_results($sql, ARRAY_A));
+		return ($count == 0) ? $sourcename : $sourcename . ' (' . ($count + 1) . ')';
 	}
 
 
@@ -479,15 +488,16 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function delete_feeds_query( $feed_ids_array ) {
+	public static function delete_feeds_query($feed_ids_array)
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 		$feed_caches_table_name = $wpdb->prefix . 'cff_feed_caches';
 		$sanitized_feed_ids_array = array();
-		foreach ( $feed_ids_array as $id ) {
-			$sanitized_feed_ids_array[] = absint( $id );
+		foreach ($feed_ids_array as $id) {
+			$sanitized_feed_ids_array[] = absint($id);
 		}
-		$feed_ids_array = implode( ',', $sanitized_feed_ids_array );
+		$feed_ids_array = implode(',', $sanitized_feed_ids_array);
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -513,12 +523,14 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function delete_source_query( $source_id ) {
+	public static function delete_source_query($source_id)
+	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $sources_table_name WHERE id = %d; ", $source_id
+				"DELETE FROM $sources_table_name WHERE id = %d; ",
+				$source_id
 			)
 		);
 
@@ -535,7 +547,8 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function duplicate_feed_query( $feed_id ){
+	public static function duplicate_feed_query($feed_id)
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 		$wpdb->query(
@@ -543,7 +556,8 @@ class CFF_Db {
 				"INSERT INTO $feeds_table_name (feed_name, settings, author, status)
 				SELECT CONCAT(feed_name, ' (copy)'), settings, author, status
 				FROM $feeds_table_name
-				WHERE id = %d; ", $feed_id
+				WHERE id = %d; ",
+				$feed_id
 			)
 		);
 
@@ -561,32 +575,32 @@ class CFF_Db {
 	 *
 	 * @return array|object|null
 	 */
-	public static function feed_caches_query( $args ) {
+	public static function feed_caches_query($args)
+	{
 		global $wpdb;
 		$feed_cache_table_name = $wpdb->prefix . 'cff_feed_caches';
 
-		if ( ! isset( $args['cron_update'] ) ) {
+		if (! isset($args['cron_update'])) {
 			$sql = "
 			SELECT * FROM $feed_cache_table_name;";
 		} else {
-			if ( ! isset( $args['additional_batch'] ) ) {
-				$sql = $wpdb->prepare( "
+			if (! isset($args['additional_batch'])) {
+				$sql = $wpdb->prepare("
 					SELECT * FROM $feed_cache_table_name
 					WHERE cron_update = 'yes'
 					ORDER BY last_updated ASC
-					LIMIT %d;", self::RESULTS_PER_CRON_UPDATE );
+					LIMIT %d;", self::RESULTS_PER_CRON_UPDATE);
 			} else {
-				$sql = $wpdb->prepare( "
+				$sql = $wpdb->prepare("
 					SELECT * FROM $feed_cache_table_name
 					WHERE cron_update = 'yes'
 					AND last_updated < %s
 					ORDER BY last_updated ASC
-					LIMIT %d;", date( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ), self::RESULTS_PER_CRON_UPDATE );
+					LIMIT %d;", date('Y-m-d H:i:s', time() - HOUR_IN_SECONDS), self::RESULTS_PER_CRON_UPDATE);
 			}
-
 		}
 
-		return $wpdb->get_results( $sql, ARRAY_A );
+		return $wpdb->get_results($sql, ARRAY_A);
 	}
 
 
@@ -598,21 +612,22 @@ class CFF_Db {
 	 *
 	 * @since 4.0
 	 */
-	public static function create_tables() {
-		if ( !function_exists( 'dbDelta' ) ) {
+	public static function create_tables()
+	{
+		if (!function_exists('dbDelta')) {
 			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		}
 
 		global $wpdb;
 		$max_index_length = 191;
 		$charset_collate = '';
-		if ( method_exists( $wpdb, 'get_charset_collate' ) ) { // get_charset_collate introduced in WP 3.5
+		if (method_exists($wpdb, 'get_charset_collate')) { // get_charset_collate introduced in WP 3.5
 			$charset_collate = $wpdb->get_charset_collate();
 		}
 
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 
-		if ( $wpdb->get_var( "show tables like '$feeds_table_name'" ) != $feeds_table_name ) {
+		if ($wpdb->get_var("show tables like '$feeds_table_name'") != $feeds_table_name) {
 			$sql = "
 			CREATE TABLE $feeds_table_name (
 			 id bigint(20) unsigned NOT NULL auto_increment,
@@ -626,24 +641,24 @@ class CFF_Db {
 			 KEY author (author)
 			) $charset_collate;
 			";
-			//dbDelta( $sql );
-			$wpdb->query( $sql );
+			// dbDelta( $sql );
+			$wpdb->query($sql);
 		}
 		$error = $wpdb->last_error;
 		$query = $wpdb->last_query;
 		$had_error = false;
-		if ( $wpdb->get_var( "show tables like '$feeds_table_name'" ) != $feeds_table_name ) {
+		if ($wpdb->get_var("show tables like '$feeds_table_name'") != $feeds_table_name) {
 			$had_error = true;
-			//$sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
+			// $sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
 		}
 
-		if ( ! $had_error ) {
-			//$sb_instagram_posts_manager->remove_error( 'database_create' );
+		if (! $had_error) {
+			// $sb_instagram_posts_manager->remove_error( 'database_create' );
 		}
 
 		$feed_caches_table_name = $wpdb->prefix . 'cff_feed_caches';
 
-		if ( $wpdb->get_var( "show tables like '$feed_caches_table_name'" ) != $feed_caches_table_name ) {
+		if ($wpdb->get_var("show tables like '$feed_caches_table_name'") != $feed_caches_table_name) {
 			$sql = "
 				CREATE TABLE " . $feed_caches_table_name . " (
 				id bigint(20) unsigned NOT NULL auto_increment,
@@ -655,24 +670,24 @@ class CFF_Db {
                 PRIMARY KEY  (id),
                 KEY feed_id (feed_id)
             ) $charset_collate;";
-			//dbDelta( $sql );
-			$wpdb->query( $sql );
+			// dbDelta( $sql );
+			$wpdb->query($sql);
 		}
 		$error = $wpdb->last_error;
 		$query = $wpdb->last_query;
 		$had_error = false;
-		if ( $wpdb->get_var( "show tables like '$feed_caches_table_name'" ) != $feed_caches_table_name ) {
+		if ($wpdb->get_var("show tables like '$feed_caches_table_name'") != $feed_caches_table_name) {
 			$had_error = true;
-			//$sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
+			// $sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
 		}
 
-		if ( ! $had_error ) {
-			//$sb_instagram_posts_manager->remove_error( 'database_create' );
+		if (! $had_error) {
+			// $sb_instagram_posts_manager->remove_error( 'database_create' );
 		}
 
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 
-		if ( $wpdb->get_var( "show tables like '$sources_table_name'" ) != $sources_table_name ) {
+		if ($wpdb->get_var("show tables like '$sources_table_name'") != $sources_table_name) {
 			$sql = "
 			CREATE TABLE " . $sources_table_name . " (
 				id bigint(20) unsigned NOT NULL auto_increment,
@@ -690,19 +705,19 @@ class CFF_Db {
                 KEY account_type (account_type($max_index_length)),
                 KEY author (author)
             ) $charset_collate;";
-			//dbDelta( $sql );
-			$wpdb->query( $sql );
+			// dbDelta( $sql );
+			$wpdb->query($sql);
 		}
 		$error = $wpdb->last_error;
 		$query = $wpdb->last_query;
 		$had_error = false;
-		if ( $wpdb->get_var( "show tables like '$sources_table_name'" ) != $sources_table_name ) {
+		if ($wpdb->get_var("show tables like '$sources_table_name'") != $sources_table_name) {
 			$had_error = true;
-			//$sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
+			// $sb_instagram_posts_manager->add_error( 'database_create', '<strong>' . __( 'There was an error when trying to create the database tables used to locate feeds.', 'instagram-feed' ) .'</strong><br>' . $error . '<br><code>' . $query . '</code>' );
 		}
 
-		if ( ! $had_error ) {
-			//$sb_instagram_posts_manager->remove_error( 'database_create' );
+		if (! $had_error) {
+			// $sb_instagram_posts_manager->remove_error( 'database_create' );
 		}
 	}
 
@@ -710,21 +725,22 @@ class CFF_Db {
 	 * Creates the sources table and adds existing sources from 3.x
 	 * to it.
 	 */
-	public static function create_sources_database() {
-		if ( !function_exists( 'dbDelta' ) ) {
+	public static function create_sources_database()
+	{
+		if (!function_exists('dbDelta')) {
 			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		}
 
 		global $wpdb;
 		$max_index_length = 191;
 		$charset_collate = '';
-		if ( method_exists( $wpdb, 'get_charset_collate' ) ) { // get_charset_collate introduced in WP 3.5
+		if (method_exists($wpdb, 'get_charset_collate')) { // get_charset_collate introduced in WP 3.5
 			$charset_collate = $wpdb->get_charset_collate();
 		}
 
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 
-		if ( $wpdb->get_var( "show tables like '$sources_table_name'" ) != $sources_table_name ) {
+		if ($wpdb->get_var("show tables like '$sources_table_name'") != $sources_table_name) {
 			$sql = "
 			CREATE TABLE " . $sources_table_name . " (
 				id bigint(20) unsigned NOT NULL auto_increment,
@@ -742,11 +758,11 @@ class CFF_Db {
                 KEY account_type (account_type($max_index_length)),
                 KEY author (author)
             ) $charset_collate;";
-			dbDelta( $sql );
+			dbDelta($sql);
 
-			$connected_accounts = (array)json_decode(stripcslashes(get_option( 'cff_connected_accounts' )), true);
+			$connected_accounts = (array)json_decode(stripcslashes(get_option('cff_connected_accounts')), true);
 
-			foreach ( $connected_accounts as $connected_account ) {
+			foreach ($connected_accounts as $connected_account) {
 				$source_data = array(
 					'access_token' => $connected_account['accesstoken'],
 					'id'           => $connected_account['id'],
@@ -755,60 +771,62 @@ class CFF_Db {
 					'privilege'    => '', // see if events token?
 				);
 
-				$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data( $source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '' );
+				$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '');
 
-				if ( isset( $header_details->shortcode_options ) ) {
-					unset( $header_details->shortcode_options );
+				if (isset($header_details->shortcode_options)) {
+					unset($header_details->shortcode_options);
 				}
 
-				if ( isset( $header_details->name ) ) {
+				if (isset($header_details->name)) {
 					$source_data['name'] = $header_details->name;
 				}
 				$source_data['info'] = $header_details;
 
 				// don't update or insert the access token if there is an API error
-				if ( ! isset( $header_details->error ) && ! isset( $header_details->cached_error ) ) {
-					\CustomFacebookFeed\Builder\CFF_Source::update_or_insert( $source_data );
+				if (! isset($header_details->error) && ! isset($header_details->cached_error)) {
+					\CustomFacebookFeed\Builder\CFF_Source::update_or_insert($source_data);
 				}
 			}
 
-			$db_access_token_option = get_option( 'cff_access_token' );
-			$db_page_access_token  = get_option( 'cff_page_access_token' );
-			$db_page_id_option  = get_option( 'cff_page_id' );
-			$db_page_type = get_option( 'cff_page_type' );
+			$db_access_token_option = get_option('cff_access_token');
+			$db_page_access_token  = get_option('cff_page_access_token');
+			$db_page_id_option  = get_option('cff_page_id');
+			$db_page_type = get_option('cff_page_type');
 
-			if ( (! empty( $db_access_token_option ) || ! empty( $db_page_access_token ))
-			     && ! empty( $db_page_id_option ) ) {
-				$db_access_tokens = explode(',', str_replace( ' ', '', $db_access_token_option ) );
-				$db_page_ids = explode(',', str_replace( ' ', '', $db_page_id_option ) );
+			if (
+				(! empty($db_access_token_option) || ! empty($db_page_access_token))
+				 && ! empty($db_page_id_option)
+			) {
+				$db_access_tokens = explode(',', str_replace(' ', '', $db_access_token_option));
+				$db_page_ids = explode(',', str_replace(' ', '', $db_page_id_option));
 
 				$i = 0;
-				foreach ( $db_access_tokens as $db_access_token ){
+				foreach ($db_access_tokens as $db_access_token) {
 					$db_page_id = $db_page_ids[ $i ];
 					$source_data = array(
-						'access_token' =>  ! empty( $db_page_access_token ) ? $db_page_access_token : $db_access_token,
+						'access_token' =>  ! empty($db_page_access_token) ? $db_page_access_token : $db_access_token,
 						'id'           => $db_page_id,
 						'type'         => $db_page_type === 'group' ? 'group' : 'page',
 						'name'         => $db_page_id,
 						'privilege'    => '', // see if events token?
 					);
 
-					$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data( $source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '' );
+					$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '');
 
-					if ( isset( $header_details->shortcode_options ) ) {
-						unset( $header_details->shortcode_options );
+					if (isset($header_details->shortcode_options)) {
+						unset($header_details->shortcode_options);
 					}
 
-					if ( isset( $header_details->name ) ) {
+					if (isset($header_details->name)) {
 						$source_data['name'] = $header_details->name;
 					}
 					$source_data['info'] = $header_details;
 
 					// don't update or insert the access token if there is an API error
-					if ( ! isset( $header_details->error ) && ! isset( $header_details->cached_error ) ) {
-						\CustomFacebookFeed\Builder\CFF_Source::update_or_insert( $source_data );
+					if (! isset($header_details->error) && ! isset($header_details->cached_error)) {
+						\CustomFacebookFeed\Builder\CFF_Source::update_or_insert($source_data);
 					} else {
-						if ( ! empty( $db_page_access_token ) && ! empty( $db_access_token ) ) {
+						if (! empty($db_page_access_token) && ! empty($db_access_token)) {
 							$source_data = array(
 								'access_token' => $db_access_token,
 								'id'           => $db_page_id,
@@ -817,25 +835,24 @@ class CFF_Db {
 								'privilege'    => '', // see if events token?
 							);
 
-							$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data( $source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '' );
+							$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '');
 
-							if ( isset( $header_details->shortcode_options ) ) {
-								unset( $header_details->shortcode_options );
+							if (isset($header_details->shortcode_options)) {
+								unset($header_details->shortcode_options);
 							}
 
-							if ( isset( $header_details->name ) ) {
+							if (isset($header_details->name)) {
 								$source_data['name'] = $header_details->name;
 							}
 							$source_data['info'] = $header_details;
 
-							if ( ! isset( $header_details->error ) && ! isset( $header_details->cached_error ) ) {
-								\CustomFacebookFeed\Builder\CFF_Source::update_or_insert( $source_data );
+							if (! isset($header_details->error) && ! isset($header_details->cached_error)) {
+								\CustomFacebookFeed\Builder\CFF_Source::update_or_insert($source_data);
 							}
 						}
 					}
 					$i++;
 				}
-
 			}
 
 			// how many legacy feeds?
@@ -844,31 +861,31 @@ class CFF_Db {
 				'group_by' => 'shortcode_atts',
 				'page' => 1
 			);
-			$feeds_data = \CustomFacebookFeed\CFF_Feed_Locator::legacy_facebook_feed_locator_query( $args );
-			$num_legacy = count( $feeds_data );
+			$feeds_data = \CustomFacebookFeed\CFF_Feed_Locator::legacy_facebook_feed_locator_query($args);
+			$num_legacy = count($feeds_data);
 
 			$cff_statuses_option['support_legacy_shortcode'] = false;
 
-			if ( $num_legacy > 0 ) {
-				$options 		= get_option( 'cff_style_settings', array() );
+			if ($num_legacy > 0) {
+				$options 		= get_option('cff_style_settings', array());
 
-				foreach ( $feeds_data as $single_legacy_feed ) {
-					$shortcode_atts = $single_legacy_feed['shortcode_atts'] != '[""]' ? json_decode( $single_legacy_feed['shortcode_atts'], true ) : [];
-					$shortcode_atts = is_array( $shortcode_atts ) ? $shortcode_atts : array();
-					$fb_settings    = new \CustomFacebookFeed\CFF_FB_Settings( $shortcode_atts, $options );
+				foreach ($feeds_data as $single_legacy_feed) {
+					$shortcode_atts = $single_legacy_feed['shortcode_atts'] != '[""]' ? json_decode($single_legacy_feed['shortcode_atts'], true) : [];
+					$shortcode_atts = is_array($shortcode_atts) ? $shortcode_atts : array();
+					$fb_settings    = new \CustomFacebookFeed\CFF_FB_Settings($shortcode_atts, $options);
 					$feed_options   = $fb_settings->get_settings();
-					if ( ! empty( $feed_options['type'] )
-					     && $feed_options['type'] === 'events'
-					     && ! empty( $feed_options['eventsource'] )
-					     && $feed_options['eventsource'] === 'eventspage' ) {
-
+					if (
+						! empty($feed_options['type'])
+						 && $feed_options['type'] === 'events'
+						 && ! empty($feed_options['eventsource'])
+						 && $feed_options['eventsource'] === 'eventspage'
+					) {
 						$args         = array( 'id' => $feed_options['id'] );
 						$access_token = $feed_options['accesstoken'];
 
-						$source_query = \CustomFacebookFeed\Builder\CFF_Db::source_query( $args );
+						$source_query = \CustomFacebookFeed\Builder\CFF_Db::source_query($args);
 
-						if ( empty( $source_query ) ) {
-
+						if (empty($source_query)) {
 							$source_data = array(
 								'access_token' => $access_token,
 								'id'           => $feed_options['id'],
@@ -877,119 +894,122 @@ class CFF_Db {
 								'privilege'    => '', // see if events token?
 							);
 
-							$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data( $source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '' );
+							$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($source_data['id'], $source_data['type'] === 'group', $source_data['access_token'], 0, false, '');
 
-							if ( isset( $header_details->shortcode_options ) ) {
-								unset( $header_details->shortcode_options );
+							if (isset($header_details->shortcode_options)) {
+								unset($header_details->shortcode_options);
 							}
 
-							if ( isset( $header_details->name ) ) {
+							if (isset($header_details->name)) {
 								$source_data['name'] = $header_details->name;
 							}
 							$source_data['info'] = $header_details;
 
 							$event_fields        = 'id,name,attending_count,cover,start_time,end_time,event_times,timezone,place,description,ticket_uri,interested_count';
 							$cff_events_json_url = "https://graph.facebook.com/v3.2/" . $feed_options['id'] . "/events/?fields=" . $event_fields . "&limit=1&access_token=" . $access_token . "&format=json-strings";
-							$events_json         = \CustomFacebookFeed\CFF_Utils::cff_get_set_cache( $cff_events_json_url, $feed_options['id'], 10, 10, $shortcode_atts, false, $access_token );
+							$events_json         = \CustomFacebookFeed\CFF_Utils::cff_get_set_cache($cff_events_json_url, $feed_options['id'], 10, 10, $shortcode_atts, false, $access_token);
 
-							$events_data = json_decode( $events_json, true );
+							$events_data = json_decode($events_json, true);
 
-							if ( isset( $events_data['data'] ) ) {
+							if (isset($events_data['data'])) {
 								$source_data['privilege'] = 'events';
 							}
 
 							// don't update or insert the access token if there is an API error
-							if ( ! isset( $header_details->error ) && ! isset( $header_details->cached_error ) ) {
-								\CustomFacebookFeed\Builder\CFF_Source::update_or_insert( $source_data );
+							if (! isset($header_details->error) && ! isset($header_details->cached_error)) {
+								\CustomFacebookFeed\Builder\CFF_Source::update_or_insert($source_data);
 							}
 						} else {
 							$event_fields        = 'id,name,attending_count,cover,start_time,end_time,event_times,timezone,place,description,ticket_uri,interested_count';
 							$cff_events_json_url = "https://graph.facebook.com/v3.2/" . $feed_options['id'] . "/events/?fields=" . $event_fields . "&limit=1&access_token=" . $access_token . "&format=json-strings";
-							$events_json         = \CustomFacebookFeed\CFF_Utils::cff_get_set_cache( $cff_events_json_url, $feed_options['id'], 10, 10, $shortcode_atts, false, $access_token );
+							$events_json         = \CustomFacebookFeed\CFF_Utils::cff_get_set_cache($cff_events_json_url, $feed_options['id'], 10, 10, $shortcode_atts, false, $access_token);
 
-							$events_data = json_decode( $events_json, true );
+							$events_data = json_decode($events_json, true);
 
-							if ( isset( $events_data['data'] ) ) {
+							if (isset($events_data['data'])) {
 								$source_data = [
 									'id'           => $feed_options['id'],
 									'access_token' => $access_token,
 									'privilege'    => 'events'
 								];
 
-								\CustomFacebookFeed\Builder\CFF_Source::update( $source_data, false );
+								\CustomFacebookFeed\Builder\CFF_Source::update($source_data, false);
 							}
 						}
 					}
-
 				}
 			}
 		}
 	}
 
-	public static function clear_cff_feed_caches() {
+	public static function clear_cff_feed_caches()
+	{
 		global $wpdb;
 		$feed_caches_table_name = $wpdb->prefix . 'cff_feed_caches';
 
-		if ( $wpdb->get_var( "show tables like '$feed_caches_table_name'" ) === $feed_caches_table_name ) {
-			$wpdb->query( "DELETE FROM $feed_caches_table_name" );
+		if ($wpdb->get_var("show tables like '$feed_caches_table_name'") === $feed_caches_table_name) {
+			$wpdb->query("DELETE FROM $feed_caches_table_name");
 		}
 	}
 
-	public static function clear_cff_sources() {
+	public static function clear_cff_sources()
+	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 
-		if ( $wpdb->get_var( "show tables like '$sources_table_name'" ) === $sources_table_name ) {
-			$wpdb->query( "DELETE FROM $sources_table_name" );
+		if ($wpdb->get_var("show tables like '$sources_table_name'") === $sources_table_name) {
+			$wpdb->query("DELETE FROM $sources_table_name");
 		}
 	}
 
-	public static function reset_tables() {
+	public static function reset_tables()
+	{
 		global $wpdb;
 		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
 
-		$wpdb->query( "DROP TABLE IF EXISTS $feeds_table_name" );
+		$wpdb->query("DROP TABLE IF EXISTS $feeds_table_name");
 		$feed_caches_table_name = $wpdb->prefix . 'cff_feed_caches';
 
-		$wpdb->query( "DROP TABLE IF EXISTS $feed_caches_table_name" );
+		$wpdb->query("DROP TABLE IF EXISTS $feed_caches_table_name");
 
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
-		$wpdb->query( "DROP TABLE IF EXISTS $sources_table_name" );
+		$wpdb->query("DROP TABLE IF EXISTS $sources_table_name");
 	}
 
-	public static function reset_db_update() {
-		update_option( 'cff_db_version', 1.9 );
-		delete_option( 'cff_legacy_feed_settings' );
-		delete_option( 'cff_page_slugs' );
+	public static function reset_db_update()
+	{
+		update_option('cff_db_version', 1.9);
+		delete_option('cff_legacy_feed_settings');
+		delete_option('cff_page_slugs');
 
 		// are there existing feeds to toggle legacy onboarding?
-		$cff_statuses_option = get_option( 'cff_statuses', array() );
+		$cff_statuses_option = get_option('cff_statuses', array());
 
-		if ( isset( $cff_statuses_option['legacy_onboarding'] ) ) {
-			unset( $cff_statuses_option['legacy_onboarding'] );
+		if (isset($cff_statuses_option['legacy_onboarding'])) {
+			unset($cff_statuses_option['legacy_onboarding']);
 		}
-		if ( isset( $cff_statuses_option['support_legacy_shortcode'] ) ) {
-			unset( $cff_statuses_option['support_legacy_shortcode'] );
+		if (isset($cff_statuses_option['support_legacy_shortcode'])) {
+			unset($cff_statuses_option['support_legacy_shortcode']);
 		}
 
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . "usermeta";
-		$wpdb->query( "
+		$wpdb->query("
         DELETE
         FROM $table_name
         WHERE `meta_key` LIKE ('cff\_%')
-        " );
+        ");
 
 
-		$feed_locator_table_name = esc_sql( $wpdb->prefix . CFF_FEED_LOCATOR );
+		$feed_locator_table_name = esc_sql($wpdb->prefix . CFF_FEED_LOCATOR);
 
-		$results = $wpdb->query( "
+		$results = $wpdb->query("
 			DELETE
 			FROM $feed_locator_table_name
-			WHERE feed_id LIKE '*%';" );
+			WHERE feed_id LIKE '*%';");
 
-		update_option( 'cff_statuses', $cff_statuses_option );
+		update_option('cff_statuses', $cff_statuses_option);
 	}
 
 
@@ -1028,7 +1048,8 @@ class CFF_Db {
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $sources_table_name WHERE id = %d; ", $source_id
+				"DELETE FROM $sources_table_name WHERE id = %d; ",
+				$source_id
 			)
 		);
 	}
@@ -1048,8 +1069,7 @@ class CFF_Db {
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
 		$number = $wpdb->get_var("
 			SELECT count(*) FROM $sources_table_name
-			WHERE account_type = 'group'"
-		);
+			WHERE account_type = 'group'");
 		return $number;
 	}
 	/**
@@ -1078,7 +1098,7 @@ class CFF_Db {
 
 		$settings = json_decode($feed['settings'], true);
 
-		//Sources can be array | so we get fist source
+		// Sources can be array | so we get fist source
 		$source_id = is_array($settings['sources']) && !empty($settings['sources'][0])
 			? $settings['sources'][0]
 			: $settings['sources'];
@@ -1135,7 +1155,8 @@ class CFF_Db {
 		$post_ids			= esc_sql($post_ids);
 		$sql_ids 			= "'" . implode('\', \'', $post_ids) . "'";
 
-		$posts = $wpdb->get_results("SELECT * FROM $posts_table
+		$posts = $wpdb->get_results(
+			"SELECT * FROM $posts_table
 			WHERE facebook_id IN ($sql_ids)",
 			ARRAY_A
 		);
@@ -1184,7 +1205,6 @@ class CFF_Db {
 				'id'    => !empty($data['from']['id']) 	? $data['from']['id'] : '',
 			]
 		];
-
 	}
 
 	/**

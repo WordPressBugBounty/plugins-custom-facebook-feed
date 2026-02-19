@@ -1,6 +1,6 @@
 <?php
-namespace CustomFacebookFeed\Integrations;
 
+namespace CustomFacebookFeed\Integrations;
 
 use CustomFacebookFeed\CFF_Cache;
 use CustomFacebookFeed\CFF_Group_Posts;
@@ -20,8 +20,6 @@ if (!defined('ABSPATH')) {
  */
 class CFF_Graph_Data
 {
-
-
 	/**
 	 * Feed ID
 	 *
@@ -212,8 +210,8 @@ class CFF_Graph_Data
 	/**
 	 * CFF_Graph_Data constructor.
 	 *
-	 * @param int $page_id Source Page/Group ID
-	 * @param int $feed_id the Feed ID
+	 * @param int   $page_id Source Page/Group ID
+	 * @param int   $feed_id the Feed ID
 	 * @param array $feed_settings list of Feed Settings
 	 * @since 5.0
 	 */
@@ -231,7 +229,7 @@ class CFF_Graph_Data
 		$this->page_ids = $page_ids;
 		$this->prev_page_data = $prev_page_data;
 		$this->locale = !empty($this->feed_settings['locale']) ? $this->feed_settings['locale'] : get_option('cff_locale', 'en_US');
-		$this->shortcode_atts = is_array($data_att_html) ? $data_att_html : json_decode(str_replace('&quot;', '"', (isset($data_att_html) ? $data_att_html : '') ), true);
+		$this->shortcode_atts = is_array($data_att_html) ? $data_att_html : json_decode(str_replace('&quot;', '"', (isset($data_att_html) ? $data_att_html : '')), true);
 		$this->post_limit = $this->get_post_limit();
 
 		$this->transient_name = $this->get_transient_name();

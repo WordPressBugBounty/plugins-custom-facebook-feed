@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SB_Analytics plugin integration
  * Class to impelement filters to return
@@ -17,6 +18,7 @@ class SB_Analytics
 {
 	/**
 	 * Summary of current_plugin
+	 *
 	 * @var string
 	 */
 	private static $current_plugin = 'facebook';
@@ -32,11 +34,12 @@ class SB_Analytics
 
 	/**
 	 * Summary of init
+	 *
 	 * @return void
 	 */
 	public function init()
 	{
-		//Filter Top Posts
+		// Filter Top Posts
 		add_filter(
 			'sb_analytics_filter_top_posts',
 			[$this, 'filter_top_posts'],
@@ -44,7 +47,7 @@ class SB_Analytics
 			3
 		);
 
-		//Filter Profile Details
+		// Filter Profile Details
 		add_filter(
 			'sb_analytics_filter_profile_details',
 			[$this, 'filter_profile_details'],
@@ -52,7 +55,7 @@ class SB_Analytics
 			3
 		);
 
-		//Filter Feed Lists
+		// Filter Feed Lists
 		add_filter(
 			'sb_analytics_filter_feed_list',
 			[$this, 'filter_feed_list'],
@@ -124,9 +127,9 @@ class SB_Analytics
 		}
 
 		$results = [];
-		$db_fees = CFF_Db::all_feeds_query(); //Get All stored Feeds
+		$db_fees = CFF_Db::all_feeds_query(); // Get All stored Feeds
 
-		//Transform result feed schema
+		// Transform result feed schema
 		foreach ($db_fees as $feed) {
 			array_push(
 				$results,
@@ -140,5 +143,4 @@ class SB_Analytics
 		}
 		return $results;
 	}
-
 }

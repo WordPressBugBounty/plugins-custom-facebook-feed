@@ -4,7 +4,7 @@
  * CFF Admin Notices.
  *
  * @since 4.0
-*/
+ */
 
 namespace CustomFacebookFeed\Admin;
 

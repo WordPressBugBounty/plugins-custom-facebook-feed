@@ -44,7 +44,7 @@
 
 	<div class="sb-onboarding-wizard-elements-list sb-fs" v-if="onboardingWizardStepContent['configure-features']?.proFeaturesList !== undefined">
 		<div class="sb-onboarding-wizard-elements-list-hd sb-fs">
-			<?php echo __( 'Pro Features') ?>
+			<?php echo __('Pro Features') ?>
 		</div>
 		<div class="sb-onboarding-wizard-elem sb-fs" v-for="feature in onboardingWizardStepContent['configure-features']?.proFeaturesList">
 			<div class="sb-onboarding-wizard-elem-info">

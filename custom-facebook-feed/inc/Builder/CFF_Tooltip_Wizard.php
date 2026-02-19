@@ -1,24 +1,26 @@
 <?php
+
 /**
  * CFF Tooltip Wizard
  *
- *
  * @since 4.0
  */
+
 namespace CustomFacebookFeed\Builder;
 
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-class CFF_Tooltip_Wizard {
-
+class CFF_Tooltip_Wizard
+{
 	/**
 	 * Constructor.
 	 *
 	 * @since 4.0
 	 */
-	public function __construct(){
+	public function __construct()
+	{
 		$this->init();
 	}
 
@@ -28,7 +30,8 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function init() {
+	public function init()
+	{
 		/*
 		if (
 			! wpforms_is_admin_page( 'builder' ) &&
@@ -47,9 +50,10 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function hooks() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueues' ] );
-		add_action( 'admin_footer', [ $this, 'output' ] );
+	public function hooks()
+	{
+		add_action('admin_enqueue_scripts', [ $this, 'enqueues' ]);
+		add_action('admin_footer', [ $this, 'output' ]);
 	}
 
 
@@ -58,7 +62,8 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function enqueues() {
+	public function enqueues()
+	{
 
 		wp_enqueue_style(
 			'cff-tooltipster-css',
@@ -83,7 +88,7 @@ class CFF_Tooltip_Wizard {
 		);
 
 		$wp_localize_data = [];
-		if( $this->check_gutenberg_wizard() ){
+		if ($this->check_gutenberg_wizard()) {
 			$wp_localize_data['cff_wizard_gutenberg'] = true;
 		}
 
@@ -99,11 +104,11 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function output() {
-		if( $this->check_gutenberg_wizard() ){
+	public function output()
+	{
+		if ($this->check_gutenberg_wizard()) {
 			$this->gutenberg_tooltip_output();
 		}
-
 	}
 
 	/**
@@ -111,10 +116,11 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function check_gutenberg_wizard() {
+	public function check_gutenberg_wizard()
+	{
 		global $pagenow;
 		return  (	( $pagenow == 'post.php' ) || (get_post_type() == 'page') )
-				&& ! empty( $_GET['cff_wizard'] );
+				&& ! empty($_GET['cff_wizard']);
 	}
 
 
@@ -123,21 +129,20 @@ class CFF_Tooltip_Wizard {
 	 *
 	 * @since 4.0
 	 */
-	public function gutenberg_tooltip_output() {
+	public function gutenberg_tooltip_output()
+	{
 		?>
 		<div id="cff-gutenberg-tooltip-content">
 			<div class="cff-tlp-wizard-cls cff-tlp-wizard-close"></div>
 			<div class="cff-tlp-wizard-content">
-				<strong class="cff-tooltip-wizard-head"><?php echo __('Add a Block','custom-facebook-feed') ?></strong>
-				<p class="cff-tooltip-wizard-txt"><?php echo __('Click the plus button, search for Custom Facebook','custom-facebook-feed'); ?>
-                    <br/><?php echo __('Feed, and click the block to embed it.','custom-facebook-feed') ?> <a href="https://smashballoon.com/doc/wordpress-5-block-page-editor-gutenberg/?facebook" rel="noopener" target="_blank"><?php echo __('Learn More','custom-facebook-feed') ?></a></p>
+				<strong class="cff-tooltip-wizard-head"><?php echo __('Add a Block', 'custom-facebook-feed') ?></strong>
+				<p class="cff-tooltip-wizard-txt"><?php echo __('Click the plus button, search for Custom Facebook', 'custom-facebook-feed'); ?>
+					<br/><?php echo __('Feed, and click the block to embed it.', 'custom-facebook-feed') ?> <a href="https://smashballoon.com/doc/wordpress-5-block-page-editor-gutenberg/?facebook" rel="noopener" target="_blank"><?php echo __('Learn More', 'custom-facebook-feed') ?></a></p>
 				<div class="cff-tooltip-wizard-actions">
-					<button class="cff-tlp-wizard-close"><?php echo __('Done','custom-facebook-feed') ?></button>
+					<button class="cff-tlp-wizard-close"><?php echo __('Done', 'custom-facebook-feed') ?></button>
 				</div>
 			</div>
 		</div>
 		<?php
 	}
-
-
 }

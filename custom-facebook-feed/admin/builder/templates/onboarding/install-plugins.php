@@ -34,7 +34,7 @@
 	<div class="sb-onboarding-wizard-clicking">
 		<span v-html="svgIcons['info']"></span>
 		<span>
-			<?php echo __( 'Clicking Next will install ', 'custom-facebook-feed' ) ?>
+			<?php echo __('Clicking Next will install ', 'custom-facebook-feed') ?>
 			<span v-for="(plugin, ind) in onboardingWizardStepContent['install-plugins']?.pluginsList" v-html="plugin?.data?.pluginName + (ind !== onboardingWizardStepContent['install-plugins']?.pluginsList.length - 1 ? ', ' : '.')"></span>
 		</span>
 	</div>

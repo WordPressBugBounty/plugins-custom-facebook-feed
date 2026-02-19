@@ -14,12 +14,12 @@
 		</div>
 		<div class="cff-fb-sglelm-right">
 			<div class="cff-fb-sglelm-img-ctn" v-if="!singleAlbumFeedInfo.isError && !singleAlbumFeedInfo.success">
-				<img src="<?php echo CFF_BUILDER_URL .'assets/img/process-single-album.png' ?>" alt="Fetching Preview">
+				<img src="<?php echo CFF_BUILDER_URL . 'assets/img/process-single-album.png' ?>" alt="Fetching Preview">
 				<strong>{{addFeaturedAlbumScreen.preview}}</strong>
 				<span>{{addFeaturedAlbumScreen.previewDescription}}</span>
 			</div>
 			<div class="cff-fb-sglelm-img-ctn cff-fb-sglelm-img-errorctn" v-if="singleAlbumFeedInfo.isError">
-				<img src="<?php echo CFF_BUILDER_URL .'assets/img/process-error-fetch.png' ?>" alt="Preview Error">
+				<img src="<?php echo CFF_BUILDER_URL . 'assets/img/process-error-fetch.png' ?>" alt="Preview Error">
 				<span class="cff-fb-fs">{{addFeaturedAlbumScreen.couldNotFetch}}</span>
 			</div>
 			<div class="cff-fb-sglelm-preview cff-fb-fs"  v-if="!singleAlbumFeedInfo.isError && singleAlbumFeedInfo.success" :style="'background-image:url(' + (hasOwnNestedProperty(singleAlbumFeedInfo, 'info.thumbnail') ? singleAlbumFeedInfo.info.thumbnail : '') + ');'">

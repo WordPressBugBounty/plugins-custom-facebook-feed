@@ -1,16 +1,21 @@
 <?php
+
 /**
  * Customizer Builder
  * Custom View
  *	This control will used for custom HTMlL controls like (source, feed type...)
+ *
  * @since 4.0
  */
+
 namespace CustomFacebookFeed\Builder\Controls;
 
-if(!defined('ABSPATH'))	exit;
+if (!defined('ABSPATH')) {
+	exit;
+}
 
-class CFF_Customview_Control extends CFF_Controls_Base{
-
+class CFF_Customview_Control extends CFF_Controls_Base
+{
 	/**
 	 * Get control type.
 	 *
@@ -20,21 +25,22 @@ class CFF_Customview_Control extends CFF_Controls_Base{
 	 * @access public
 	 *
 	 * @return string
-	*/
-	public function get_type(){
+	 */
+	public function get_type()
+	{
 		return 'customview';
 	}
 
 	/**
 	 * Output Control
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return HTML
-	*/
-	public function get_control_output($controlEditingTypeModel){
+	 */
+	public function get_control_output($controlEditingTypeModel)
+	{
 		$this->get_control_sources_output($controlEditingTypeModel);
 		$this->get_control_feedtype_output($controlEditingTypeModel);
 		$this->get_control_feedtemplate_output($controlEditingTypeModel);
@@ -43,14 +49,14 @@ class CFF_Customview_Control extends CFF_Controls_Base{
 	/**
 	 * Feed Templates Output Control
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return HTML
-	*/
-	public function get_control_feedtemplate_output($controlEditingTypeModel){
-	?>
+	 */
+	public function get_control_feedtemplate_output($controlEditingTypeModel)
+	{
+		?>
 		<div :class="['sb-control-feedtype-ctn sb-control-feedtemplate-ctn', 'cff-feedtemplate-' + customizerScreens.printedTemplate.type]" v-if="control.viewId == 'feedtemplate'">
 			<div class="cff-fb-type-el" @click.prevent.default="activateView('feedtemplatesPopup')">
 				<div class="cff-fb-type-el-img cff-fb-fs" v-html="svgIcons[customizerScreens.printedTemplate.icon]"></div>
@@ -63,21 +69,21 @@ class CFF_Customview_Control extends CFF_Controls_Base{
 				<span>{{genericText.change}}</span>
 			</button>
 		</div>
-	<?php
+		<?php
 	}
 
 
 	/**
 	 * Feed Type Output Control
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return HTML
-	*/
-	public function get_control_feedtype_output($controlEditingTypeModel){
-	?>
+	 */
+	public function get_control_feedtype_output($controlEditingTypeModel)
+	{
+		?>
 		<div class="sb-control-feedtype-ctn" v-if="control.viewId == 'feedtype'">
 			<div class="cff-fb-type-el" v-if="customizerFeedTypePrint()"  @click.prevent.default="activateView('feedtypesPopup')">
 				<div class="cff-fb-type-el-img cff-fb-fs" v-html="svgIcons[customizerScreens.printedType.icon]"></div>
@@ -109,19 +115,19 @@ class CFF_Customview_Control extends CFF_Controls_Base{
 				</button>
 			</div>
 		</div>
-	<?php
-		}
+		<?php
+	}
 
 	/**
 	 * Sources Output Control
-	 *
 	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return HTML
-	*/
-	public function get_control_sources_output($controlEditingTypeModel){
+	 */
+	public function get_control_sources_output($controlEditingTypeModel)
+	{
 		?>
 		<div class="sb-control-sources-ctn" v-if="control.viewId == 'sources'" :data-multifeed="activeExtensions['multifeed'] ? 'true' : 'false'">
 			<div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in customizerFeedData.settings.sources" :data-expanded="customizerScreens.sourceExpanded === source.account_id" :data-type="source.account_type">

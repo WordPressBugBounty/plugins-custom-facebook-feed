@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class CFF_Resizer
  *
@@ -10,34 +11,44 @@
  */
 
 namespace CustomFacebookFeed;
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+if (! defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
 
 
-class CFF_Resizer {
-
-	public function __construct( $post_ids_need_resizing, $feed_id, $posts, $feed_options ) {
+class CFF_Resizer
+{
+	public function __construct($post_ids_need_resizing, $feed_id, $posts, $feed_options)
+	{
 	}
 
-	public function get_new_resized_image_data() {
+	public function get_new_resized_image_data()
+	{
 		return array();
 	}
 
-	public function do_resizing() {
+	public function do_resizing()
+	{
 	}
 
-	public function do_resizing_group() {
+	public function do_resizing_group()
+	{
 	}
 
-	public static function image_sizes( $feed_options ) {
+	public static function image_sizes($feed_options)
+	{
 		$image_sizes = array( 400, 250 );
 		return $image_sizes;
 	}
 
-	public static function get_resized_image_data_for_set( $ids_or_feed_id, $args = array() ) {
+	public static function get_resized_image_data_for_set($ids_or_feed_id, $args = array())
+	{
 		return [];
 	}
 
-	public static function delete_resizing_table_and_images() {
+	public static function delete_resizing_table_and_images()
+	{
 		$upload = wp_upload_dir();
 
 		global $wpdb;
@@ -45,38 +56,39 @@ class CFF_Resizer {
 		$posts_table_name = $wpdb->prefix . CFF_POSTS_TABLE;
 		$feeds_posts_table_name = $wpdb->prefix . CFF_FEEDS_POSTS_TABLE;
 
-		$image_files = glob( trailingslashit( $upload['basedir'] ) . trailingslashit( CFF_UPLOADS_NAME ) . '*'  ); // get all file names
-		foreach ( $image_files as $file ) { // iterate files
-			if ( is_file( $file ) ) {
-				unlink( $file );
+		$image_files = glob(trailingslashit($upload['basedir']) . trailingslashit(CFF_UPLOADS_NAME) . '*'); // get all file names
+		foreach ($image_files as $file) { // iterate files
+			if (is_file($file)) {
+				unlink($file);
 			}
 		}
 
-		//Delete tables
-		$wpdb->query( "DROP TABLE IF EXISTS $posts_table_name" );
-		$wpdb->query( "DROP TABLE IF EXISTS $feeds_posts_table_name" );
+		// Delete tables
+		$wpdb->query("DROP TABLE IF EXISTS $posts_table_name");
+		$wpdb->query("DROP TABLE IF EXISTS $feeds_posts_table_name");
 	}
 
-	public static function create_resizing_table_and_uploads_folder() {
+	public static function create_resizing_table_and_uploads_folder()
+	{
 		$upload = wp_upload_dir();
 
 		$upload_dir = $upload['basedir'];
-		$upload_dir = trailingslashit( $upload_dir ) . CFF_UPLOADS_NAME;
-		if ( ! file_exists( $upload_dir ) ) {
-			$created = wp_mkdir_p( $upload_dir );
-			if ( $created ) {
-				\cff_main()->cff_error_reporter->remove_error( 'upload_dir' );
+		$upload_dir = trailingslashit($upload_dir) . CFF_UPLOADS_NAME;
+		if (! file_exists($upload_dir)) {
+			$created = wp_mkdir_p($upload_dir);
+			if ($created) {
+				\cff_main()->cff_error_reporter->remove_error('upload_dir');
 			} else {
-				\cff_main()->cff_error_reporter->add_error( 'upload_dir', array( __( 'There was an error creating the folder for storing resized images.', 'custom-facebook-feed' ), $upload_dir ) );
-
+				\cff_main()->cff_error_reporter->add_error('upload_dir', array( __('There was an error creating the folder for storing resized images.', 'custom-facebook-feed'), $upload_dir ));
 			}
 		} else {
-			\cff_main()->cff_error_reporter->remove_error( 'upload_dir' );
+			\cff_main()->cff_error_reporter->remove_error('upload_dir');
 		}
 		return \cff_main()->cff_create_database_table();
 	}
 
-	public static function delete_least_used_image() {
+	public static function delete_least_used_image()
+	{
 	}
 
 	/**
@@ -86,7 +98,8 @@ class CFF_Resizer {
 	 *
 	 * @since 3.14
 	 */
-	public function max_total_records_reached() {
+	public function max_total_records_reached()
+	{
 	}
 
 	/**
@@ -97,7 +110,8 @@ class CFF_Resizer {
 	 *
 	 * @since 3.14
 	 */
-	public static function max_resizing_per_time_period_reached() {
+	public static function max_resizing_per_time_period_reached()
+	{
 	}
 
 	/**
@@ -105,7 +119,8 @@ class CFF_Resizer {
 	 *
 	 * @since 3.14
 	 */
-	public function image_resizing_disabled() {
+	public function image_resizing_disabled()
+	{
 	}
 
 	/**
@@ -116,7 +131,7 @@ class CFF_Resizer {
 	 *
 	 * @since 3.14
 	 */
-	public function does_resizing_tables_exist() {
+	public function does_resizing_tables_exist()
+	{
 	}
-
 }

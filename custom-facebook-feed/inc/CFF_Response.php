@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class CFF_Response
  *
@@ -6,12 +7,15 @@
  *
  * @since 4.0
  */
+
 namespace CustomFacebookFeed;
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+if (! defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
 
 class CFF_Response
 {
-
 	/**
 	 * @var boolean
 	 */
@@ -41,7 +45,7 @@ class CFF_Response
 	public function send()
 	{
 		if ($this->is_success) {
-			wp_send_json_success( $this->data );
+			wp_send_json_success($this->data);
 		}
 	}
 }

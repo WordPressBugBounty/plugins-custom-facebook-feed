@@ -7,7 +7,7 @@ use CustomFacebookFeed\Builder\CFF_Db;
 use CustomFacebookFeed\Builder\CFF_Feed_Builder;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+	exit; // Exit if accessed directly
 }
 
 /**
@@ -21,58 +21,58 @@ if (!defined('ABSPATH')) {
 
 class CFF_Integration
 {
-    /**
-     * Get Widget/Module/Block Info
-     *
-     * @since 4.3
-     *
-     * @return array
-     */
-    public static function get_widget_info()
-    {
-        return [
-            'plugin'                            => 'facebook',
-            'cta_header'                        => __('Get started with your first feed from your<br/>Facebook Page or Group', 'custom-facebook-feed'),
-            'cta_header2'                       => __('Select a Facebook feed to embed', 'custom-facebook-feed'),
-            'cta_description_free'              => sprintf(
-                __('You can display feeds of Facebook photos, videos, albums, events and more using the %sPro version%s ', 'custom-facebook-feed'),
-                '<a  class="sb-elementor-cta-link" href="https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=elementor&utm_medium=widget&utm_content=proversion">',
-                '</a>'
-            ),
-            'cta_description_pro'               => sprintf(
-                __('You can also add Instagram, Twitter, and YouTube posts into your feed using our %sSocial Wall plugin%s ', 'custom-facebook-feed'),
-                '<a  class="sb-elementor-cta-link" href="https://smashballoon.com/social-wall/?utm_campaign=facebook-pro&utm_source=elementor&utm_medium=widget&utm_content=socialwall">',
-                '</a>'
-            ),
-            'plugins'                           => CFF_Feed_Builder::get_smashballoon_plugins_info()
+	/**
+	 * Get Widget/Module/Block Info
+	 *
+	 * @since 4.3
+	 *
+	 * @return array
+	 */
+	public static function get_widget_info()
+	{
+		return [
+			'plugin'                            => 'facebook',
+			'cta_header'                        => __('Get started with your first feed from your<br/>Facebook Page or Group', 'custom-facebook-feed'),
+			'cta_header2'                       => __('Select a Facebook feed to embed', 'custom-facebook-feed'),
+			'cta_description_free'              => sprintf(
+				__('You can display feeds of Facebook photos, videos, albums, events and more using the %sPro version%s ', 'custom-facebook-feed'),
+				'<a  class="sb-elementor-cta-link" href="https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=elementor&utm_medium=widget&utm_content=proversion">',
+				'</a>'
+			),
+			'cta_description_pro'               => sprintf(
+				__('You can also add Instagram, Twitter, and YouTube posts into your feed using our %sSocial Wall plugin%s ', 'custom-facebook-feed'),
+				'<a  class="sb-elementor-cta-link" href="https://smashballoon.com/social-wall/?utm_campaign=facebook-pro&utm_source=elementor&utm_medium=widget&utm_content=socialwall">',
+				'</a>'
+			),
+			'plugins'                           => CFF_Feed_Builder::get_smashballoon_plugins_info()
 
-        ];
-    }
+		];
+	}
 
 
-    /**
-     * Widget CTA
-     *
-     * @since 4.3
-     *
-     * @return HTML
-     */
-    public static function get_widget_cta($type = 'dropdown')
-    {
-        $widget_cta_html = '';
-        $feeds_list = CFF_Db::elementor_feeds_query();
-        ob_start();
-        self::get_widget_cta_html($feeds_list, $type);
-        $widget_cta_html .= ob_get_contents();
-        ob_get_clean();
-        return $widget_cta_html;
-    }
+	/**
+	 * Widget CTA
+	 *
+	 * @since 4.3
+	 *
+	 * @return HTML
+	 */
+	public static function get_widget_cta($type = 'dropdown')
+	{
+		$widget_cta_html = '';
+		$feeds_list = CFF_Db::elementor_feeds_query();
+		ob_start();
+		self::get_widget_cta_html($feeds_list, $type);
+		$widget_cta_html .= ob_get_contents();
+		ob_get_clean();
+		return $widget_cta_html;
+	}
 
-    public static function get_widget_cta_html($feeds_list, $type)
-    {
-        $info = self::get_widget_info();
-        $feeds_exist = is_array($feeds_list) && sizeof($feeds_list) > 0;
-        ?>
+	public static function get_widget_cta_html($feeds_list, $type)
+	{
+		$info = self::get_widget_info();
+		$feeds_exist = is_array($feeds_list) && sizeof($feeds_list) > 0;
+		?>
 		<div class="sb-elementor-cta">
 			<div class="sb-elementor-cta-img-ctn">
 				<div class="sb-elementor-cta-img">
@@ -99,10 +99,10 @@ class CFF_Integration
 
 					<span>
 						<?php
-                            echo esc_html__('Or create a Feed for', 'custom-facebook-feed');
+							echo esc_html__('Or create a Feed for', 'custom-facebook-feed');
 							unset($info['plugins'][$info['plugin']]);
-							foreach ($info['plugins'] as $name => $plugin) :
-           				 ?>
+						foreach ($info['plugins'] as $name => $plugin) :
+							?>
 							<a class="sb-elementor-cta-link" href="<?php echo esc_url($plugin['link']) ?>" target="_blank"><?php echo $name ?></a>
 						<?php endforeach ?>
 					</span>
@@ -117,13 +117,13 @@ class CFF_Integration
 				<strong><?php echo esc_html__('Did you Know?', 'custom-facebook-feed') ?></strong>
 				<span>
 					<?php
-                        echo CFF_Utils::cff_is_pro_version()
-                        ? $info['cta_description_pro']
-                        : $info['cta_description_free'];
-        ?>
+						echo CFF_Utils::cff_is_pro_version()
+						? $info['cta_description_pro']
+						: $info['cta_description_free'];
+					?>
 				</span>
 			</div>
 		</div>
 		<?php
-    }
+	}
 }

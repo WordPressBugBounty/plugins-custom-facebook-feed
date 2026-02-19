@@ -30,7 +30,7 @@ if (isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'cff-api-ch
 			</label>
 			<select id="sb_facebook_support_source" name="sb_facebook_support_source">
 				<option value="">Please Select</option>
-				<?php foreach ($all_sources as $source): ?>
+				<?php foreach ($all_sources as $source) : ?>
 					<option value="<?php echo esc_attr($source['id']); ?>">
 						<?php echo esc_html($source['username']); ?>
 						(
@@ -45,7 +45,7 @@ if (isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'cff-api-ch
 				<?php esc_html_e('Endpoint', 'custom-facebook-feed'); ?>
 			</label>
 			<select id="sb_facebook_support_endpoint" name="sb_facebook_support_endpoint">
-				<?php foreach ($this->available_endpoints() as $key => $endpoint): ?>
+				<?php foreach ($this->available_endpoints() as $key => $endpoint) : ?>
 					<option value="<?php echo esc_attr($key); ?>">
 						<?php echo esc_html($endpoint); ?>
 					</option>
@@ -59,7 +59,7 @@ if (isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'cff-api-ch
 				<?php esc_html_e('Show Posts By', 'custom-facebook-feed'); ?>
 			</label>
 			<select id="sb_facebook_support_showby" name="sb_facebook_support_showby">
-				<?php foreach ($this->available_timeline_showby() as $key => $showby): ?>
+				<?php foreach ($this->available_timeline_showby() as $key => $showby) : ?>
 					<option value="<?php echo esc_attr($key); ?>">
 						<?php echo esc_html($showby); ?>
 					</option>

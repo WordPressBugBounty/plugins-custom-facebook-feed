@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class CFF_Error_Reporter
  *
@@ -8,10 +9,13 @@
  */
 
 namespace CustomFacebookFeed;
+
 use CustomFacebookFeed\CFF_Education;
 use CustomFacebookFeed\Builder\CFF_Source;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (! defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
 
 
 class CFF_Error_Reporter
@@ -19,31 +23,32 @@ class CFF_Error_Reporter
 	/**
 	 * @var array
 	 */
-	var $errors;
+	public $errors;
 
 	/**
 	 * @var array
 	 */
-	var $frontend_error;
+	public $frontend_error;
 
 	/**
 	 * @var string
 	 */
-	var $reporter_key;
+	public $reporter_key;
 
 	/**
 	 * @var array
 	 */
-	var $display_error;
+	public $display_error;
 
 
 	/**
 	 * CFF_Error_Reporter constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->reporter_key = 'cff_error_reporter';
-		$this->errors = get_option( $this->reporter_key, [] );
-		if ( ! isset( $this->errors['connection'] ) ) {
+		$this->errors = get_option($this->reporter_key, []);
+		if (! isset($this->errors['connection'])) {
 			$this->errors = array(
 				'connection' 			=> [],
 				'resizing' 				=> [],
@@ -74,7 +79,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.0/4.0
 	 */
-	public function get_errors() {
+	public function get_errors()
+	{
 		return $this->errors;
 	}
 
@@ -99,7 +105,7 @@ class CFF_Error_Reporter
 			$this->add_connected_account_error($connected_account, $type, $args);
 		}
 
-		//Access Token Error
+		// Access Token Error
 		if ($type === 'accesstoken') {
 			$accesstoken_error_exists = false;
 			if (isset($this->errors['accounts'])) {
@@ -117,11 +123,10 @@ class CFF_Error_Reporter
 					'type' => $type,
 					'errorno' => $args['errorno']
 				);
-
 			}
 		}
 
-		//Connection Error API & WP REMOTE CALL
+		// Connection Error API & WP REMOTE CALL
 		if ($type === 'api' || $type === 'wp_remote_get') {
 			$connection_details = array(
 				'error_id' => ''
@@ -150,7 +155,6 @@ class CFF_Error_Reporter
 					 */
 					do_action('cff_app_permission_revoked', $connected_account);
 				}
-
 			} elseif (isset($args['response']) && is_wp_error($args['response'])) {
 				foreach ($args['response']->errors as $key => $item) {
 					$connection_details['error_id'] = $key;
@@ -192,7 +196,6 @@ class CFF_Error_Reporter
 		$current_log[] = $log_item;
 		$this->errors['error_log'] = $current_log;
 		update_option($this->reporter_key, $this->errors, false);
-
 	}
 
 	/**
@@ -204,20 +207,23 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.19
 	 */
-	public function add_connected_account_error( $connected_account, $error_type, $details ) {
+	public function add_connected_account_error($connected_account, $error_type, $details)
+	{
 		$account_id = $connected_account['id'];
 		$this->errors['accounts'][ $account_id ][ $error_type ] = $details;
 
-		if ( $error_type === 'api' || $error_type === 'accesstoken' ) {
+		if ($error_type === 'api' || $error_type === 'accesstoken') {
 			$this->errors['accounts'][ $account_id ][ $error_type ]['clear_time'] = time() + 60 * 3;
 		}
 
-		if ( isset( $details['error']['code'] )
-			&& (int)$details['error']['code'] === 18 ) {
+		if (
+			isset($details['error']['code'])
+			&& (int)$details['error']['code'] === 18
+		) {
 			$this->errors['accounts'][ $account_id ][ $error_type ]['clear_time'] = time() + 60 * 15;
 		}
 
-		\CustomFacebookFeed\Builder\CFF_Source::add_error( $account_id, $details );
+		\CustomFacebookFeed\Builder\CFF_Source::add_error($account_id, $details);
 	}
 
 	/**
@@ -225,7 +231,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.19
 	 */
-	public function get_error_log() {
+	public function get_error_log()
+	{
 		return $this->errors['error_log'];
 	}
 
@@ -241,7 +248,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.19
 	 */
-	public function generate_error_message( $response, $connected_account = array( 'username' => '' ) ) {
+	public function generate_error_message($response, $connected_account = array( 'username' => '' ))
+	{
 		$error_message_return = array(
 			'public_message' 		=> '',
 			'admin_message' 		=> '',
@@ -252,19 +260,19 @@ class CFF_Error_Reporter
 			'time' 					=> time()
 		);
 
-		if( isset( $response['error']['code'] ) ){
+		if (isset($response['error']['code'])) {
 			$error_code 							= (int)$response['error']['code'];
-			if ( $error_code === 104 ) {
+			if ($error_code === 104) {
 				$error_code = 999;
 				$url        = 'https://smashballoon.com/doc/error-999-access-token-could-not-be-decrypted/';
 
-				$response['error']['message'] = __( 'Your access token could not be decrypted on this website. Reconnect this account or go to our website to learn how to prevent this.', 'custom-facebook-feed' );
+				$response['error']['message'] = __('Your access token could not be decrypted on this website. Reconnect this account or go to our website to learn how to prevent this.', 'custom-facebook-feed');
 			} else {
 				$url = 'https://smashballoon.com/doc/facebook-api-errors/';
 			}
 
-			$api_error_number_message 				= sprintf( __( 'API Error %s:', 'custom-facebook-feed' ), $error_code );
-			$error_message_return['public_message'] = __( 'Error connecting to the Facebook API.', 'custom-facebook-feed' ) . ' ' . $api_error_number_message;
+			$api_error_number_message 				= sprintf(__('API Error %s:', 'custom-facebook-feed'), $error_code);
+			$error_message_return['public_message'] = __('Error connecting to the Facebook API.', 'custom-facebook-feed') . ' ' . $api_error_number_message;
 			$ppca_error								= ( strpos($response['error']['message'], 'Public Content Access') !== false ) ? true : false;
 
 			$error_message_return['admin_message'] 	= ( $ppca_error)
@@ -272,22 +280,20 @@ class CFF_Error_Reporter
 				: '<strong>' . $api_error_number_message . '</strong><br>' . $response['error']['message'];
 
 			$error_message_return['frontend_directions'] = ( $ppca_error )
-				? '<p class="cff-error-directions"><a href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __( 'Directions on How to Resolve This Issue', 'custom-facebook-feed' )  . '</a></p>'
-				: '<p class="cff-error-directions"><a href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#'. absint( $error_code ) .'" target="_blank" rel="noopener">' . __( 'Directions on How to Resolve This Issue', 'custom-facebook-feed' )  . '</a></p>';
+				? '<p class="cff-error-directions"><a href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>'
+				: '<p class="cff-error-directions"><a href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
 
 			$error_message_return['backend_directions'] = ( $ppca_error )
-				? '<a class="cff-notice-btn cff-btn-blue" href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __( 'Directions on How to Resolve This Issue', 'custom-facebook-feed' )  . '</a>'
-				: '<a class="cff-notice-btn cff-btn-blue" href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#'. absint( $error_code ) .'" target="_blank" rel="noopener">' . __( 'Directions on How to Resolve This Issue', 'custom-facebook-feed' )  . '</a>';
+				? '<a class="cff-notice-btn cff-btn-blue" href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>'
+				: '<a class="cff-notice-btn cff-btn-blue" href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
 
 			$error_message_return['errorno'] = $error_code;
-
-		}else{
-			$error_message_return['error_message'] = __( 'An unknown error has occurred.', 'custom-facebook-feed' );
-			$error_message_return['admin_message'] = json_encode( $response );
+		} else {
+			$error_message_return['error_message'] = __('An unknown error has occurred.', 'custom-facebook-feed');
+			$error_message_return['admin_message'] = json_encode($response);
 		}
 
 		return $error_message_return;
-
 	}
 
 
@@ -303,7 +309,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.7/5.10
 	 */
-	public function is_critical_error( $details ) {
+	public function is_critical_error($details)
+	{
 		$error_code = (int)$details['error']['code'];
 
 		$critical_codes = array(
@@ -315,7 +322,7 @@ class CFF_Error_Reporter
 			999
 		);
 
-		return in_array( $error_code, $critical_codes, true );
+		return in_array($error_code, $critical_codes, true);
 	}
 
 	/**
@@ -344,17 +351,18 @@ class CFF_Error_Reporter
 		if ($update) {
 			update_option($this->reporter_key, $this->errors, false);
 		}
-
 	}
 
-	public function remove_all_errors() {
-		delete_option( $this->reporter_key );
+	public function remove_all_errors()
+	{
+		delete_option($this->reporter_key);
 	}
 
-	public function reset_api_errors() {
+	public function reset_api_errors()
+	{
 		$this->errors['connection'] = array();
 		$this->errors['accounts'] = array();
-		update_option( $this->reporter_key, $this->errors, false );
+		update_option($this->reporter_key, $this->errors, false);
 	}
 
 	/**
@@ -363,11 +371,13 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.0/5.0
 	 */
-	public function add_frontend_error( $message, $directions ) {
+	public function add_frontend_error($message, $directions)
+	{
 		$this->frontend_error = $message . $directions;
 	}
 
-	public function remove_frontend_error() {
+	public function remove_frontend_error()
+	{
 		$this->frontend_error = '';
 	}
 
@@ -376,7 +386,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.0/5.0
 	 */
-	public function get_frontend_error() {
+	public function get_frontend_error()
+	{
 		return $this->frontend_error;
 	}
 
@@ -427,7 +438,6 @@ class CFF_Error_Reporter
 				$directions .= '</p>';
 			}
 		} else {
-
 		}
 		return [
 			'error_message' => $error_message,
@@ -467,17 +477,18 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.19
 	 */
-	public function add_action_log( $log_item ) {
+	public function add_action_log($log_item)
+	{
 		$current_log = $this->errors['action_log'];
 
-		if ( is_array( $current_log ) && count( $current_log ) >= 10 ) {
-			reset( $current_log );
-			unset( $current_log[ key( $current_log ) ] );
+		if (is_array($current_log) && count($current_log) >= 10) {
+			reset($current_log);
+			unset($current_log[ key($current_log) ]);
 		}
-		$current_log[] = date( 'm-d H:i:s' ) . ' - ' . $log_item;
+		$current_log[] = date('m-d H:i:s') . ' - ' . $log_item;
 
 		$this->errors['action_log'] = $current_log;
-		update_option( $this->reporter_key, $this->errors, false );
+		update_option($this->reporter_key, $this->errors, false);
 	}
 
 	/**
@@ -485,7 +496,8 @@ class CFF_Error_Reporter
 	 *
 	 * @since 2.19
 	 */
-	public function get_action_log() {
+	public function get_action_log()
+	{
 		return $this->errors['action_log'];
 	}
 
@@ -493,30 +505,31 @@ class CFF_Error_Reporter
 	/**
 	 * Load the critical notice for logged in users.
 	 */
-	public function critical_error_notice() {
+	public function critical_error_notice()
+	{
 		// Don't do anything for guests.
-		if ( ! is_user_logged_in() ) {
+		if (! is_user_logged_in()) {
 			return;
 		}
 
 		// Only show this to users who are not tracked.
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if (! current_user_can('edit_posts')) {
 			return;
 		}
 
-		if ( ! $this->are_critical_errors() ) {
+		if (! $this->are_critical_errors()) {
 			return;
 		}
 
 
 		// Don't show if already dismissed.
-		if ( get_option( 'cff_dismiss_critical_notice', false ) ) {
+		if (get_option('cff_dismiss_critical_notice', false)) {
 			return;
 		}
 
 		/** TODO: Match real option */
-		$options = get_option('cff_settings' );
-		if ( isset( $options['disable_admin_notice'] ) && $options['disable_admin_notice'] === 'on' ) {
+		$options = get_option('cff_settings');
+		if (isset($options['disable_admin_notice']) && $options['disable_admin_notice'] === 'on') {
 			return;
 		}
 
@@ -526,12 +539,12 @@ class CFF_Error_Reporter
 				<img src="<?php echo CFF_PLUGIN_URL . 'admin/assets/img/cff-icon.png'; ?>" width="45" alt="Custom Facebook Feed icon" />
 			</div>
 			<div class="cff-critical-notice-text">
-				<h3><?php esc_html_e( 'Facebook Feed Critical Issue', 'custom-facebook-feed' ); ?></h3>
+				<h3><?php esc_html_e('Facebook Feed Critical Issue', 'custom-facebook-feed'); ?></h3>
 				<p>
 					<?php
 					$doc_url = admin_url() . 'admin.php?page=cff-settings';
 					// Translators: %s is the link to the article where more details about critical are listed.
-					printf( esc_html__( 'An issue is preventing your Custom Facebook Feeds from updating. %1$sResolve this issue%2$s.', 'custom-facebook-feed' ), '<a href="' . esc_url( $doc_url ) . '" target="_blank">', '</a>' );
+					printf(esc_html__('An issue is preventing your Custom Facebook Feeds from updating. %1$sResolve this issue%2$s.', 'custom-facebook-feed'), '<a href="' . esc_url($doc_url) . '" target="_blank">', '</a>');
 					?>
 				</p>
 			</div>
@@ -539,21 +552,21 @@ class CFF_Error_Reporter
 		</div>
 		<style type="text/css">
 			.cff-critical-notice {
-                position: fixed;
-                bottom: 20px;
-                right: 15px;
-                font-family: Arial, Helvetica, "Trebuchet MS", sans-serif;
-                background: #fff;
-                box-shadow: 0 0 10px 0 #dedede;
-                padding: 10px 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 325px;
-                max-width: calc( 100% - 30px );
-                border-radius: 6px;
-                transition: bottom 700ms ease;
-                z-index: 10000;
+				position: fixed;
+				bottom: 20px;
+				right: 15px;
+				font-family: Arial, Helvetica, "Trebuchet MS", sans-serif;
+				background: #fff;
+				box-shadow: 0 0 10px 0 #dedede;
+				padding: 10px 10px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 325px;
+				max-width: calc( 100% - 30px );
+				border-radius: 6px;
+				transition: bottom 700ms ease;
+				z-index: 10000;
 			}
 
 			.cff-critical-notice h3 {
@@ -629,29 +642,29 @@ class CFF_Error_Reporter
 		</style>
 		<?php
 
-		if ( ! wp_script_is( 'jquery', 'queue' ) ) {
-			wp_enqueue_script( 'jquery' );
+		if (! wp_script_is('jquery', 'queue')) {
+			wp_enqueue_script('jquery');
 		}
 		?>
 		<script>
-            if ( 'undefined' !== typeof jQuery ) {
-                jQuery( document ).ready( function ( $ ) {
-                    /* Don't show the notice if we don't have a way to hide it (no js, no jQuery). */
-                    $( document.querySelector( '.cff-critical-notice' ) ).removeClass( 'cff-critical-notice-hide' );
-                    $( document.querySelector( '.cff-critical-notice-close' ) ).on( 'click', function ( e ) {
-                        e.preventDefault();
-                        $( this ).closest( '.cff-critical-notice' ).addClass( 'cff-critical-notice-hide' );
-                        $.ajax( {
-                            url: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
-                            method: 'POST',
-                            data: {
-                                action: 'cff_dismiss_critical_notice',
-                                nonce: '<?php echo esc_js( wp_create_nonce( 'cff-critical-notice' ) ); ?>',
-                            }
-                        } );
-                    } );
-                } );
-            }
+			if ( 'undefined' !== typeof jQuery ) {
+				jQuery( document ).ready( function ( $ ) {
+					/* Don't show the notice if we don't have a way to hide it (no js, no jQuery). */
+					$( document.querySelector( '.cff-critical-notice' ) ).removeClass( 'cff-critical-notice-hide' );
+					$( document.querySelector( '.cff-critical-notice-close' ) ).on( 'click', function ( e ) {
+						e.preventDefault();
+						$( this ).closest( '.cff-critical-notice' ).addClass( 'cff-critical-notice-hide' );
+						$.ajax( {
+							url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+							method: 'POST',
+							data: {
+								action: 'cff_dismiss_critical_notice',
+								nonce: '<?php echo esc_js(wp_create_nonce('cff-critical-notice')); ?>',
+							}
+						} );
+					} );
+				} );
+			}
 		</script>
 		<?php
 	}
@@ -659,52 +672,53 @@ class CFF_Error_Reporter
 	/**
 	 * Ajax handler to hide the critical notice.
 	 */
-	public function dismiss_critical_notice() {
+	public function dismiss_critical_notice()
+	{
 
-		check_ajax_referer( 'cff-critical-notice', 'nonce' );
-		$cap = current_user_can( 'manage_custom_facebook_feed_options' ) ? 'manage_custom_facebook_feed_options' : 'manage_options';
-		$cap = apply_filters( 'cff_settings_pages_capability', $cap );
-		if ( ! current_user_can( $cap ) ) {
+		check_ajax_referer('cff-critical-notice', 'nonce');
+		$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+		$cap = apply_filters('cff_settings_pages_capability', $cap);
+		if (! current_user_can($cap)) {
 			wp_send_json_error(); // This auto-dies.
 		}
 
-		update_option( 'cff_dismiss_critical_notice', 1, false );
+		update_option('cff_dismiss_critical_notice', 1, false);
 
 		wp_die();
-
 	}
 
-	public function send_report_email() {
-		$options = get_option( 'cff_style_settings', array() );
+	public function send_report_email()
+	{
+		$options = get_option('cff_style_settings', array());
 
-		$to_string = ! empty( $options['email_notification_addresses'] ) ? str_replace( ' ', '', $options['email_notification_addresses'] ) : get_option( 'admin_email', '' );
+		$to_string = ! empty($options['email_notification_addresses']) ? str_replace(' ', '', $options['email_notification_addresses']) : get_option('admin_email', '');
 
-		$to_array_raw = explode( ',', $to_string );
+		$to_array_raw = explode(',', $to_string);
 		$to_array = array();
 
-		foreach ( $to_array_raw as $email ) {
-			if ( is_email( $email ) ) {
+		foreach ($to_array_raw as $email) {
+			if (is_email($email)) {
 				$to_array[] = $email;
 			}
 		}
 
-		if ( empty( $to_array ) ) {
+		if (empty($to_array)) {
 			return false;
 		}
-		$from_name = esc_html( wp_specialchars_decode( get_bloginfo( 'name' ) ) );
-		$email_from = $from_name . ' <' . get_option( 'admin_email', $to_array[0] ) . '>';
+		$from_name = esc_html(wp_specialchars_decode(get_bloginfo('name')));
+		$email_from = $from_name . ' <' . get_option('admin_email', $to_array[0]) . '>';
 		$header_from  = "From: " . $email_from;
 
 		$headers = array( 'Content-Type: text/html; charset=utf-8', $header_from );
 
 		$header_image = CFF_PLUGIN_URL . 'admin/assets/img/balloon-120.png';
-		$title = __( 'Custom Facebook Feed Report for ' . home_url() );
-		$link = admin_url( 'admin.php?page=cff-settings');
-		//&tab=customize-advanced
+		$title = __('Custom Facebook Feed Report for ' . home_url());
+		$link = admin_url('admin.php?page=cff-settings');
+		// &tab=customize-advanced
 		$footer_link = admin_url('admin.php?page=cff-style&tab=misc&flag=emails');
-		$bold = __( 'There\'s an Issue with a Facebook Feed on Your Website', 'custom-facebook-feed' );
-		$details = '<p>' . __( 'A Custom Facebook Feed on your website is currently unable to connect to Facebook to retrieve new posts. Don\'t worry, your feed is still being displayed using a cached version, but is no longer able to display new posts.', 'custom-facebook-feed' ) . '</p>';
-		$details .= '<p>' . sprintf( __( 'This is caused by an issue with your Facebook account connecting to the Facebook API. For information on the exact issue and directions on how to resolve it, please visit the %sCustom Facebook Feed settings page%s on your website.', 'custom-facebook-feed' ), '<a href="' . esc_url( $link ) . '">', '</a>' ). '</p>';
+		$bold = __('There\'s an Issue with a Facebook Feed on Your Website', 'custom-facebook-feed');
+		$details = '<p>' . __('A Custom Facebook Feed on your website is currently unable to connect to Facebook to retrieve new posts. Don\'t worry, your feed is still being displayed using a cached version, but is no longer able to display new posts.', 'custom-facebook-feed') . '</p>';
+		$details .= '<p>' . sprintf(__('This is caused by an issue with your Facebook account connecting to the Facebook API. For information on the exact issue and directions on how to resolve it, please visit the %sCustom Facebook Feed settings page%s on your website.', 'custom-facebook-feed'), '<a href="' . esc_url($link) . '">', '</a>') . '</p>';
 		$message_content = '<h6 style="padding:0;word-wrap:normal;font-family:\'Helvetica Neue\',Helvetica,Arial,sans-serif;font-weight:bold;line-height:130%;font-size: 16px;color:#444444;text-align:inherit;margin:0 0 20px 0;Margin:0 0 20px 0;">' . $bold . '</h6>' . $details;
 		$educator = new CFF_Education();
 		$dyk_message = $educator->dyk_display();
@@ -712,7 +726,7 @@ class CFF_Error_Reporter
 		include_once CFF_PLUGIN_DIR . 'email.php';
 		$email_body = ob_get_contents();
 		ob_get_clean();
-		$sent = wp_mail( $to_array, $title, $email_body, $headers );
+		$sent = wp_mail($to_array, $title, $email_body, $headers);
 
 		return $sent;
 	}
@@ -735,34 +749,40 @@ class CFF_Error_Reporter
 		return in_array($error_code, $critical_codes, true) && strpos($details['error']['message'], 'user has not authorized application') !== false;
 	}
 
-	public function maybe_trigger_report_email_send() {
-		if ( ! $this->are_critical_errors() ) {
+	public function maybe_trigger_report_email_send()
+	{
+		if (! $this->are_critical_errors()) {
 			return;
 		}
 		/** TODO: Match real option */
-		$options = get_option('cff_settings' );
+		$options = get_option('cff_settings');
 
-		if ( isset( $options['enable_email_report'] ) && empty( $options['enable_email_report'] ) ) {
+		if (isset($options['enable_email_report']) && empty($options['enable_email_report'])) {
 			return;
 		}
 
 		$this->send_report_email();
 	}
 
-	public function admin_error_notices() {
+	public function admin_error_notices()
+	{
 
-		if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'cff-settings' )) ) {
+		if (isset($_GET['page']) && in_array($_GET['page'], array( 'cff-settings' ))) {
 			$errors = $this->get_errors();
-			if ( ! empty( $errors ) && (! empty( $errors['database_create'] ) || ! empty( $errors['upload_dir'] )) ) : ?>
+			if (! empty($errors) && (! empty($errors['database_create']) || ! empty($errors['upload_dir']))) : ?>
 			<div class="cff-admin-notices cff-critical-error-notice">
-	            <?php if ( ! empty( $errors['database_create'] ) ) echo '<p>' . $errors['database_create'] . '</p>'; ?>
-				<?php if ( ! empty( $errors['upload_dir'] ) ) echo '<p>' . $errors['upload_dir'] . '</p>'; ?>
-				<p><?php _e( sprintf( 'Visit our %s page for help', '<a href="https://smashballoon.com/custom-facebook-feed/faq/" class="cff-notice-btn cff-btn-grey" target="_blank">FAQ</a>' ), 'custom-facebook-feed' ); ?></p>
-            </div>
+				<?php if (! empty($errors['database_create'])) {
+					echo '<p>' . $errors['database_create'] . '</p>';
+				} ?>
+				<?php if (! empty($errors['upload_dir'])) {
+					echo '<p>' . $errors['upload_dir'] . '</p>';
+				} ?>
+				<p><?php _e(sprintf('Visit our %s page for help', '<a href="https://smashballoon.com/custom-facebook-feed/faq/" class="cff-notice-btn cff-btn-grey" target="_blank">FAQ</a>'), 'custom-facebook-feed'); ?></p>
+			</div>
 
-		<?php endif;
+			<?php endif;
 			$errors = $this->get_critical_errors();
-			if ( $this->are_critical_errors() && is_array( $errors ) && $errors['error_message'] !== false && $errors['directions'] !== false  ) :
+			if ($this->are_critical_errors() && is_array($errors) && $errors['error_message'] !== false && $errors['directions'] !== false) :
 				?>
 				<div class="cff-admin-notices cff-critical-error-notice">
 					<span class="sb-notice-icon sb-error-icon">
@@ -772,7 +792,7 @@ class CFF_Error_Reporter
 					</span>
 					<div class="cff-notice-body">
 						<h3 class="sb-notice-title">
-							<?php echo esc_html__( 'Custom Facebook Feed is encountering an error and your feeds may not be updating due to the following reasons:', 'custom-facebook-feed') ; ?>
+							<?php echo esc_html__('Custom Facebook Feed is encountering an error and your feeds may not be updating due to the following reasons:', 'custom-facebook-feed') ; ?>
 						</h3>
 
 						<p><?php echo $errors['error_message']; ?></p>
@@ -782,7 +802,7 @@ class CFF_Error_Reporter
 						</div>
 					</div>
 				</div>
-			<?php
+				<?php
 			endif;
 
 			/*
@@ -831,9 +851,7 @@ class CFF_Error_Reporter
 				</div>
 			<?php endif;
 			*/
-
 		}
-
 	}
 
 	/**
@@ -874,7 +892,6 @@ class CFF_Error_Reporter
 						</div>
 					<?php
 		}
-
 	}
 
 	public function platform_unused_feed_notice()
@@ -949,7 +966,7 @@ class CFF_Error_Reporter
 			(!isset($errors['group_deprecation']['dismissed']) || $errors['group_deprecation']['dismissed'] !== true)
 		) {
 			$close_href = add_query_arg(array('cff_dismiss_notice' => 'group_deprecation'));
-		?>
+			?>
 			<div class="cff-admin-notices cff-critical-error-notice">
 				<span class="sb-notice-icon sb-error-icon">
 					<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -980,8 +997,7 @@ class CFF_Error_Reporter
 
 				</div>
 			</div>
-		<?php
+			<?php
 		}
-
 	}
 }

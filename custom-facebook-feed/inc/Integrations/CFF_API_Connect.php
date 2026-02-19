@@ -40,10 +40,10 @@ class CFF_API_Connect
 	 *
 	 * @param mixed|array|string $connected_account_or_url either the connected account.
 	 *  data for this request or the complete url for the request.
-	 * @param string $endpoint (optional) is optional only if the complete url is provided.
-	 * otherwise is they key for the endpoint needed for the request (ex. "header").
-	 * @param array $params (optional) used with the connected account and endpoint to add.
-	 *  additional query parameters to the url if needed.
+	 * @param string             $endpoint (optional) is optional only if the complete url is provided.
+	 *             otherwise is they key for the endpoint needed for the request (ex. "header").
+	 * @param array              $params (optional) used with the connected account and endpoint to add.
+	 *               additional query parameters to the url if needed.
 	 * @since 5.0
 	 */
 	public function __construct($connected_account_or_url, $endpoint = '', $params = array())
@@ -113,8 +113,6 @@ class CFF_API_Connect
 		if (is_wp_error($body) || isset($body['error'])) {
 			$this->log_fb_error();
 		}
-
-
 	}
 
 	/**

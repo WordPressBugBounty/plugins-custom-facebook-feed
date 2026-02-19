@@ -1,7 +1,8 @@
 <?php
+
 namespace CustomFacebookFeed\Helpers;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 use WP_Error;
@@ -23,8 +24,8 @@ require_once ABSPATH . 'wp-admin/includes/class-plugin-upgrader.php';
  *
  * @since 1.5.6.1
  */
-class PluginSilentUpgrader extends \Plugin_Upgrader {
-
+class PluginSilentUpgrader extends \Plugin_Upgrader
+{
 	/**
 	 * Run an upgrade/installation.
 	 *
@@ -58,7 +59,8 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 	 * @return array|false|WP_error The result from self::install_package() on success, otherwise a WP_Error,
 	 *                              or false if unable to connect to the filesystem.
 	 */
-	public function run( $options ) {
+	public function run($options)
+	{
 
 		$defaults = array(
 			'package'                     => '', // Please always pass this.
@@ -70,7 +72,7 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			'hook_extra'                  => array(), // Pass any extra $hook_extra args here, this will be passed to any hooked filters.
 		);
 
-		$options = wp_parse_args( $options, $defaults );
+		$options = wp_parse_args($options, $defaults);
 
 		/**
 		 * Filters the package options before running an update.
@@ -102,17 +104,17 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 *     }
 		 * }
 		 */
-		$options = apply_filters( 'upgrader_package_options', $options );
+		$options = apply_filters('upgrader_package_options', $options);
 
-		if ( ! $options['is_multi'] ) { // call $this->header separately if running multiple times
+		if (! $options['is_multi']) { // call $this->header separately if running multiple times
 			$this->skin->header();
 		}
 
 		// Connect to the Filesystem first.
-		$res = $this->fs_connect( array( WP_CONTENT_DIR, $options['destination'] ) );
+		$res = $this->fs_connect(array( WP_CONTENT_DIR, $options['destination'] ));
 		// Mainly for non-connected filesystem.
-		if ( ! $res ) {
-			if ( ! $options['is_multi'] ) {
+		if (! $res) {
+			if (! $options['is_multi']) {
 				$this->skin->footer();
 			}
 			return false;
@@ -120,10 +122,10 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 
 		$this->skin->before();
 
-		if ( is_wp_error( $res ) ) {
-			$this->skin->error( $res );
+		if (is_wp_error($res)) {
+			$this->skin->error($res);
 			$this->skin->after();
-			if ( ! $options['is_multi'] ) {
+			if (! $options['is_multi']) {
 				$this->skin->footer();
 			}
 			return $res;
@@ -133,16 +135,15 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 * Download the package (Note, This just returns the filename
 		 * of the file if the package is a local file)
 		 */
-		$download = $this->download_package( $options['package'], true );
+		$download = $this->download_package($options['package'], true);
 
 		// Allow for signature soft-fail.
 		// WARNING: This may be removed in the future.
-		if ( is_wp_error( $download ) && $download->get_error_data( 'softfail-filename' ) ) {
-
+		if (is_wp_error($download) && $download->get_error_data('softfail-filename')) {
 			// Don't output the 'no signature could be found' failure message for now.
-			if ( 'signature_verification_no_signature' != $download->get_error_code() || WP_DEBUG ) {
+			if ('signature_verification_no_signature' != $download->get_error_code() || WP_DEBUG) {
 				// Outout the failure error as a normal feedback, and not as an error:
-				//$this->skin->feedback( $download->get_error_message() );
+				// $this->skin->feedback( $download->get_error_message() );
 
 				// Report this failure back to WordPress.org for debugging purposes.
 				wp_version_check(
@@ -154,13 +155,13 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			}
 
 			// Pretend this error didn't happen.
-			$download = $download->get_error_data( 'softfail-filename' );
+			$download = $download->get_error_data('softfail-filename');
 		}
 
-		if ( is_wp_error( $download ) ) {
-			$this->skin->error( $download );
+		if (is_wp_error($download)) {
+			$this->skin->error($download);
 			$this->skin->after();
-			if ( ! $options['is_multi'] ) {
+			if (! $options['is_multi']) {
 				$this->skin->footer();
 			}
 			return $download;
@@ -169,11 +170,11 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		$delete_package = ( $download != $options['package'] ); // Do not delete a "local" file
 
 		// Unzips the file into a temporary directory.
-		$working_dir = $this->unpack_package( $download, $delete_package );
-		if ( is_wp_error( $working_dir ) ) {
-			$this->skin->error( $working_dir );
+		$working_dir = $this->unpack_package($download, $delete_package);
+		if (is_wp_error($working_dir)) {
+			$this->skin->error($working_dir);
 			$this->skin->after();
-			if ( ! $options['is_multi'] ) {
+			if (! $options['is_multi']) {
 				$this->skin->footer();
 			}
 			return $working_dir;
@@ -191,18 +192,18 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			)
 		);
 
-		$this->skin->set_result( $result );
-		if ( is_wp_error( $result ) ) {
-			$this->skin->error( $result );
-			//$this->skin->feedback( 'process_failed' );
+		$this->skin->set_result($result);
+		if (is_wp_error($result)) {
+			$this->skin->error($result);
+			// $this->skin->feedback( 'process_failed' );
 		} else {
 			// Installation succeeded.
-			//$this->skin->feedback( 'process_success' );
+			// $this->skin->feedback( 'process_success' );
 		}
 
 		$this->skin->after();
 
-		if ( ! $options['is_multi'] ) {
+		if (! $options['is_multi']) {
 
 			/**
 			 * Fires when the upgrader process is complete.
@@ -234,7 +235,7 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			 *     }
 			 * }
 			 */
-			do_action( 'upgrader_process_complete', $this, $options['hook_extra'] );
+			do_action('upgrader_process_complete', $this, $options['hook_extra']);
 
 			$this->skin->footer();
 		}
@@ -253,18 +254,19 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 	 *
 	 * @param bool $enable True to enable maintenance mode, false to disable.
 	 */
-	public function maintenance_mode( $enable = false ) {
+	public function maintenance_mode($enable = false)
+	{
 		global $wp_filesystem;
 		$file = $wp_filesystem->abspath() . '.maintenance';
-		if ( $enable ) {
-			//$this->skin->feedback( 'maintenance_start' );
+		if ($enable) {
+			// $this->skin->feedback( 'maintenance_start' );
 			// Create maintenance file to signal that we are upgrading
 			$maintenance_string = '<?php $upgrading = ' . time() . '; ?>';
-			$wp_filesystem->delete( $file );
-			$wp_filesystem->put_contents( $file, $maintenance_string, FS_CHMOD_FILE );
-		} elseif ( ! $enable && $wp_filesystem->exists( $file ) ) {
-			//$this->skin->feedback( 'maintenance_end' );
-			$wp_filesystem->delete( $file );
+			$wp_filesystem->delete($file);
+			$wp_filesystem->put_contents($file, $maintenance_string, FS_CHMOD_FILE);
+		} elseif (! $enable && $wp_filesystem->exists($file)) {
+			// $this->skin->feedback( 'maintenance_end' );
+			$wp_filesystem->delete($file);
 		}
 	}
 
@@ -278,7 +280,8 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 	 * @param bool   $check_signatures Whether to validate file signatures. Default false.
 	 * @return string|WP_Error The full path to the downloaded package file, or a WP_Error object.
 	 */
-	public function download_package( $package, $check_signatures = false, $hook_extra = array() ) {
+	public function download_package($package, $check_signatures = false, $hook_extra = array())
+	{
 
 		/**
 		 * Filters whether to return the package.
@@ -290,25 +293,25 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 * @param string      $package The package file name.
 		 * @param WP_Upgrader $this    The WP_Upgrader instance.
 		 */
-		$reply = apply_filters( 'upgrader_pre_download', false, $package, $this );
-		if ( false !== $reply ) {
+		$reply = apply_filters('upgrader_pre_download', false, $package, $this);
+		if (false !== $reply) {
 			return $reply;
 		}
 
-		if ( ! preg_match( '!^(http|https|ftp)://!i', $package ) && file_exists( $package ) ) { //Local file or remote?
-			return $package; //must be a local file..
+		if (! preg_match('!^(http|https|ftp)://!i', $package) && file_exists($package)) { // Local file or remote?
+			return $package; // must be a local file..
 		}
 
-		if ( empty( $package ) ) {
-			return new WP_Error( 'no_package', $this->strings['no_package'] );
+		if (empty($package)) {
+			return new WP_Error('no_package', $this->strings['no_package']);
 		}
 
-		//$this->skin->feedback( 'downloading_package', $package );
+		// $this->skin->feedback( 'downloading_package', $package );
 
-		$download_file = download_url( $package, 300, $check_signatures );
+		$download_file = download_url($package, 300, $check_signatures);
 
-		if ( is_wp_error( $download_file ) && ! $download_file->get_error_data( 'softfail-filename' ) ) {
-			return new WP_Error( 'download_failed', $this->strings['download_failed'], $download_file->get_error_message() );
+		if (is_wp_error($download_file) && ! $download_file->get_error_data('softfail-filename')) {
+			return new WP_Error('download_failed', $this->strings['download_failed'], $download_file->get_error_message());
 		}
 
 		return $download_file;
@@ -326,41 +329,42 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 	 *                               to unpack it. Default true.
 	 * @return string|WP_Error The path to the unpacked contents, or a WP_Error on failure.
 	 */
-	public function unpack_package( $package, $delete_package = true ) {
+	public function unpack_package($package, $delete_package = true)
+	{
 		global $wp_filesystem;
 
-		//$this->skin->feedback( 'unpack_package' );
+		// $this->skin->feedback( 'unpack_package' );
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
 
-		//Clean up contents of upgrade directory beforehand.
-		$upgrade_files = $wp_filesystem->dirlist( $upgrade_folder );
-		if ( ! empty( $upgrade_files ) ) {
-			foreach ( $upgrade_files as $file ) {
-				$wp_filesystem->delete( $upgrade_folder . $file['name'], true );
+		// Clean up contents of upgrade directory beforehand.
+		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
+		if (! empty($upgrade_files)) {
+			foreach ($upgrade_files as $file) {
+				$wp_filesystem->delete($upgrade_folder . $file['name'], true);
 			}
 		}
 
 		// We need a working directory - Strip off any .tmp or .zip suffixes
-		$working_dir = $upgrade_folder . basename( basename( $package, '.tmp' ), '.zip' );
+		$working_dir = $upgrade_folder . basename(basename($package, '.tmp'), '.zip');
 
 		// Clean up working directory
-		if ( $wp_filesystem->is_dir( $working_dir ) ) {
-			$wp_filesystem->delete( $working_dir, true );
+		if ($wp_filesystem->is_dir($working_dir)) {
+			$wp_filesystem->delete($working_dir, true);
 		}
 
 		// Unzip package to working directory
-		$result = unzip_file( $package, $working_dir );
+		$result = unzip_file($package, $working_dir);
 
 		// Once extracted, delete the package if required.
-		if ( $delete_package ) {
-			unlink( $package );
+		if ($delete_package) {
+			unlink($package);
 		}
 
-		if ( is_wp_error( $result ) ) {
-			$wp_filesystem->delete( $working_dir, true );
-			if ( 'incompatible_archive' == $result->get_error_code() ) {
-				return new WP_Error( 'incompatible_archive', $this->strings['incompatible_archive'], $result->get_error_data() );
+		if (is_wp_error($result)) {
+			$wp_filesystem->delete($working_dir, true);
+			if ('incompatible_archive' == $result->get_error_code()) {
+				return new WP_Error('incompatible_archive', $this->strings['incompatible_archive'], $result->get_error_data());
 			}
 			return $result;
 		}
@@ -398,7 +402,8 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 	 *
 	 * @return array|WP_Error The result (also stored in `WP_Upgrader::$result`), or a WP_Error on failure.
 	 */
-	public function install_package( $args = array() ) {
+	public function install_package($args = array())
+	{
 		global $wp_filesystem, $wp_theme_directories;
 
 		$defaults = array(
@@ -410,19 +415,19 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			'hook_extra'                  => array(),
 		);
 
-		$args = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args($args, $defaults);
 
 		// These were previously extract()'d.
 		$source            = $args['source'];
 		$destination       = $args['destination'];
 		$clear_destination = $args['clear_destination'];
 
-		set_time_limit( 300 );
+		set_time_limit(300);
 
-		if ( empty( $source ) || empty( $destination ) ) {
-			return new WP_Error( 'bad_request', $this->strings['bad_request'] );
+		if (empty($source) || empty($destination)) {
+			return new WP_Error('bad_request', $this->strings['bad_request']);
 		}
-		//$this->skin->feedback( 'installing_package' );
+		// $this->skin->feedback( 'installing_package' );
 
 		/**
 		 * Filters the install response before the installation has started.
@@ -436,26 +441,26 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 * @param bool|WP_Error $response   Response.
 		 * @param array         $hook_extra Extra arguments passed to hooked filters.
 		 */
-		$res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
+		$res = apply_filters('upgrader_pre_install', true, $args['hook_extra']);
 
-		if ( is_wp_error( $res ) ) {
+		if (is_wp_error($res)) {
 			return $res;
 		}
 
-		//Retain the Original source and destinations
+		// Retain the Original source and destinations
 		$remote_source     = $args['source'];
 		$local_destination = $destination;
 
-		$source_files       = array_keys( $wp_filesystem->dirlist( $remote_source ) );
-		$remote_destination = $wp_filesystem->find_folder( $local_destination );
+		$source_files       = array_keys($wp_filesystem->dirlist($remote_source));
+		$remote_destination = $wp_filesystem->find_folder($local_destination);
 
-		//Locate which directory to copy to the new folder, This is based on the actual folder holding the files.
-		if ( 1 == count( $source_files ) && $wp_filesystem->is_dir( trailingslashit( $args['source'] ) . $source_files[0] . '/' ) ) { //Only one folder? Then we want its contents.
-			$source = trailingslashit( $args['source'] ) . trailingslashit( $source_files[0] );
-		} elseif ( count( $source_files ) == 0 ) {
-			return new WP_Error( 'incompatible_archive_empty', $this->strings['incompatible_archive'], $this->strings['no_files'] ); // There are no files?
+		// Locate which directory to copy to the new folder, This is based on the actual folder holding the files.
+		if (1 == count($source_files) && $wp_filesystem->is_dir(trailingslashit($args['source']) . $source_files[0] . '/')) { // Only one folder? Then we want its contents.
+			$source = trailingslashit($args['source']) . trailingslashit($source_files[0]);
+		} elseif (count($source_files) == 0) {
+			return new WP_Error('incompatible_archive_empty', $this->strings['incompatible_archive'], $this->strings['no_files']); // There are no files?
 		} else { // It's only a single file, the upgrader will use the folder name of this file as the destination folder. Folder name is based on zip filename.
-			$source = trailingslashit( $args['source'] );
+			$source = trailingslashit($args['source']);
 		}
 
 		/**
@@ -469,15 +474,15 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 * @param WP_Upgrader $this          WP_Upgrader instance.
 		 * @param array       $hook_extra    Extra arguments passed to hooked filters.
 		 */
-		$source = apply_filters( 'upgrader_source_selection', $source, $remote_source, $this, $args['hook_extra'] );
+		$source = apply_filters('upgrader_source_selection', $source, $remote_source, $this, $args['hook_extra']);
 
-		if ( is_wp_error( $source ) ) {
+		if (is_wp_error($source)) {
 			return $source;
 		}
 
 		// Has the source location changed? If so, we need a new source_files list.
-		if ( $source !== $remote_source ) {
-			$source_files = array_keys( $wp_filesystem->dirlist( $source ) );
+		if ($source !== $remote_source) {
+			$source_files = array_keys($wp_filesystem->dirlist($source));
 		}
 
 		/*
@@ -489,20 +494,20 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 */
 		$protected_directories = array( ABSPATH, WP_CONTENT_DIR, WP_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' );
 
-		if ( is_array( $wp_theme_directories ) ) {
-			$protected_directories = array_merge( $protected_directories, $wp_theme_directories );
+		if (is_array($wp_theme_directories)) {
+			$protected_directories = array_merge($protected_directories, $wp_theme_directories);
 		}
 
-		if ( in_array( $destination, $protected_directories ) ) {
-			$remote_destination = trailingslashit( $remote_destination ) . trailingslashit( basename( $source ) );
-			$destination        = trailingslashit( $destination ) . trailingslashit( basename( $source ) );
+		if (in_array($destination, $protected_directories)) {
+			$remote_destination = trailingslashit($remote_destination) . trailingslashit(basename($source));
+			$destination        = trailingslashit($destination) . trailingslashit(basename($source));
 		}
 
-		if ( $clear_destination ) {
+		if ($clear_destination) {
 			// We're going to clear the destination if there's something there.
-			//$this->skin->feedback( 'remove_old' );
+			// $this->skin->feedback( 'remove_old' );
 
-			$removed = $this->clear_destination( $remote_destination );
+			$removed = $this->clear_destination($remote_destination);
 
 			/**
 			 * Filters whether the upgrader cleared the destination.
@@ -514,47 +519,47 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 			 * @param string $remote_destination The remote package destination.
 			 * @param array  $hook_extra         Extra arguments passed to hooked filters.
 			 */
-			$removed = apply_filters( 'upgrader_clear_destination', $removed, $local_destination, $remote_destination, $args['hook_extra'] );
+			$removed = apply_filters('upgrader_clear_destination', $removed, $local_destination, $remote_destination, $args['hook_extra']);
 
-			if ( is_wp_error( $removed ) ) {
+			if (is_wp_error($removed)) {
 				return $removed;
 			}
-		} elseif ( $args['abort_if_destination_exists'] && $wp_filesystem->exists( $remote_destination ) ) {
-			//If we're not clearing the destination folder and something exists there already, Bail.
-			//But first check to see if there are actually any files in the folder.
-			$_files = $wp_filesystem->dirlist( $remote_destination );
-			if ( ! empty( $_files ) ) {
-				$wp_filesystem->delete( $remote_source, true ); //Clear out the source files.
-				return new WP_Error( 'folder_exists', $this->strings['folder_exists'], $remote_destination );
+		} elseif ($args['abort_if_destination_exists'] && $wp_filesystem->exists($remote_destination)) {
+			// If we're not clearing the destination folder and something exists there already, Bail.
+			// But first check to see if there are actually any files in the folder.
+			$_files = $wp_filesystem->dirlist($remote_destination);
+			if (! empty($_files)) {
+				$wp_filesystem->delete($remote_source, true); // Clear out the source files.
+				return new WP_Error('folder_exists', $this->strings['folder_exists'], $remote_destination);
 			}
 		}
 
-		//Create destination if needed
-		if ( ! $wp_filesystem->exists( $remote_destination ) ) {
-			if ( ! $wp_filesystem->mkdir( $remote_destination, FS_CHMOD_DIR ) ) {
-				return new WP_Error( 'mkdir_failed_destination', $this->strings['mkdir_failed'], $remote_destination );
+		// Create destination if needed
+		if (! $wp_filesystem->exists($remote_destination)) {
+			if (! $wp_filesystem->mkdir($remote_destination, FS_CHMOD_DIR)) {
+				return new WP_Error('mkdir_failed_destination', $this->strings['mkdir_failed'], $remote_destination);
 			}
 		}
 		// Copy new version of item into place.
-		$result = copy_dir( $source, $remote_destination );
-		if ( is_wp_error( $result ) ) {
-			if ( $args['clear_working'] ) {
-				$wp_filesystem->delete( $remote_source, true );
+		$result = copy_dir($source, $remote_destination);
+		if (is_wp_error($result)) {
+			if ($args['clear_working']) {
+				$wp_filesystem->delete($remote_source, true);
 			}
 			return $result;
 		}
 
-		//Clear the Working folder?
-		if ( $args['clear_working'] ) {
-			$wp_filesystem->delete( $remote_source, true );
+		// Clear the Working folder?
+		if ($args['clear_working']) {
+			$wp_filesystem->delete($remote_source, true);
 		}
 
-		$destination_name = basename( str_replace( $local_destination, '', $destination ) );
-		if ( '.' == $destination_name ) {
+		$destination_name = basename(str_replace($local_destination, '', $destination));
+		if ('.' == $destination_name) {
 			$destination_name = '';
 		}
 
-		$this->result = compact( 'source', 'source_files', 'destination', 'destination_name', 'local_destination', 'remote_destination', 'clear_destination' );
+		$this->result = compact('source', 'source_files', 'destination', 'destination_name', 'local_destination', 'remote_destination', 'clear_destination');
 
 		/**
 		 * Filters the installation response after the installation has finished.
@@ -565,14 +570,14 @@ class PluginSilentUpgrader extends \Plugin_Upgrader {
 		 * @param array $hook_extra Extra arguments passed to hooked filters.
 		 * @param array $result     Installation result data.
 		 */
-		$res = apply_filters( 'upgrader_post_install', true, $args['hook_extra'], $this->result );
+		$res = apply_filters('upgrader_post_install', true, $args['hook_extra'], $this->result);
 
-		if ( is_wp_error( $res ) ) {
+		if (is_wp_error($res)) {
 			$this->result = $res;
 			return $res;
 		}
 
-		//Bombard the calling function will all the info which we've just used.
+		// Bombard the calling function will all the info which we've just used.
 		return $this->result;
 	}
 }

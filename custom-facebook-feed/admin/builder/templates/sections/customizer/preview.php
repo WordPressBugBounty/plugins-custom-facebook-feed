@@ -1,10 +1,12 @@
 <div class="sb-customizer-preview" :data-preview-device="customizerScreens.previewScreen">
 	<?php
+
 		/**
 		 * CFF Admin Notices
 		 *
 		 * @since 4.0
 		 */
+
 		do_action('cff_admin_notices');
 	?>
 	<div class="sb-preview-ctn sb-tr-2">
@@ -34,7 +36,7 @@
 						include_once CFF_BUILDER_DIR . 'templates/preview/post-types/events.php';
 						include_once CFF_BUILDER_DIR . 'templates/preview/post-types/single-holder.php';
 
-						//include_once CFF_BUILDER_DIR . 'templates/preview/load-more.php';
+						// include_once CFF_BUILDER_DIR . 'templates/preview/load-more.php';
 					?>
 				</div>
 				<cff-post-likebox-component v-if="customizerFeedData.settings.likeboxpos == 'bottom'" v-if="" :customizer-feed-data="customizerFeedData"  :translated-text="translatedText"></cff-post-likebox-component>
@@ -44,7 +46,7 @@
 
 			<?php
 				include_once CFF_BUILDER_DIR . 'templates/preview/preview-components.php';
-				//include_once CFF_BUILDER_DIR . 'templates/preview/light-box.php';
+				// include_once CFF_BUILDER_DIR . 'templates/preview/light-box.php';
 				include_once CFF_BUILDER_DIR . 'templates/preview/like-box.php';
 				include_once CFF_BUILDER_DIR . 'templates/preview/dummy-lightbox.php';
 			?>

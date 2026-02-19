@@ -11,6 +11,6 @@
 		<div class="sb-control-elem-tltp-txt" v-html="tooltip.text" :data-align="tooltip.align"></div>
 	</div>
 </div>
-<?php //include_once CFF_BUILDER_DIR . 'templates/form-data-examples.html';
+<?php // include_once CFF_BUILDER_DIR . 'templates/form-data-examples.html';
 include_once CFF_BUILDER_DIR . 'templates/preview/theme-styles.php';
 ?>

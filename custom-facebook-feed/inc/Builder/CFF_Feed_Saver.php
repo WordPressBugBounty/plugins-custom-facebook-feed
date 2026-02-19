@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Custom Facebook Feed Database
  *
@@ -14,8 +15,8 @@ if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-class CFF_Feed_Saver {
-
+class CFF_Feed_Saver
+{
 	/**
 	 * @var int
 	 *
@@ -66,8 +67,9 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function __construct( $insert_id ) {
-		if ( $insert_id === 'legacy' ) {
+	public function __construct($insert_id)
+	{
+		if ($insert_id === 'legacy') {
 			$this->is_legacy = true;
 			$this->insert_id = 0;
 		} else {
@@ -83,11 +85,12 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function get_feed_id() {
-		if ( $this->is_legacy ) {
+	public function get_feed_id()
+	{
+		if ($this->is_legacy) {
 			return 'legacy';
 		}
-		if ( ! empty( $this->insert_id ) ) {
+		if (! empty($this->insert_id)) {
 			return $this->insert_id;
 		} else {
 			return false;
@@ -99,7 +102,8 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function set_data( $data ) {
+	public function set_data($data)
+	{
 		$this->data = $data;
 	}
 
@@ -108,7 +112,8 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function set_feed_name( $feed_name ) {
+	public function set_feed_name($feed_name)
+	{
 		$this->feed_name = $feed_name;
 	}
 
@@ -119,7 +124,8 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function get_feed_db_data() {
+	public function get_feed_db_data()
+	{
 		return $this->feed_db_data;
 	}
 
@@ -131,10 +137,11 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function update_or_insert() {
+	public function update_or_insert()
+	{
 		$this->sanitize_and_sort_data();
 
-		if ( $this->exists_in_database() ) {
+		if ($this->exists_in_database()) {
 			return $this->update();
 		} else {
 			return $this->insert();
@@ -149,12 +156,13 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function exists_in_database() {
-		if ( $this->is_legacy ) {
+	public function exists_in_database()
+	{
+		if ($this->is_legacy) {
 			return true;
 		}
 
-		if ( $this->insert_id === false ) {
+		if ($this->insert_id === false) {
 			return false;
 		}
 
@@ -162,9 +170,9 @@ class CFF_Feed_Saver {
 			'id' => $this->insert_id
 		);
 
-		$results = CFF_Db::feeds_query( $args );
+		$results = CFF_Db::feeds_query($args);
 
-		return isset( $results[0] );
+		return isset($results[0]);
 	}
 
 	/**
@@ -176,23 +184,24 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function insert() {
-		if ( $this->is_legacy ) {
+	public function insert()
+	{
+		if ($this->is_legacy) {
 			return $this->update();
 		}
 
-		if ( ! isset( $this->sanitized_and_sorted_data ) ) {
+		if (! isset($this->sanitized_and_sorted_data)) {
 			return false;
 		}
 
-		$settings_array = CFF_Feed_Saver::format_settings( $this->sanitized_and_sorted_data['feed_settings'] );
+		$settings_array = CFF_Feed_Saver::format_settings($this->sanitized_and_sorted_data['feed_settings']);
 
 		$this->sanitized_and_sorted_data['feeds'][] = array(
 			'key' => 'settings',
-			'values' => array( \CustomFacebookFeed\CFF_Utils::cff_json_encode( $settings_array ) )
+			'values' => array( \CustomFacebookFeed\CFF_Utils::cff_json_encode($settings_array) )
 		);
 
-		if ( ! empty( $this->feed_name ) ) {
+		if (! empty($this->feed_name)) {
 			$this->sanitized_and_sorted_data['feeds'][] = array(
 				'key' => 'feed_name',
 				'values' => array( $this->feed_name )
@@ -204,9 +213,9 @@ class CFF_Feed_Saver {
 			'values' => array( 'publish' )
 		);
 
-		$insert_id = CFF_Db::feeds_insert( $this->sanitized_and_sorted_data['feeds'] );
+		$insert_id = CFF_Db::feeds_insert($this->sanitized_and_sorted_data['feeds']);
 
-		if ( $insert_id ) {
+		if ($insert_id) {
 			$this->insert_id = $insert_id;
 
 			return $insert_id;
@@ -223,9 +232,10 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function update() {
+	public function update()
+	{
 		$encryption = new SB_Facebook_Data_Encryption();
-		if ( ! isset( $this->sanitized_and_sorted_data ) ) {
+		if (! isset($this->sanitized_and_sorted_data)) {
 			return false;
 		}
 
@@ -233,18 +243,18 @@ class CFF_Feed_Saver {
 			'id' => $this->insert_id
 		);
 
-		$settings_array = CFF_Feed_Saver::format_settings( $this->sanitized_and_sorted_data['feed_settings'] );
+		$settings_array = CFF_Feed_Saver::format_settings($this->sanitized_and_sorted_data['feed_settings']);
 
-		if ( $this->is_legacy ) {
-			$to_save_json = \CustomFacebookFeed\CFF_Utils::cff_json_encode( $settings_array );
-			$to_save_json = $encryption->maybe_encrypt( $to_save_json );
+		if ($this->is_legacy) {
+			$to_save_json = \CustomFacebookFeed\CFF_Utils::cff_json_encode($settings_array);
+			$to_save_json = $encryption->maybe_encrypt($to_save_json);
 
-			return update_option( 'cff_legacy_feed_settings', $to_save_json );
+			return update_option('cff_legacy_feed_settings', $to_save_json);
 		}
 
 		$this->sanitized_and_sorted_data['feeds'][] = array(
 			'key' => 'settings',
-			'values' => array( \CustomFacebookFeed\CFF_Utils::cff_json_encode( $settings_array ) )
+			'values' => array( \CustomFacebookFeed\CFF_Utils::cff_json_encode($settings_array) )
 		);
 
 		$this->sanitized_and_sorted_data['feeds'][] = array(
@@ -252,7 +262,7 @@ class CFF_Feed_Saver {
 			'values' => [sanitize_text_field($this->feed_name)]
 		);
 
-		$success = CFF_Db::feeds_update( $this->sanitized_and_sorted_data['feeds'], $args );
+		$success = CFF_Db::feeds_update($this->sanitized_and_sorted_data['feeds'], $args);
 
 		return $success;
 	}
@@ -267,15 +277,14 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public static function format_settings( $raw_settings ) {
+	public static function format_settings($raw_settings)
+	{
 		$settings_array = array();
-		foreach ( $raw_settings as $single_setting ) {
-			if ( count( $single_setting['values'] ) > 1 ) {
+		foreach ($raw_settings as $single_setting) {
+			if (count($single_setting['values']) > 1) {
 				$settings_array[ $single_setting['key'] ] = $single_setting['values'];
-
 			} else {
 				$settings_array[ $single_setting['key'] ] = $single_setting['values'][0];
-
 			}
 		}
 
@@ -290,25 +299,26 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function get_feed_settings( $is_export = false ) {
+	public function get_feed_settings($is_export = false)
+	{
 		$encryption = new SB_Facebook_Data_Encryption();
-		if ( $this->is_legacy ) {
-			$return =  CFF_FB_Settings::get_legacy_settings( array() ) ;
+		if ($this->is_legacy) {
+			$return =  CFF_FB_Settings::get_legacy_settings(array()) ;
 			$this->feed_db_data = array(
 				'id' => 'legacy',
-				'feed_name' => __( 'Legacy Feeds', 'custom-facebook-feed' ),
-				'feed_title' => __( 'Legacy Feeds', 'custom-facebook-feed' ),
+				'feed_name' => __('Legacy Feeds', 'custom-facebook-feed'),
+				'feed_title' => __('Legacy Feeds', 'custom-facebook-feed'),
 				'status' => 'publish',
-				'last_modified' => date( 'Y-m-d H:i:s' ),
+				'last_modified' => date('Y-m-d H:i:s'),
 			);
-		} else if ( empty( $this->insert_id ) ) {
+		} elseif (empty($this->insert_id)) {
 			return false;
 		} else {
 			$args = array(
 				'id' => $this->insert_id,
 			);
-			$settings_db_data = CFF_Db::feeds_query( $args );
-			if ( false === $settings_db_data || sizeof($settings_db_data) == 0) {
+			$settings_db_data = CFF_Db::feeds_query($args);
+			if (false === $settings_db_data || sizeof($settings_db_data) == 0) {
 				return false;
 			}
 			$this->feed_db_data = array(
@@ -319,85 +329,84 @@ class CFF_Feed_Saver {
 				'last_modified' => $settings_db_data[0]['last_modified'],
 			);
 
-			$return = json_decode( $settings_db_data[0]['settings'], true );
+			$return = json_decode($settings_db_data[0]['settings'], true);
 			$return['feed_name'] = $settings_db_data[0]['feed_name'];
 		}
 
-		$return = wp_parse_args( $return, CFF_Feed_Saver::settings_defaults() );
+		$return = wp_parse_args($return, CFF_Feed_Saver::settings_defaults());
 
 
-		if ( empty( $return['sources'] ) ) {
+		if (empty($return['sources'])) {
 			return $return;
 		}
 		$args = array( 'id' => $return['sources'] );
 
-		if ( ! empty( $return['type'] )
-		     && $return['type'] === 'events'
-		     && ! empty( $return['eventsource'] )
-		     && $return['eventsource'] === 'eventspage' ) {
+		if (
+			! empty($return['type'])
+			 && $return['type'] === 'events'
+			 && ! empty($return['eventsource'])
+			 && $return['eventsource'] === 'eventspage'
+		) {
 			$args['privilege'] = 'events';
 		}
 
-		if ( isset( $return['feedtype'] ) && $return['feedtype'] == 'events' ){
+		if (isset($return['feedtype']) && $return['feedtype'] == 'events') {
 			$args['privilege'] = 'events';
 		}
 
-		$source_query = CFF_Db::source_query( $args );
+		$source_query = CFF_Db::source_query($args);
 
 		$return['sources'] = array();
 
-		if ( ! empty( $source_query ) ) {
-
-			foreach ( $source_query as $source ) {
-
-				$info = ! empty( $source['info'] ) ? json_decode( stripslashes( $source['info'] ) ) : array();
-				$avatar = \CustomFacebookFeed\CFF_Parse::get_avatar( $info );
+		if (! empty($source_query)) {
+			foreach ($source_query as $source) {
+				$info = ! empty($source['info']) ? json_decode(stripslashes($source['info'])) : array();
+				$avatar = \CustomFacebookFeed\CFF_Parse::get_avatar($info);
 
 				$source['avatar_url'] = $avatar;
 				$return['sources'][] = array(
-					'record_id' => stripslashes( $source['id'] ),
-					'account_id' => stripslashes( $source['account_id'] ),
-					'account_type' => stripslashes( $source['account_type'] ),
-					'privilege' => stripslashes( $source['privilege'] ),
-					'access_token' => $is_export === true ? stripslashes( $source['access_token'] ) : stripslashes( $encryption->decrypt( $source['access_token'] ) ),
-					'username' => stripslashes( $source['username'] ),
-					'info' => stripslashes( $encryption->decrypt( $source['info'] ) ),
-					'error' => stripslashes( $source['error'] ),
-					'expires' => stripslashes( $source['expires'] ),
-					'avatar_url' => stripslashes( $source['avatar_url'] ),
+					'record_id' => stripslashes($source['id']),
+					'account_id' => stripslashes($source['account_id']),
+					'account_type' => stripslashes($source['account_type']),
+					'privilege' => stripslashes($source['privilege']),
+					'access_token' => $is_export === true ? stripslashes($source['access_token']) : stripslashes($encryption->decrypt($source['access_token'])),
+					'username' => stripslashes($source['username']),
+					'info' => stripslashes($encryption->decrypt($source['info'])),
+					'error' => stripslashes($source['error']),
+					'expires' => stripslashes($source['expires']),
+					'avatar_url' => stripslashes($source['avatar_url']),
 
 				);
 			}
 
-			$return['accesstoken'] = stripslashes( $source_query[0]['access_token'] );
-			$return['id'] = stripslashes( $source_query[0]['account_id'] );
+			$return['accesstoken'] = stripslashes($source_query[0]['access_token']);
+			$return['id'] = stripslashes($source_query[0]['account_id']);
 		} else {
-			if ( isset( $args['privilege'] ) ){
-				unset( $args['privilege'] );
-				$source_query = CFF_Db::source_query( $args );
+			if (isset($args['privilege'])) {
+				unset($args['privilege']);
+				$source_query = CFF_Db::source_query($args);
 			} else {
 				$args['privilege'] = 'events';
-				$source_query = CFF_Db::source_query( $args );
+				$source_query = CFF_Db::source_query($args);
 			}
 
-			if ( empty( $source_query ) ) {
+			if (empty($source_query)) {
 				$source_query = CFF_Db::source_query();
 			}
-			if ( isset( $source_query[0] ) ) {
+			if (isset($source_query[0])) {
 				$return['sources'][] = array(
-					'record_id' => stripslashes( $source_query[0]['id'] ),
-					'account_id' => stripslashes( $source_query[0]['account_id'] ),
-					'account_type' => stripslashes( $source_query[0]['account_type'] ),
-					'privilege' => stripslashes( $source_query[0]['privilege'] ),
-					'access_token' => stripslashes( $encryption->decrypt( $source_query[0]['access_token'] ) ),
-					'username' => stripslashes( $source_query[0]['username'] ),
-					'info' => stripslashes( $encryption->decrypt( $source_query[0]['info'] ) ),
-					'expires' => stripslashes( $source_query[0]['expires'] ),
+					'record_id' => stripslashes($source_query[0]['id']),
+					'account_id' => stripslashes($source_query[0]['account_id']),
+					'account_type' => stripslashes($source_query[0]['account_type']),
+					'privilege' => stripslashes($source_query[0]['privilege']),
+					'access_token' => stripslashes($encryption->decrypt($source_query[0]['access_token'])),
+					'username' => stripslashes($source_query[0]['username']),
+					'info' => stripslashes($encryption->decrypt($source_query[0]['info'])),
+					'expires' => stripslashes($source_query[0]['expires']),
 				);
 
-				$return['accesstoken'] = stripslashes( $source_query[0]['access_token'] );
-				$return['id'] = stripslashes( $source_query[0]['account_id'] );
-
+				$return['accesstoken'] = stripslashes($source_query[0]['access_token']);
+				$return['id'] = stripslashes($source_query[0]['account_id']);
 			}
 		}
 
@@ -414,13 +423,14 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public function get_feed_settings_preview( $settings_db_data ) {
-		if ( false === $settings_db_data || sizeof($settings_db_data) == 0) {
+	public function get_feed_settings_preview($settings_db_data)
+	{
+		if (false === $settings_db_data || sizeof($settings_db_data) == 0) {
 			return false;
 		}
 		$return = $settings_db_data;
-		$return = wp_parse_args( $return, CFF_Feed_Saver::settings_defaults() );
-		if ( empty( $return['sources'] ) ) {
+		$return = wp_parse_args($return, CFF_Feed_Saver::settings_defaults());
+		if (empty($return['sources'])) {
 			return $return;
 		}
 		$sources = [];
@@ -429,20 +439,20 @@ class CFF_Feed_Saver {
 		}
 
 		$args = array( 'id' => $sources );
-		$source_query = CFF_Db::source_query( $args );
+		$source_query = CFF_Db::source_query($args);
 		$encryption = new SB_Facebook_Data_Encryption();
 
 		$return['sources'] = array();
-		if ( ! empty( $source_query ) ) {
-			foreach ( $source_query as $source ) {
+		if (! empty($source_query)) {
+			foreach ($source_query as $source) {
 				$return['sources'][] = array(
-					'record_id' => stripslashes( $source['id'] ),
-					'account_id' => stripslashes( $source['account_id'] ),
-					'account_type' => stripslashes( $source['account_type'] ),
-					'access_token' => stripslashes( $encryption->decrypt( $source['access_token'] ) ),
-					'username' => stripslashes( $source['username'] ),
-					'info' => stripslashes( $encryption->decrypt( $source['info'] ) ),
-					'expires' => stripslashes( $source['expires'] ),
+					'record_id' => stripslashes($source['id']),
+					'account_id' => stripslashes($source['account_id']),
+					'account_type' => stripslashes($source['account_type']),
+					'access_token' => stripslashes($encryption->decrypt($source['access_token'])),
+					'username' => stripslashes($source['username']),
+					'info' => stripslashes($encryption->decrypt($source['info'])),
+					'expires' => stripslashes($source['expires']),
 				);
 			}
 		}
@@ -463,14 +473,15 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public static function settings_defaults( $return_array = true ) {
+	public static function settings_defaults($return_array = true)
+	{
 		{
-			$translations = get_option( 'cff_style_settings', array() );
+			$translations = get_option('cff_style_settings', array());
 
 			$final_translations = [];
-			$final_translations['facebooklinktext'] = isset( $translations['cff_facebook_link_text'] ) ? stripslashes( esc_attr( $translations['cff_facebook_link_text'] ) ) : __( 'View on Facebook', 'custom-facebook-feed' );
-			$final_translations['sharelinktext'] = isset( $translations['cff_facebook_share_text'] ) ? stripslashes( esc_attr( $translations['cff_facebook_share_text'] ) ) : __( 'Share', 'custom-facebook-feed' );
-			$final_translations['buttontext'] = isset( $translations[ 'cff_load_more_text' ] ) ? stripslashes( esc_attr( $translations[ 'cff_load_more_text' ] ) ) : __( 'Load more', 'custom-facebook-feed' );
+			$final_translations['facebooklinktext'] = isset($translations['cff_facebook_link_text']) ? stripslashes(esc_attr($translations['cff_facebook_link_text'])) : __('View on Facebook', 'custom-facebook-feed');
+			$final_translations['sharelinktext'] = isset($translations['cff_facebook_share_text']) ? stripslashes(esc_attr($translations['cff_facebook_share_text'])) : __('Share', 'custom-facebook-feed');
+			$final_translations['buttontext'] = isset($translations[ 'cff_load_more_text' ]) ? stripslashes(esc_attr($translations[ 'cff_load_more_text' ])) : __('Load more', 'custom-facebook-feed');
 
 			$defaults = array(
 				'sources' => '',
@@ -639,7 +650,7 @@ class CFF_Feed_Saver {
 				'headercoverheight' => '300',
 				'headerlikes' => '',
 				'headeroutside' => 'on',
-				'headertext' => __( 'Facebook Posts', 'custom-facebook-feed' ),
+				'headertext' => __('Facebook Posts', 'custom-facebook-feed'),
 				'headerbg' => '#',
 				'headerpadding' => '',
 				'headertextsize' => 'inherit',
@@ -669,7 +680,7 @@ class CFF_Feed_Saver {
 				'masonryactive' => false,
 				'carouselactive' => false,
 				'reviewsactive' => false,
-				//Date Range
+				// Date Range
 				'from' => '',
 				'until' => '',
 				'daterangefromtype' => 'specific',
@@ -687,17 +698,17 @@ class CFF_Feed_Saver {
 				'reviewsrated' => '1,2,3,4,5',
 				'starsize' => '12',
 				'hidenegative' => '',
-				'reviewslinktext' => __( 'View all Reviews', 'custom-facebook-feed' ),
+				'reviewslinktext' => __('View all Reviews', 'custom-facebook-feed'),
 				'reviewshidenotext' => '',
 				'reviewsmethod' => 'all',
-				//TO BE CHECKED
+				// TO BE CHECKED
 				'feedtype' 			=> 'timeline', // working
 				'likeboxcustomwidth' => '', // working
 				'colstablet'	=> 2, // working 400/800
 				'feedlayout'	=> 'list', // working
 				'colorpalette'	=> 'inherit', // working
-				'custombgcolor1'=>	'', // working
-				'custombgcolor2'=>	'', // working
+				'custombgcolor1' =>	'', // working
+				'custombgcolor2' =>	'', // working
 				'textcolor1'	=>	'', // working
 				'textcolor2'	=>	'', // working
 				'customlinkcolor'		=>	'', // working
@@ -723,10 +734,10 @@ class CFF_Feed_Saver {
 				'carouselinterval'		=> 5000,
 			);
 
-			$defaults = CFF_Feed_Saver::filter_defaults( $defaults );
+			$defaults = CFF_Feed_Saver::filter_defaults($defaults);
 
 			// some settings are comma separated and not arrays when the feed is created
-			if ( $return_array ) {
+			if ($return_array) {
 				$settings_with_multiples = array(
 					'sources',
 					'accesstoken',
@@ -738,15 +749,15 @@ class CFF_Feed_Saver {
 					'exfilter'
 				);
 
-				foreach ( $settings_with_multiples as $multiple_key ) {
-					if ( isset( $defaults[ $multiple_key ] ) ) {
-						$defaults[ $multiple_key ] = explode( ',', $defaults[ $multiple_key ] );
+				foreach ($settings_with_multiples as $multiple_key) {
+					if (isset($defaults[ $multiple_key ])) {
+						$defaults[ $multiple_key ] = explode(',', $defaults[ $multiple_key ]);
 					}
 				}
 			}
 
 			return $defaults;
-		}
+			}
 	}
 
 	/**
@@ -758,19 +769,20 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	public static function filter_defaults( $defaults ) {
+	public static function filter_defaults($defaults)
+	{
 
-		if ( \CustomFacebookFeed\CFF_FB_Settings::check_active_extension( 'carousel' ) ) {
-			$cff_carousel_options = get_option( 'cff_carousel_options' );
+		if (\CustomFacebookFeed\CFF_FB_Settings::check_active_extension('carousel')) {
+			$cff_carousel_options = get_option('cff_carousel_options');
 			// If an option is set, use the saved value, otherwise use the default
-			$enabled = isset( $cff_carousel_options['cff_carousel_enabled'] ) ? $cff_carousel_options['cff_carousel_enabled'] : false;
-			$height = isset( $cff_carousel_options['cff_carousel_height'] ) ? $cff_carousel_options['cff_carousel_height'] : 'tallest';
-			$desktop_cols = isset( $cff_carousel_options['cff_carousel_desktop_cols'] ) ? $cff_carousel_options['cff_carousel_desktop_cols'] : 1;
-			$mobile_cols = isset( $cff_carousel_options['cff_carousel_mobile_cols'] ) ? $cff_carousel_options['cff_carousel_mobile_cols'] : 1;
-			$arrows = isset( $cff_carousel_options['cff_carousel_navigation'] ) ? $cff_carousel_options['cff_carousel_navigation'] : 'none';
-			$pagination = isset( $cff_carousel_options['cff_carousel_pagination'] ) ? $cff_carousel_options['cff_carousel_pagination'] : true;
-			$autoplay = isset( $cff_carousel_options['cff_carousel_autoplay'] ) ? $cff_carousel_options['cff_carousel_autoplay'] : false;
-			$interval = isset( $cff_carousel_options['cff_carousel_interval'] ) ? $cff_carousel_options['cff_carousel_interval'] : 5000;
+			$enabled = isset($cff_carousel_options['cff_carousel_enabled']) ? $cff_carousel_options['cff_carousel_enabled'] : false;
+			$height = isset($cff_carousel_options['cff_carousel_height']) ? $cff_carousel_options['cff_carousel_height'] : 'tallest';
+			$desktop_cols = isset($cff_carousel_options['cff_carousel_desktop_cols']) ? $cff_carousel_options['cff_carousel_desktop_cols'] : 1;
+			$mobile_cols = isset($cff_carousel_options['cff_carousel_mobile_cols']) ? $cff_carousel_options['cff_carousel_mobile_cols'] : 1;
+			$arrows = isset($cff_carousel_options['cff_carousel_navigation']) ? $cff_carousel_options['cff_carousel_navigation'] : 'none';
+			$pagination = isset($cff_carousel_options['cff_carousel_pagination']) ? $cff_carousel_options['cff_carousel_pagination'] : true;
+			$autoplay = isset($cff_carousel_options['cff_carousel_autoplay']) ? $cff_carousel_options['cff_carousel_autoplay'] : false;
+			$interval = isset($cff_carousel_options['cff_carousel_interval']) ? $cff_carousel_options['cff_carousel_interval'] : 5000;
 
 			$defaults['carouselheight'] = $height;
 			$defaults['carouseldesktop_cols'] = $desktop_cols;
@@ -780,20 +792,19 @@ class CFF_Feed_Saver {
 			$defaults['carouselautoplay'] = $autoplay || $autoplay === 'on';
 			$defaults['carouselinterval'] = $interval;
 
-			if ( $enabled ) {
+			if ($enabled) {
 				$defaults['feedlayout'] = 'carousel';
 			}
-
 		}
 
-		if ( \CustomFacebookFeed\CFF_FB_Settings::check_active_extension( 'reviews' ) ) {
-			$options = get_option( 'cff_style_settings', array() );
+		if (\CustomFacebookFeed\CFF_FB_Settings::check_active_extension('reviews')) {
+			$options = get_option('cff_style_settings', array());
 
 			$defaults['starsize'] = isset($options[ 'cff_star_size' ]) ? $options[ 'cff_star_size' ] : '';
-			$defaults['hidenegative'] = isset( $options[ 'cff_reviews_hide_negative' ] ) ? stripslashes( esc_attr( $options[ 'cff_reviews_hide_negative' ] ) ) : '';
-			$defaults['reviewslinktext'] = isset( $options[ 'cff_reviews_link_text' ] ) ? stripslashes( esc_attr( $options[ 'cff_reviews_link_text' ] ) ) : __( 'View all Reviews', 'custom-facebook-feed' );
-			$defaults['reviewshidenotext'] = isset( $options[ 'cff_reviews_no_text' ] ) ? stripslashes( esc_attr( $options[ 'cff_reviews_no_text' ] ) ) : '';
-			$defaults['reviewsmethod'] = isset( $options[ 'cff_reviews_method' ] ) ? stripslashes( esc_attr( $options[ 'cff_reviews_method' ] ) ) : '';
+			$defaults['hidenegative'] = isset($options[ 'cff_reviews_hide_negative' ]) ? stripslashes(esc_attr($options[ 'cff_reviews_hide_negative' ])) : '';
+			$defaults['reviewslinktext'] = isset($options[ 'cff_reviews_link_text' ]) ? stripslashes(esc_attr($options[ 'cff_reviews_link_text' ])) : __('View all Reviews', 'custom-facebook-feed');
+			$defaults['reviewshidenotext'] = isset($options[ 'cff_reviews_no_text' ]) ? stripslashes(esc_attr($options[ 'cff_reviews_no_text' ])) : '';
+			$defaults['reviewsmethod'] = isset($options[ 'cff_reviews_method' ]) ? stripslashes(esc_attr($options[ 'cff_reviews_method' ])) : '';
 
 			$defaults['cff_reviews_rated_5'] = isset($options[ 'cff_reviews_rated_5' ]) ? $options[ 'cff_reviews_rated_5' ] : 'true';
 			$defaults['cff_reviews_rated_4'] = isset($options[ 'cff_reviews_rated_4' ]) ? $options[ 'cff_reviews_rated_4' ] : 'true';
@@ -805,13 +816,14 @@ class CFF_Feed_Saver {
 		return $defaults;
 	}
 
-	public static function set_legacy_feed_settings() {
+	public static function set_legacy_feed_settings()
+	{
 		$to_save = CFF_Post_Set::legacy_to_builder_convert();
 		$encryption = new SB_Facebook_Data_Encryption();
-		$to_save_json = \CustomFacebookFeed\CFF_Utils::cff_json_encode( $to_save );
-		$to_save_json = $encryption->maybe_encrypt( $to_save_json );
+		$to_save_json = \CustomFacebookFeed\CFF_Utils::cff_json_encode($to_save);
+		$to_save_json = $encryption->maybe_encrypt($to_save_json);
 
-		update_option( 'cff_legacy_feed_settings', $to_save_json );
+		update_option('cff_legacy_feed_settings', $to_save_json);
 	}
 
 	/**
@@ -821,7 +833,8 @@ class CFF_Feed_Saver {
 	 *
 	 * @since 4.0
 	 */
-	private function sanitize_and_sort_data() {
+	private function sanitize_and_sort_data()
+	{
 		$data = $this->data;
 
 		$sanitized_and_sorted = array(
@@ -829,16 +842,15 @@ class CFF_Feed_Saver {
 			'feed_settings' => array()
 		);
 
-		foreach ( $data as $key => $value ) {
-
-			$data_type = CFF_Feed_Saver_Manager::get_data_type( $key );
+		foreach ($data as $key => $value) {
+			$data_type = CFF_Feed_Saver_Manager::get_data_type($key);
 			$sanitized_values = array();
-			if ( is_array( $value ) ) {
-				foreach ( $value as $item ) {
-					$sanitized_values[] = CFF_Feed_Saver_Manager::sanitize( $data_type['sanitization'], $item );
+			if (is_array($value)) {
+				foreach ($value as $item) {
+					$sanitized_values[] = CFF_Feed_Saver_Manager::sanitize($data_type['sanitization'], $item);
 				}
 			} else {
-				$sanitized_values[] = CFF_Feed_Saver_Manager::sanitize( $data_type['sanitization'], $value );
+				$sanitized_values[] = CFF_Feed_Saver_Manager::sanitize($data_type['sanitization'], $value);
 			}
 
 			$single_sanitized = array(

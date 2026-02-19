@@ -4,7 +4,7 @@
 
 		include_once CFF_BUILDER_DIR . 'templates/sections/header.php';
 		include_once CFF_BUILDER_DIR . 'templates/sections/footer.php';
-		//Onboarding Wizard
+		// Onboarding Wizard
 		include_once CFF_BUILDER_DIR . 'templates/screens/onboarding-wizard.php';
 	?>
 	<div class="sb-control-elem-tltp-content" v-show="tooltip.hover" @mouseover.prevent.default="hoverTooltip(true, 'inside')" @mouseleave.prevent.default="hoverTooltip(false, 'outside')">

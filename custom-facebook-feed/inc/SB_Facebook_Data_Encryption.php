@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class SB_Facebook_Data_Encryption
  *
@@ -8,9 +9,10 @@
  */
 
 namespace CustomFacebookFeed;
+
 // Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 
@@ -21,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @access private
  * @ignore
  */
-class SB_Facebook_Data_Encryption {
-
+class SB_Facebook_Data_Encryption
+{
 	/**
 	 * Key to use for encryption.
 	 *
@@ -44,8 +46,9 @@ class SB_Facebook_Data_Encryption {
 	 *
 	 * @since 2.9.4/5.12.4
 	 */
-	public function __construct( $remote = array() ) {
-		if ( ! empty( $remote ) ) {
+	public function __construct($remote = array())
+	{
+		if (! empty($remote)) {
 			$this->key  = $remote['key'];
 			$this->salt = $remote['salt'];
 		} else {
@@ -64,21 +67,22 @@ class SB_Facebook_Data_Encryption {
 	 * @param string $value Value to encrypt.
 	 * @return string|bool Encrypted value, or false on failure.
 	 */
-	public function encrypt( $value ) {
-		if ( ! cff_doing_openssl() ) {
+	public function encrypt($value)
+	{
+		if (! cff_doing_openssl()) {
 			return $value;
 		}
 
 		$method = 'aes-256-ctr';
-		$ivlen  = openssl_cipher_iv_length( $method );
-		$iv     = openssl_random_pseudo_bytes( $ivlen );
+		$ivlen  = openssl_cipher_iv_length($method);
+		$iv     = openssl_random_pseudo_bytes($ivlen);
 
-		$raw_value = openssl_encrypt( $value . $this->salt, $method, $this->key, 0, $iv );
-		if ( ! $raw_value ) {
+		$raw_value = openssl_encrypt($value . $this->salt, $method, $this->key, 0, $iv);
+		if (! $raw_value) {
 			return false;
 		}
 
-		return base64_encode( $iv . $raw_value );
+		return base64_encode($iv . $raw_value);
 	}
 
 	/**
@@ -91,36 +95,38 @@ class SB_Facebook_Data_Encryption {
 	 * @param string $raw_value Value to decrypt.
 	 * @return string|bool Decrypted value, or false on failure.
 	 */
-	public function decrypt( $raw_value ) {
-		if ( ! cff_doing_openssl() ) {
+	public function decrypt($raw_value)
+	{
+		if (! cff_doing_openssl()) {
 			return $raw_value;
 		}
 
-		$raw_value = base64_decode( $raw_value, true );
+		$raw_value = base64_decode($raw_value, true);
 
 		$method = 'aes-256-ctr';
-		$ivlen  = openssl_cipher_iv_length( $method );
-		$iv     = substr( $raw_value, 0, $ivlen );
+		$ivlen  = openssl_cipher_iv_length($method);
+		$iv     = substr($raw_value, 0, $ivlen);
 
-		$raw_value = substr( $raw_value, $ivlen );
+		$raw_value = substr($raw_value, $ivlen);
 
-		$value = openssl_decrypt( $raw_value, $method, $this->key, 0, $iv );
-		if ( ! $value || substr( $value, - strlen( $this->salt ) ) !== $this->salt ) {
+		$value = openssl_decrypt($raw_value, $method, $this->key, 0, $iv);
+		if (! $value || substr($value, - strlen($this->salt)) !== $this->salt) {
 			return false;
 		}
 
-		return substr( $value, 0, - strlen( $this->salt ) );
+		return substr($value, 0, - strlen($this->salt));
 	}
 
 
-	public function maybe_encrypt( $raw_value ) {
-		$maybe_decrypted = $this->decrypt( $raw_value );
+	public function maybe_encrypt($raw_value)
+	{
+		$maybe_decrypted = $this->decrypt($raw_value);
 
-		if ( $maybe_decrypted ) {
-			return $this->encrypt( $maybe_decrypted );
+		if ($maybe_decrypted) {
+			return $this->encrypt($maybe_decrypted);
 		}
 
-		return $this->encrypt( $raw_value );
+		return $this->encrypt($raw_value);
 	}
 
 	/**
@@ -130,17 +136,18 @@ class SB_Facebook_Data_Encryption {
 	 *
 	 * @return bool|string
 	 */
-	public function maybe_decrypt( $value ) {
-		if ( ! is_string( $value ) ) {
+	public function maybe_decrypt($value)
+	{
+		if (! is_string($value)) {
 			return $value;
 		}
-		if ( strpos( $value, '{' ) === 0 ) {
+		if (strpos($value, '{') === 0) {
 			return $value;
 		}
 
-		$decrypted = $this->decrypt( $value );
+		$decrypted = $this->decrypt($value);
 
-		if ( ! $decrypted ) {
+		if (! $decrypted) {
 			return $value;
 		}
 
@@ -154,12 +161,13 @@ class SB_Facebook_Data_Encryption {
 	 *
 	 * @return string Default (not user-based) encryption key.
 	 */
-	private function get_default_key() {
-		if ( defined( 'CFF_ENCRYPTION_KEY' ) && '' !== CFF_ENCRYPTION_KEY ) {
+	private function get_default_key()
+	{
+		if (defined('CFF_ENCRYPTION_KEY') && '' !== CFF_ENCRYPTION_KEY) {
 			return CFF_ENCRYPTION_KEY;
 		}
 
-		if ( defined( 'LOGGED_IN_KEY' ) && '' !== LOGGED_IN_KEY ) {
+		if (defined('LOGGED_IN_KEY') && '' !== LOGGED_IN_KEY) {
 			return LOGGED_IN_KEY;
 		}
 
@@ -174,12 +182,13 @@ class SB_Facebook_Data_Encryption {
 	 *
 	 * @return string Encryption salt.
 	 */
-	private function get_default_salt() {
-		if ( defined( 'CFF_ENCRYPTION_SALT' ) && '' !== CFF_ENCRYPTION_SALT ) {
+	private function get_default_salt()
+	{
+		if (defined('CFF_ENCRYPTION_SALT') && '' !== CFF_ENCRYPTION_SALT) {
 			return CFF_ENCRYPTION_SALT;
 		}
 
-		if ( defined( 'LOGGED_IN_SALT' ) && '' !== LOGGED_IN_SALT ) {
+		if (defined('LOGGED_IN_SALT') && '' !== LOGGED_IN_SALT) {
 			return LOGGED_IN_SALT;
 		}
 

@@ -1,36 +1,39 @@
 <?php
+
 /**
  * Builder Customizer Tab
  *
- *
  * @since 4.0
  */
+
 namespace CustomFacebookFeed\Builder\Tabs;
 
-if(!defined('ABSPATH'))	exit;
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 
-class CFF_Builder_Customizer_Tab{
-
+class CFF_Builder_Customizer_Tab
+{
 	/**
 	 * Get Tabs Data
-	 *
 	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return array
-	*/
-	public static function get_customizer_tabs(){
+	 */
+	public static function get_customizer_tabs()
+	{
 		return [
 			'customize' => [
 				'id' 		=> 'customize',
-				'heading' 	=> __( 'Customize', 'custom-facebook-feed' ),
+				'heading' 	=> __('Customize', 'custom-facebook-feed'),
 				'sections'	=> CFF_Customize_Tab::get_sections()
 			],
 			'settings' => [
 				'id' 		=> 'settings',
-				'heading' 	=> __( 'Settings', 'custom-facebook-feed' ),
+				'heading' 	=> __('Settings', 'custom-facebook-feed'),
 				'sections'	=> CFF_Settings_Tab::get_sections()
 			]
 		];
@@ -40,15 +43,15 @@ class CFF_Builder_Customizer_Tab{
 	/**
 	 * Text Size Options
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return array
-	*/
-	public static function get_text_size_options(){
+	 */
+	public static function get_text_size_options()
+	{
 		return [
-			'inherit' => __( 'Inherit', 'custom-facebook-feed' ),
+			'inherit' => __('Inherit', 'custom-facebook-feed'),
 			'10'		  => '10px',
 			'11'		  => '11px',
 			'12'		  => '12px',
@@ -73,13 +76,13 @@ class CFF_Builder_Customizer_Tab{
 	/**
 	 * header Icons Options
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return array
-	*/
-	public static function get_header_icons_options(){
+	 */
+	public static function get_header_icons_options()
+	{
 		return [
 			'facebook-square' 	=> 'Facebook 1',
 			'facebook' 			=> 'Facebook 2',
@@ -106,16 +109,16 @@ class CFF_Builder_Customizer_Tab{
 	/**
 	 * Date Format Options
 	 *
-	 *
 	 * @since 4.0
 	 * @access public
 	 *
 	 * @return array
-	*/
-	public static function get_date_format_options(){
+	 */
+	public static function get_date_format_options()
+	{
 		$original = strtotime('2016-07-25T17:30:00+0000');
 		return [
-			'1'			=> __('2 days ago','custom-facebook-feed'),
+			'1'			=> __('2 days ago', 'custom-facebook-feed'),
 			'2'			=> date('F jS, g:i a', $original),
 			'3'			=> date('F jS', $original),
 			'4'			=> date('D F jS', $original),
@@ -135,7 +138,7 @@ class CFF_Builder_Customizer_Tab{
 			'16'		=> date('d M Y, G:i', $original),
 			'17'		=> date('l jS F Y, G:i', $original),
 			'18'		=> date('Y-m-d', $original),
-			'custom'	=> __('Custom','custom-facebook-feed')
+			'custom'	=> __('Custom', 'custom-facebook-feed')
 		];
 	}
 }

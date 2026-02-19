@@ -1,9 +1,11 @@
 <?php
+
 /**
  * CFF_Support_Tool.
  *
  * @since 6.4
  */
+
 namespace CustomFacebookFeed\Admin;
 
 // Exit if accessed directly
@@ -13,12 +15,12 @@ if (!defined('ABSPATH')) {
 
 class CFF_Support_Tool
 {
-
 	static $plugin_name = 'SmashBalloon Facebook';
 	static $plugin = 'smash_cff';
 
 	/**
 	 * Temp User Name
+	 *
 	 * @access private
 	 *
 	 * @var string
@@ -27,6 +29,7 @@ class CFF_Support_Tool
 
 	/**
 	 * Temp Last Name
+	 *
 	 * @access private
 	 *
 	 * @var string
@@ -36,6 +39,7 @@ class CFF_Support_Tool
 
 	/**
 	 * Temp Login UserName
+	 *
 	 * @access private
 	 *
 	 * @var string
@@ -44,6 +48,7 @@ class CFF_Support_Tool
 
 	/**
 	 * Cron Job Name
+	 *
 	 * @access public
 	 *
 	 * @var string
@@ -52,6 +57,7 @@ class CFF_Support_Tool
 
 	/**
 	 * Temp User Role
+	 *
 	 * @access private
 	 *
 	 * @var string
@@ -159,7 +165,6 @@ class CFF_Support_Tool
 		$should_login = (is_user_logged_in() && $user_id !== get_current_user_id()) || !is_user_logged_in();
 
 		if ($should_login) {
-
 			if ($user_id !== get_current_user_id()) {
 				wp_logout();
 			}
@@ -173,7 +178,6 @@ class CFF_Support_Tool
 			wp_safe_redirect(admin_url($redirect_page));
 			exit();
 		}
-
 	}
 
 	/**
@@ -369,7 +373,6 @@ class CFF_Support_Tool
 	 * Check & Delete Expired Users
 	 *
 	 * @since 6.3
-	 *
 	 */
 	public static function delete_expired_users()
 	{
@@ -389,7 +392,6 @@ class CFF_Support_Tool
 	 * Delete Temp User
 	 *
 	 * @since 6.3
-	 *
 	 */
 	public static function delete_temp_user()
 	{
@@ -422,7 +424,7 @@ class CFF_Support_Tool
 			array($this, 'render'),
 			5
 		);
-		#add_action('load-' . $support_tool_page, array( $this, 'support_page_enqueue_assets'));
+		// add_action('load-' . $support_tool_page, array( $this, 'support_page_enqueue_assets'));
 	}
 
 
@@ -518,9 +520,8 @@ class CFF_Support_Tool
 				$graph_query = 'visitor_posts';
 			}
 
-			$url = 'https://graph.facebook.com/v23.0/'. $source_info['account_id'].'/'. $graph_query .'?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,call_to_action,privacy&access_token='.$token.'&limit='.$limit.'&locale='.$locale;
+			$url = 'https://graph.facebook.com/v23.0/' . $source_info['account_id'] . '/' . $graph_query . '?fields=id,updated_time,from{picture,id,name,link},message,message_tags,story,story_tags,picture,full_picture,status_type,created_time,backdated_time,attachments{title,description,media_type,unshimmed_url,target{id},multi_share_end_card,media{source,image},subattachments},shares,call_to_action,privacy&access_token=' . $token . '&limit=' . $limit . '&locale=' . $locale;
 			$data_response = wp_remote_get($url);
-
 		}
 
 
@@ -540,11 +541,5 @@ class CFF_Support_Tool
 
 	public function create_api_url($url, $settings)
 	{
-
 	}
-
-
 }
-
-
-?>

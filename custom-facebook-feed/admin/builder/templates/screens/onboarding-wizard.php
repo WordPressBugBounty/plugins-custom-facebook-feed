@@ -23,13 +23,13 @@
 
 		<?php
 			$steps_list = CustomFacebookFeed\Admin\CFF_Onboarding_Wizard::get_onboarding_wizard_content();
-			foreach ($steps_list['steps'] as $key => $step) {
-		?>
+		foreach ($steps_list['steps'] as $key => $step) {
+			?>
 		<div class="sb-onboarding-wizard-step-ctn" v-if="currentOnboardingWizardStep === <?php echo $key; ?>">
-			<?php include_once ( $step['template'] ); ?>
+			<?php include_once($step['template']); ?>
 		</div>
-		<?php
-			}
+			<?php
+		}
 		?>
 	</div>
 </div>
