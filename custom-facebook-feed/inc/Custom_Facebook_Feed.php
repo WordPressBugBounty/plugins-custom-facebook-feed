@@ -28,7 +28,7 @@ use CustomFacebookFeed\Admin\CFF_Support;
 use CustomFacebookFeed\Admin\CFF_Support_Tool;
 use CustomFacebookFeed\Platform_Data;
 use CustomFacebookFeed\Integrations\Divi\CFF_Divi_Handler;
-use Smashballoon\Framework\Packages\Notification\Notices\SBNotices;
+use FacebookFeed\Vendor\Smashballoon\Framework\Packages\Notification\Notices\SBNotices;
 
 if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly

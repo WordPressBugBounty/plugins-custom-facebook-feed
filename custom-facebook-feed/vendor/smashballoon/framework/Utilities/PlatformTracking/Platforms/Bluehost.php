@@ -1,9 +1,8 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
 
-/** @internal */
-class Bluehost implements \Smashballoon\Framework\Utilities\PlatformTracking\Platforms\PlatformInterface
+class Bluehost implements PlatformInterface
 {
     /**
      * @inheritDoc
@@ -17,7 +16,7 @@ class Bluehost implements \Smashballoon\Framework\Utilities\PlatformTracking\Pla
      */
     public function filter_sb_hosting_platform($platform)
     {
-        if (\defined('BLUEHOST_PLUGIN_VERSION')) {
+        if (defined('BLUEHOST_PLUGIN_VERSION')) {
             $platform = 'bluehost';
         }
         return $platform;

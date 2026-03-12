@@ -1,8 +1,7 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
 
-/** @internal */
 interface PlatformInterface
 {
     /**

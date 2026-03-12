@@ -4,29 +4,55 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit2541d117625cbf01afd48d75a42ba768
+class ComposerStaticInit374e8b068c2434a98684079770360d31
 {
     public static $files = array (
         'sb_cff_free_b1eb330aa001ae4915f07005b4e993c2' => __DIR__ . '/..' . '/smashballoon/framework/Utilities/functions.php',
+        'sb_cff_free_a5f44a166aafa87e1c96130802135926' => __DIR__ . '/..' . '/smashballoon/framework/Packages/php-di/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        'F' =>
         array (
-            'Smashballoon\\Framework\\' => 23,
+            'FacebookFeed\\Vendor\\Smashballoon\\Framework\\' => 43,
+            'FacebookFeed\\Vendor\\Psr\\Container\\' => 34,
+            'FacebookFeed\\Vendor\\PhpDocReader\\' => 33,
+            'FacebookFeed\\Vendor\\Laravel\\SerializableClosure\\' => 48,
+            'FacebookFeed\\Vendor\\Invoker\\' => 28,
+            'FacebookFeed\\Vendor\\DI\\' => 23,
         ),
-        'C' => 
+        'C' =>
         array (
             'CustomFacebookFeed\\' => 19,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Smashballoon\\Framework\\' => 
+        'FacebookFeed\\Vendor\\Smashballoon\\Framework\\' =>
         array (
             0 => __DIR__ . '/..' . '/smashballoon/framework',
         ),
-        'CustomFacebookFeed\\' => 
+        'FacebookFeed\\Vendor\\Psr\\Container\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'FacebookFeed\\Vendor\\PhpDocReader\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader',
+        ),
+        'FacebookFeed\\Vendor\\Laravel\\SerializableClosure\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/laravel/serializable-closure/src',
+        ),
+        'FacebookFeed\\Vendor\\Invoker\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/php-di/invoker/src',
+        ),
+        'FacebookFeed\\Vendor\\DI\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/smashballoon/framework/Packages/php-di/src',
+        ),
+        'CustomFacebookFeed\\' =>
         array (
             0 => __DIR__ . '/../..' . '/inc',
         ),
@@ -39,9 +65,9 @@ class ComposerStaticInit2541d117625cbf01afd48d75a42ba768
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit2541d117625cbf01afd48d75a42ba768::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit2541d117625cbf01afd48d75a42ba768::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit2541d117625cbf01afd48d75a42ba768::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit374e8b068c2434a98684079770360d31::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit374e8b068c2434a98684079770360d31::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit374e8b068c2434a98684079770360d31::$classMap;
 
         }, null, ClassLoader::class);
     }

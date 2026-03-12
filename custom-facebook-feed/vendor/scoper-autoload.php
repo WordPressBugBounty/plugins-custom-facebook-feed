@@ -4,7 +4,7 @@
 
 $loader = (static function () {
     // Backup the autoloaded Composer files
-    $existingComposerAutoloadFiles = $GLOBALS['__composer_autoload_files'] ?? [];
+    $existingComposerAutoloadFiles = isset($GLOBALS['__composer_autoload_files']) ? $GLOBALS['__composer_autoload_files'] : [];
 
     $loader = require_once __DIR__.'/autoload.php';
     // Ensure InstalledVersions is available
@@ -29,10 +29,11 @@ if (!function_exists('humbug_phpscoper_expose_class')) {
         }
     }
 }
-humbug_phpscoper_expose_class('ComposerAutoloaderInit2541d117625cbf01afd48d75a42ba768', 'FacebookFeed\Vendor\ComposerAutoloaderInit2541d117625cbf01afd48d75a42ba768');
+humbug_phpscoper_expose_class('ComposerAutoloaderInit374e8b068c2434a98684079770360d31', 'FacebookFeed\Vendor\ComposerAutoloaderInit374e8b068c2434a98684079770360d31');
 
 // Function aliases. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/further-reading.md#function-aliases
-if (!function_exists('composerRequire2541d117625cbf01afd48d75a42ba768')) { function composerRequire2541d117625cbf01afd48d75a42ba768() { return \FacebookFeed\Vendor\composerRequire2541d117625cbf01afd48d75a42ba768(...func_get_args()); } }
+if (!function_exists('do_action')) { function do_action() { return \FacebookFeed\Vendor\do_action(...func_get_args()); } }
+if (!function_exists('wp_get_environment_type')) { function wp_get_environment_type() { return \FacebookFeed\Vendor\wp_get_environment_type(...func_get_args()); } }
 
 return $loader;

@@ -1,9 +1,8 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
 
-/** @internal */
-class GoDadddy implements \Smashballoon\Framework\Utilities\PlatformTracking\Platforms\PlatformInterface
+class GoDadddy implements PlatformInterface
 {
     /**
      * @inheritDoc
@@ -17,7 +16,7 @@ class GoDadddy implements \Smashballoon\Framework\Utilities\PlatformTracking\Pla
      */
     public function filter_sb_hosting_platform($platform)
     {
-        if (!empty(\getenv('WPAAS_POD'))) {
+        if (!empty(getenv('WPAAS_POD'))) {
             $platform = 'godaddy';
         }
         return $platform;

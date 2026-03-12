@@ -1,9 +1,8 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
 
-/** @internal */
-class Flywheel implements \Smashballoon\Framework\Utilities\PlatformTracking\Platforms\PlatformInterface
+class Flywheel implements PlatformInterface
 {
     /**
      * @inheritDoc
@@ -17,7 +16,7 @@ class Flywheel implements \Smashballoon\Framework\Utilities\PlatformTracking\Pla
      */
     public function filter_sb_hosting_platform($platform)
     {
-        if (\defined('FLYWHEEL_CONFIG_DIR')) {
+        if (defined('FLYWHEEL_CONFIG_DIR')) {
             $platform = 'flywheel';
         }
         return $platform;

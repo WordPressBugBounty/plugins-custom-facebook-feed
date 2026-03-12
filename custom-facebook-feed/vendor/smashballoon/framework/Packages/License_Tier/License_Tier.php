@@ -5,10 +5,9 @@
  *
  * @package License_Tier
  */
-namespace Smashballoon\Framework\Packages\License_Tier;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Packages\License_Tier;
 
-use function Smashballoon\Framework\flatten_array;
-/** @internal */
+use function FacebookFeed\Vendor\Smashballoon\Framework\flatten_array;
 abstract class License_Tier
 {
     /**
@@ -49,6 +48,7 @@ abstract class License_Tier
      *
      * @var string
      */
+    public $license_tier_free_name;
     public $license_tier_basic_name;
     public $license_tier_plus_name;
     public $license_tier_elite_name;
@@ -107,7 +107,7 @@ abstract class License_Tier
      *
      * @return void
      */
-    public abstract function features_list();
+    abstract public function features_list();
     /**
      * This defines the legacy features list of the plugin
      *
@@ -125,8 +125,8 @@ abstract class License_Tier
     public function license_data()
     {
         $license_data = (array) get_option($this->license_data_option_name);
-        $license_tier = $this->license_tier_basic_name;
-        if (\is_array($license_data) && isset($license_data['item_id']) && isset($license_data['price_id'])) {
+        $license_tier = $this->license_tier_free_name;
+        if (is_array($license_data) && !empty($license_data['item_id']) && !empty($license_data['price_id'])) {
             $license_tier = $this->convert_to_readable_plan_name($license_data);
         }
         $this->license_data = $license_data;
@@ -152,15 +152,18 @@ abstract class License_Tier
         $plan_name = $this->get_license_tier();
         $tier_features = [];
         $legacy_plans = [$this->license_tier_personal_name, $this->license_tier_business_name, $this->license_tier_developer_name];
-        if (\in_array($plan_name, $legacy_plans)) {
+        if (in_array($plan_name, $legacy_plans)) {
             $tier_features = $this->legacy_tier_features();
             return $tier_features;
+        }
+        if ($plan_name == $this->license_tier_free_name) {
+            $tier_features = isset($all_features[$plan_name]) ? $all_features[$plan_name] : [];
         }
         if ($plan_name == $this->license_tier_basic_name) {
             $tier_features = isset($all_features[$plan_name]) ? $all_features[$plan_name] : [];
         }
         if ($plan_name == $this->license_tier_plus_name) {
-            $tier_features = isset($all_features[$this->license_tier_basic_name]) && isset($all_features[$plan_name]) ? \array_merge($all_features[$this->license_tier_basic_name], $all_features[$plan_name]) : [];
+            $tier_features = isset($all_features[$this->license_tier_basic_name]) && isset($all_features[$plan_name]) ? array_merge($all_features[$this->license_tier_basic_name], $all_features[$plan_name]) : [];
         }
         if ($plan_name == $this->license_tier_elite_name || $this->is_all_access) {
             $tier_features = flatten_array($all_features);
@@ -181,7 +184,7 @@ abstract class License_Tier
             $tier_features = isset($all_features[$plan_name]) ? $all_features[$plan_name] : [];
         }
         if ($plan_name == $this->license_tier_business_name) {
-            $tier_features = isset($all_features[$this->license_tier_personal_name]) && isset($all_features[$plan_name]) ? \array_merge($all_features[$this->license_tier_personal_name], $all_features[$plan_name]) : [];
+            $tier_features = isset($all_features[$this->license_tier_personal_name]) && isset($all_features[$plan_name]) ? array_merge($all_features[$this->license_tier_personal_name], $all_features[$plan_name]) : [];
         }
         if ($plan_name == $this->license_tier_developer_name) {
             $tier_features = flatten_array($all_features);
@@ -201,13 +204,13 @@ abstract class License_Tier
         $features_list = $this->plugin_features;
         $plan_exists = \false;
         if ($plan_name == $this->license_tier_basic_name) {
-            $plan_exists = \in_array($feature_name, $features_list[$this->license_tier_basic_name]);
+            $plan_exists = in_array($feature_name, $features_list[$this->license_tier_basic_name]);
         }
         if ($plan_name == $this->license_tier_plus_name) {
-            $plan_exists = \in_array($feature_name, $features_list[$this->license_tier_basic_name]) || \in_array($feature_name, $features_list[$this->license_tier_plus_name]);
+            $plan_exists = in_array($feature_name, $features_list[$this->license_tier_basic_name]) || in_array($feature_name, $features_list[$this->license_tier_plus_name]);
         }
         if ($plan_name == $this->license_tier_elite_name) {
-            $plan_exists = \in_array($feature_name, $features_list[$this->license_tier_basic_name]) || \in_array($feature_name, $features_list[$this->license_tier_plus_name]) || \in_array($feature_name, $features_list[$this->license_tier_elite_name]);
+            $plan_exists = in_array($feature_name, $features_list[$this->license_tier_basic_name]) || in_array($feature_name, $features_list[$this->license_tier_plus_name]) || in_array($feature_name, $features_list[$this->license_tier_elite_name]);
         }
         return $plan_exists;
     }
@@ -223,28 +226,28 @@ abstract class License_Tier
     }
     /**
      * Get tier name
-     * 
+     *
      * @since string $license_tier_name
      */
     public function item_name_to_tier_name()
     {
         $license_tier_name = '';
-        if (\strpos($this->edd_item_name, 'Personal') !== \false) {
+        if (strpos($this->edd_item_name, 'Personal') !== \false) {
             $license_tier_name = $this->license_tier_personal_name;
         }
-        if (\strpos($this->edd_item_name, 'Business') !== \false) {
+        if (strpos($this->edd_item_name, 'Business') !== \false) {
             $license_tier_name = $this->license_tier_business_name;
         }
-        if (\strpos($this->edd_item_name, 'Developer') !== \false) {
+        if (strpos($this->edd_item_name, 'Developer') !== \false) {
             $license_tier_name = $this->license_tier_developer_name;
         }
-        if (\strpos($this->edd_item_name, 'Basic') !== \false) {
+        if (strpos($this->edd_item_name, 'Basic') !== \false) {
             $license_tier_name = $this->license_tier_basic_name;
         }
-        if (\strpos($this->edd_item_name, 'Plus') !== \false) {
+        if (strpos($this->edd_item_name, 'Plus') !== \false) {
             $license_tier_name = $this->license_tier_plus_name;
         }
-        if (\strpos($this->edd_item_name, 'Elite') !== \false) {
+        if (strpos($this->edd_item_name, 'Elite') !== \false) {
             $license_tier_name = $this->license_tier_elite_name;
         }
         return $license_tier_name;
@@ -283,7 +286,7 @@ abstract class License_Tier
     public function is_feature_available($feature)
     {
         $tier_features = $this->tier_features();
-        if (\in_array($feature, $tier_features)) {
+        if (in_array($feature, $tier_features)) {
             return \true;
         }
         return \false;

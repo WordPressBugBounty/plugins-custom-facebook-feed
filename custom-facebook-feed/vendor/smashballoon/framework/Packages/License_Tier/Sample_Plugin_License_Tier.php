@@ -5,10 +5,9 @@
  * 
  * @since 1.0
  */
-namespace Smashballoon\Customizer;
+namespace FacebookFeed\Vendor\Smashballoon\Customizer;
 
-use Smashballoon\Framework\Packages\License_Tier\License_Tier;
-/** @internal */
+use FacebookFeed\Vendor\Smashballoon\Framework\Packages\License_Tier\License_Tier;
 class Sample_Plugin_License_Tier extends License_Tier
 {
     /**

@@ -1,9 +1,8 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms;
 
-/** @internal */
-class Kinsta implements \Smashballoon\Framework\Utilities\PlatformTracking\Platforms\PlatformInterface
+class Kinsta implements PlatformInterface
 {
     /**
      * @inheritDoc
@@ -17,7 +16,7 @@ class Kinsta implements \Smashballoon\Framework\Utilities\PlatformTracking\Platf
      */
     public function filter_sb_hosting_platform($platform)
     {
-        if (!empty(\getenv('KINSTA_CACHE_ZONE'))) {
+        if (!empty(getenv('KINSTA_CACHE_ZONE'))) {
             $platform = 'kinsta';
         }
         return $platform;

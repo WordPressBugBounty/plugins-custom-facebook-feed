@@ -1,14 +1,13 @@
 <?php
 
-namespace Smashballoon\Framework\Utilities\PlatformTracking;
+namespace FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking;
 
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Bluehost;
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Flywheel;
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\GoDadddy;
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Kinsta;
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\SiteGround;
-use Smashballoon\Framework\Utilities\PlatformTracking\Platforms\WPEngine;
-/** @internal */
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Bluehost;
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Flywheel;
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\GoDadddy;
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\Kinsta;
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\SiteGround;
+use FacebookFeed\Vendor\Smashballoon\Framework\Utilities\PlatformTracking\Platforms\WPEngine;
 class PlatformTracking
 {
     /**
