@@ -384,7 +384,7 @@ class CFF_Settings_Tab
 				'checkExtensionPopup' => 'advancedFilter',
 				'disabledInput'		=> true,
 				'heading' 			=> __('Only show posts containing', 'custom-facebook-feed'),
-				'tooltip' 			=> sprintf(__('Only display posts containing these text strings, separating multiple strings using commas. If only a few posts, or none at all, are displayed then you may need to increase the plugin\'s "API Post Limit" setting. See %s<a href="https://smashballoon.com/filtering-your-facebook-posts/" target="_blank">this FAQ%s to learn more about how filtering works.', 'custom-facebook-feed'), '<a href="https://smashballoon.com/filtering-your-facebook-posts/" target="_blank">', '</a>'),
+				'tooltip' 			=> sprintf(__('Only display posts containing these text strings, separating multiple strings using commas. If only a few posts, or none at all, are displayed then you may need to increase the plugin\'s "API Post Limit" setting. See %s<a href="https://smashballoon.com/filtering-your-facebook-posts/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs" target="_blank">this FAQ%s to learn more about how filtering works.', 'custom-facebook-feed'), '<a href="https://smashballoon.com/filtering-your-facebook-posts/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs" target="_blank">', '</a>'),
 				'placeholder'		=> __('Add words here to only show posts containing these words', 'custom-facebook-feed'),
 			],
 			[
@@ -571,7 +571,7 @@ class CFF_Settings_Tab
 						<li><strong>-12 hours:</strong> show posts from 12 hours before now</li>
 						<li><strong>-3 months:</strong> show posts from the past 3 months</li>
 					</ul>
-					<strong><a class="sb-tltp-black-link" href="https://smashballoon.com/doc/how-to-use-the-date-range-extension-to-display-facebook-posts-from-a-specific-date-period/?facebook#relative" target="_blank">Learn More about Relative Dates</a></strong>
+					<strong><a class="sb-tltp-black-link" href="https://smashballoon.com/doc/how-to-use-the-date-range-extension-to-display-facebook-posts-from-a-specific-date-period/?facebook&utm_campaign=facebook-free&utm_source=settings&utm_medium=docs#relative" target="_blank">Learn More about Relative Dates</a></strong>
 ', 'custom-facebook-feed' ),
 			],
 		*/

@@ -157,8 +157,8 @@ class CFF_Utils
 
 			$admin_message = __('Error connecting to the Facebook API:', 'custom-facebook-feed') . ' ' . $admin_message_error;
 			$public_message = __('Unable to make remote requests to the Facebook API. Log in as an admin to view more details.', 'custom-facebook-feed');
-			$frontend_directions = '<p class="cff-error-directions"><a href="https://smashballoon.com/custom-facebook-feed/docs/errors/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
-			$backend_directions = '<a class="button button-primary" href="https://smashballoon.com/custom-facebook-feed/docs/errors/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
+			$frontend_directions = '<p class="cff-error-directions"><a href="https://smashballoon.com/custom-facebook-feed/docs/errors/?utm_campaign=facebook-free&utm_source=error-message&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
+			$backend_directions = '<a class="button button-primary" href="https://smashballoon.com/custom-facebook-feed/docs/errors/?utm_campaign=facebook-free&utm_source=error-message&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
 			$error = array(
 				'accesstoken' => 'none',
 				'public_message' => $public_message,

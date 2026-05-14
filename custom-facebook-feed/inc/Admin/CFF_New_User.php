@@ -324,7 +324,7 @@ class CFF_New_User extends CFF_Notifications
 			// check if this is a review notice
 			if ($type == 'review') {
 				$review_consent = get_option('cff_review_consent');
-				$cff_open_feedback_url = 'https://smashballoon.com/feedback/?plugin=facebook-lite';
+				$cff_open_feedback_url = 'https://smashballoon.com/feedback/?plugin=facebook-lite&utm_campaign=facebook-free&utm_source=notifications&utm_medium=feedback';
 				// step #1 for the review notice
 				if (! $review_consent) {
 					?>

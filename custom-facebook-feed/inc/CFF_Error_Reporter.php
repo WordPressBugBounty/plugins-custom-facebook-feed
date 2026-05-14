@@ -264,11 +264,11 @@ class CFF_Error_Reporter
 			$error_code 							= (int)$response['error']['code'];
 			if ($error_code === 104) {
 				$error_code = 999;
-				$url        = 'https://smashballoon.com/doc/error-999-access-token-could-not-be-decrypted/';
+				$url        = 'https://smashballoon.com/doc/error-999-access-token-could-not-be-decrypted/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs';
 
 				$response['error']['message'] = __('Your access token could not be decrypted on this website. Reconnect this account or go to our website to learn how to prevent this.', 'custom-facebook-feed');
 			} else {
-				$url = 'https://smashballoon.com/doc/facebook-api-errors/';
+				$url = 'https://smashballoon.com/doc/facebook-api-errors/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs';
 			}
 
 			$api_error_number_message 				= sprintf(__('API Error %s:', 'custom-facebook-feed'), $error_code);
@@ -280,12 +280,12 @@ class CFF_Error_Reporter
 				: '<strong>' . $api_error_number_message . '</strong><br>' . $response['error']['message'];
 
 			$error_message_return['frontend_directions'] = ( $ppca_error )
-				? '<p class="cff-error-directions"><a href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>'
-				: '<p class="cff-error-directions"><a href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
+				? '<p class="cff-error-directions"><a href="https://smashballoon.com/facebook-api-changes-september-4-2020/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>'
+				: '<p class="cff-error-directions"><a href="' . $url . '#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
 
 			$error_message_return['backend_directions'] = ( $ppca_error )
-				? '<a class="cff-notice-btn cff-btn-blue" href="https://smashballoon.com/facebook-api-changes-september-4-2020/" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>'
-				: '<a class="cff-notice-btn cff-btn-blue" href="' . $url . '?facebook&utm_campaign=facebook-pro&utm_source=error-message&utm_medium=frontend#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
+				? '<a class="cff-notice-btn cff-btn-blue" href="https://smashballoon.com/facebook-api-changes-september-4-2020/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>'
+				: '<a class="cff-notice-btn cff-btn-blue" href="' . $url . '#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
 
 			$error_message_return['errorno'] = $error_code;
 		} else {
@@ -421,7 +421,7 @@ class CFF_Error_Reporter
 				$error_message .= __('An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin.', 'custom-facebook-feed');
 				$error_message .= ' ' . sprintf(__('If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website for this account (ID: %s) due to Facebook data privacy rules.', 'custom-facebook-feed'), $accounts_revoked);
 				$error_message .= __('<br><br>To prevent the automated data deletion for the account, please reconnect your account within 7 days.', 'custom-facebook-feed');
-				$error_message .= '<br><br><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-pro&utm_source=permissionerror&utm_medium=notice&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a>';
+				$error_message .= '<br><br><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-free&utm_source=error&utm_medium=notice&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a>';
 				$directions = '';
 			} else {
 				$error_message_array = $error['error_message'];
@@ -777,7 +777,7 @@ class CFF_Error_Reporter
 				<?php if (! empty($errors['upload_dir'])) {
 					echo '<p>' . $errors['upload_dir'] . '</p>';
 				} ?>
-				<p><?php _e(sprintf('Visit our %s page for help', '<a href="https://smashballoon.com/custom-facebook-feed/faq/" class="cff-notice-btn cff-btn-grey" target="_blank">FAQ</a>'), 'custom-facebook-feed'); ?></p>
+				<p><?php _e(sprintf('Visit our %s page for help', '<a href="https://smashballoon.com/custom-facebook-feed/faq/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" class="cff-notice-btn cff-btn-grey" target="_blank">FAQ</a>'), 'custom-facebook-feed'); ?></p>
 			</div>
 
 			<?php endif;
@@ -988,7 +988,7 @@ class CFF_Error_Reporter
 					<p class="cff-error-directions">
 						<a
 							class="cff-notice-btn cff-btn-blue" target="_blank" rel="noopener"
-							href="https://smashballoon.com/doc/facebook-api-changes-affecting-groups-april-2024">
+							href="https://smashballoon.com/doc/facebook-api-changes-affecting-groups-april-2024/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs">
 							<?php echo esc_html__('Learn More', 'custom-facebook-feed') ; ?>
 						</a>
 						<a class="cff-notice-btn" href="<?php echo esc_attr($close_href); ?>" rel="noopener"><?php echo esc_html__('Dismiss', 'custom-facebook-feed') ; ?></a>

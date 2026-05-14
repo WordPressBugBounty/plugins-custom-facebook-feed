@@ -161,7 +161,7 @@ class CFF_Styling_Tab
 				'stacked'			=> 'true',
 				'condition'			=> ['dateformat' => ['custom']],
 				'conditionHide'		=> true,
-				'heading' 			=> sprintf(__('%sLearn more about custom formats %s', 'custom-facebook-feed'), '<a class="sb-customizer-ctrl-link" href="https://smashballoon.com/doc/date-formatting-reference/" target="_blank" rel="noopener">', '</a>'),
+				'heading' 			=> sprintf(__('%sLearn more about custom formats %s', 'custom-facebook-feed'), '<a class="sb-customizer-ctrl-link" href="https://smashballoon.com/doc/date-formatting-reference/?utm_campaign=facebook-free&utm_source=customizer&utm_medium=docs" target="_blank" rel="noopener">', '</a>'),
 			],
 			[
 				'type' 				=> 'checkbox',

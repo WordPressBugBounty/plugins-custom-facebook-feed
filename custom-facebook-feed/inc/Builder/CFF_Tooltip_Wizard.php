@@ -137,7 +137,7 @@ class CFF_Tooltip_Wizard
 			<div class="cff-tlp-wizard-content">
 				<strong class="cff-tooltip-wizard-head"><?php echo __('Add a Block', 'custom-facebook-feed') ?></strong>
 				<p class="cff-tooltip-wizard-txt"><?php echo __('Click the plus button, search for Custom Facebook', 'custom-facebook-feed'); ?>
-					<br/><?php echo __('Feed, and click the block to embed it.', 'custom-facebook-feed') ?> <a href="https://smashballoon.com/doc/wordpress-5-block-page-editor-gutenberg/?facebook" rel="noopener" target="_blank"><?php echo __('Learn More', 'custom-facebook-feed') ?></a></p>
+					<br/><?php echo __('Feed, and click the block to embed it.', 'custom-facebook-feed') ?> <a href="https://smashballoon.com/doc/wordpress-5-block-page-editor-gutenberg/?facebook&utm_campaign=facebook-free&utm_source=settings&utm_medium=docs" rel="noopener" target="_blank"><?php echo __('Learn More', 'custom-facebook-feed') ?></a></p>
 				<div class="cff-tooltip-wizard-actions">
 					<button class="cff-tlp-wizard-close"><?php echo __('Done', 'custom-facebook-feed') ?></button>
 				</div>

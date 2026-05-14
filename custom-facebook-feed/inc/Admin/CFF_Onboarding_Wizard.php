@@ -229,7 +229,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 						'description' => __('To unlock these features and much more, upgrade to Pro and enter your license key below.', 'custom-facebook-feed'),
 						'button' => [
 							'text' => __('Upgrade to Facebook Feed Pro', 'custom-facebook-feed'),
-							'link'	=> 'https://smashballoon.com/pricing/facebook-feed/?license_key&upgrade=true&utm_campaign=facebook-free&utm_source=setup&utm_medium=upgrade-license'
+							'link'	=> 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?license_key&upgrade=true&utm_campaign=facebook-free&utm_source=setup&utm_medium=upgrade-license'
 						],
 						'upgradeCouppon' => sprintf(
 							__('Upgrade today and %ssave 50%% on a Pro License!%s%s (auto-applied at checkout)', 'custom-facebook-feed'),

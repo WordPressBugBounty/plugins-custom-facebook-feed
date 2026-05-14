@@ -175,7 +175,7 @@ class CFF_About_Us
 				'title' => __('Social Wall', 'custom-facebook-feed'),
 				'description' => __('Combine feeds from all of our plugins into a single wall', 'custom-facebook-feed'),
 				'graphic' => CFF_PLUGIN_URL . 'admin/assets/img/social-wall-graphic.png',
-				'permalink' => 'https://smashballoon.com/social-wall/demo?utm_campaign=facebook-free&utm_source=about&utm_medium=social-wall',
+				'permalink' => 'https://smashballoon.com/social-wall/demo?utm_campaign=facebook-free&utm_source=about-us&utm_medium=social-wall',
 				'installed' => isset($installed_plugins['social-wall/social-wall.php']) ? true : false,
 				'activated' => is_plugin_active('social-wall/social-wall.php'),
 			),
@@ -280,22 +280,22 @@ class CFF_About_Us
 			'facebook' => [
 				'free' => 'custom-facebook-feed/custom-facebook-feed.php',
 				'pro' => 'custom-facebook-feed-pro/custom-facebook-feed.php',
-				'link' => 'https://smashballoon.com/custom-facebook-feed/'
+				'link' => 'https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=about-us&utm_medium=cross-sell'
 			],
 			'instagram' => [
 				'free' => 'instagram-feed/instagram-feed.php',
 				'pro' => 'instagram-feed-pro/instagram-feed.php',
-				'link' => 'https://smashballoon.com/instagram-feed/'
+				'link' => 'https://smashballoon.com/instagram-feed/?utm_campaign=facebook-free&utm_source=about-us&utm_medium=cross-sell'
 			],
 			'twitter' => [
 				'free' => 'custom-twitter-feeds/custom-twitter-feed.php',
 				'pro' => 'custom-twitter-feeds-pro/custom-twitter-feed.php',
-				'link' => 'https://smashballoon.com/custom-twitter-feeds/'
+				'link' => 'https://smashballoon.com/custom-twitter-feeds/?utm_campaign=facebook-free&utm_source=about-us&utm_medium=cross-sell'
 			],
 			'youtube' => [
 				'free' => 'feeds-for-youtube/youtube-feed.php',
 				'pro' => 'youtube-feed-pro/youtube-feed.php',
-				'link' => 'https://smashballoon.com/youtube-feed/'
+				'link' => 'https://smashballoon.com/youtube-feed/?utm_campaign=facebook-free&utm_source=about-us&utm_medium=cross-sell'
 			]
 		];
 

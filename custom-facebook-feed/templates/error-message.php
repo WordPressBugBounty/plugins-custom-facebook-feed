@@ -54,7 +54,7 @@ if (empty($FBdata->data) || isset($FBdata->cached_error) || $cff_ppca_check_erro
 				<b class="cff-warning-notice">PPCA Error:</b> <?php echo esc_html__('Due to Facebook API changes on September 4, 2020, it will no longer be possible to display a feed from a Facebook Page you are not an admin of. The Facebook feed below is not using a valid Access Token for this Facebook page and so will stop updating after this date.', 'custom-facebook-feed'); ?>
 			<?php endif; ?>
 			<?php if (current_user_can($cap)) : ?>
-				<br /><b style="margin-top: 5px; display: inline-block;"><?php echo esc_html__('Action Required.', 'custom-facebook-feed'); ?>:</b> <?php echo esc_html__('Please', 'custom-facebook-feed'); ?> <a href="https://smashballoon.com/facebook-ppca-error-notice/" target="_blank"><?php echo esc_html__('see here', 'custom-facebook-feed'); ?></a> <?php echo esc_html__('for information on how to fix this.', 'custom-facebook-feed'); ?>
+				<br /><b style="margin-top: 5px; display: inline-block;"><?php echo esc_html__('Action Required.', 'custom-facebook-feed'); ?>:</b> <?php echo esc_html__('Please', 'custom-facebook-feed'); ?> <a href="https://smashballoon.com/facebook-ppca-error-notice/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank"><?php echo esc_html__('see here', 'custom-facebook-feed'); ?></a> <?php echo esc_html__('for information on how to fix this.', 'custom-facebook-feed'); ?>
 			<?php endif; ?>
 
 		<?php else : ?>
@@ -84,7 +84,7 @@ if (empty($FBdata->data) || isset($FBdata->cached_error) || $cff_ppca_check_erro
 					<b><?php echo esc_html__('Error', 'custom-facebook-feed'); ?>:</b> <?php echo esc_html__('No posts available for this Facebook ID', 'custom-facebook-feed'); ?>
 				<?php endif; ?>
 				<?php if (current_user_can($cap)) : ?>
-					<br /><b><?php echo esc_html__('Solution', 'custom-facebook-feed'); ?>:</b> <a href="https://smashballoon.com/custom-facebook-feed/docs/errors/" target="_blank"><?php echo esc_html__('See here', 'custom-facebook-feed'); ?></a> <?php echo esc_html__('for how to solve this error', 'custom-facebook-feed'); ?>
+					<br /><b><?php echo esc_html__('Solution', 'custom-facebook-feed'); ?>:</b> <a href="https://smashballoon.com/custom-facebook-feed/docs/errors/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank"><?php echo esc_html__('See here', 'custom-facebook-feed'); ?></a> <?php echo esc_html__('for how to solve this error', 'custom-facebook-feed'); ?>
 				<?php endif; ?>
 
 			</div>

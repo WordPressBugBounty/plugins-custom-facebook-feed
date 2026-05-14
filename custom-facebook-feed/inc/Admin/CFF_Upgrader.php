@@ -37,7 +37,7 @@ class CFF_Upgrader
 
 	const REDIRECT = 'cff-settings';
 
-	const INSTALL_INSTRUCTIONS = 'https://smashballoon.com/doc/installing-and-configuring-the-custom-facebook-feed-wordpress-plugin/';
+	const INSTALL_INSTRUCTIONS = 'https://smashballoon.com/doc/installing-and-configuring-the-custom-facebook-feed-wordpress-plugin/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs';
 
 
 	/**

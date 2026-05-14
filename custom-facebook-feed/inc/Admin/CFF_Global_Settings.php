@@ -42,6 +42,15 @@ class CFF_Global_Settings
 	const SLUG = 'cff-settings';
 
 	/**
+	 * Upgrade URL format string (license key placeholder).
+	 *
+	 * @since 4.7.7
+	 *
+	 * @var string
+	 */
+	const UPGRADE_LICENSE_URL = 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-license';
+
+	/**
 	 * Initializing the class
 	 *
 	 * @since 4.0
@@ -68,7 +77,7 @@ class CFF_Global_Settings
 		}
 
 		add_action('admin_menu', [$this, 'register_menu']);
-		add_filter('admin_footer_text', [$this, 'remove_admin_footer_text']);
+		add_action('in_admin_header', [$this, 'maybe_remove_admin_footer']);
 
 		add_action('wp_ajax_cff_save_settings', [$this, 'cff_save_settings']);
 		add_action('wp_ajax_cff_activate_license', [$this, 'cff_activate_license']);
@@ -738,7 +747,7 @@ class CFF_Global_Settings
 			$license_key = get_option('cff_license_key');
 		}
 
-		$upgrade_url 	= sprintf('https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-license', $license_key);
+		$upgrade_url 	= sprintf(self::UPGRADE_LICENSE_URL, $license_key);
 		$renew_url 		= sprintf('https://smashballoon.com/checkout/?license_key=%s&download_id=%s&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-license&utm_content=renew-license', $license_key, $cff_download_id);
 		$learn_more_url = 'https://smashballoon.com/doc/my-license-key-wont-activate/?utm_campaign=facebook-free&utm_source=settings&utm_medium=license&utm_content=learn-more';
 
@@ -784,15 +793,30 @@ class CFF_Global_Settings
 	}
 
 	/**
-	 * Remove admin footer message
+	 * Conditionally remove admin footer on plugin pages only.
+	 *
+	 * @since 4.8
+	 */
+	public function maybe_remove_admin_footer()
+	{
+		if (Util::is_fb_page()) {
+			add_filter('admin_footer_text', [$this, 'remove_admin_footer_text']);
+			add_filter('update_footer', [$this, 'remove_admin_footer_text'], 11);
+		}
+	}
+
+	/**
+	 * Remove admin footer message.
 	 *
 	 * @since 4.0
 	 *
-	 * @return void
+	 * @param string $footer_text The footer text.
+	 *
+	 * @return string
 	 */
-	public function remove_admin_footer_text()
+	public function remove_admin_footer_text($footer_text)
 	{
-		return;
+		return '';
 	}
 
 	/**
@@ -802,8 +826,6 @@ class CFF_Global_Settings
 	 */
 	public function register_menu()
 	{
-		// remove admin page update footer
-		add_filter('update_footer', [$this, 'remove_admin_footer_text']);
 
 		$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
 		$cap = apply_filters('cff_settings_pages_capability', $cap);
@@ -899,10 +921,10 @@ class CFF_Global_Settings
 			$has_license_error = true;
 		}
 
-		$upgrade_url			= 'https://smashballoon.com/pricing/?utm_campaign=facebook-free&utm_source=settings';
-		$footer_upgrade_url		= 'https://smashballoon.com/pricing/facebook-feed/?utm_campaign=facebook-free&utm_source=settings&utm_medium=footer-banner&utm_content=GetStarted';
-		$usage_tracking_url 	= 'https://smashballoon.com/custom-facebook-feed/docs/usage-tracking/';
-		$feed_issue_email_url 	= 'https://smashballoon.com/email-report-is-not-in-my-inbox/';
+		$upgrade_url			= 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade';
+		$footer_upgrade_url		= 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=settings&utm_medium=footer-banner&utm_content=getStarted';
+		$usage_tracking_url 	= 'https://smashballoon.com/custom-facebook-feed/docs/usage-tracking/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs';
+		$feed_issue_email_url 	= 'https://smashballoon.com/email-report-is-not-in-my-inbox/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs';
 
 		$sources_list = CFF_Feed_Builder::get_source_list();
 
@@ -947,7 +969,7 @@ class CFF_Global_Settings
 					'inactiveText' => __('Your <b>Custom Facebook Feed Pro</b> license is Inactive!', 'custom-facebook-feed'),
 					'freeText'	=> __('Already purchased? Simply enter your license key below to activate Custom Facebook Feed Pro.', 'custom-facebook-feed'),
 					'inactiveFieldPlaceholder' => __('Paste license key here', 'custom-facebook-feed'),
-					'upgradeText1' => __('You are using the Lite version of the plugin–no license needed. Enjoy! 🙂 To unlock more features, consider <a href="' . $upgrade_url . '&utm_medium=license-key&utm_content=Upgrade to Pro link" target="_blank">Upgrading to Pro</a>.', 'custom-facebook-feed'),
+					'upgradeText1' => __('You are using the Lite version of the plugin–no license needed. Enjoy! 🙂 To unlock more features, consider <a href="' . $upgrade_url . '&utm_content=Upgrade to Pro link" target="_blank">Upgrading to Pro</a>.', 'custom-facebook-feed'),
 					'upgradeText2' => __('As a valued user of our Lite plugin, you receive 50% OFF - automatically applied at checkout!', 'custom-facebook-feed'),
 					'manageLicense' => __('Manage License', 'custom-facebook-feed'),
 					'test' => __('Test Connection', 'custom-facebook-feed'),
@@ -981,7 +1003,7 @@ class CFF_Global_Settings
 			'feedsTab'			=> array(
 				'localizationBox' => array(
 					'title'	=> __('Localization', 'custom-facebook-feed'),
-					'tooltip' => '<p>This controls the language of any predefined text strings provided by Facebook. For example, the descriptive text that accompanies some timeline posts (eg: Smash Balloon created an event) and the text in the \'Like Box\' widget. To find out how to translate the other text in the plugin see <a href="https://smashballoon.com/cff-how-does-the-plugin-handle-text-and-language-translation/">this FAQ</a>.</p>'
+					'tooltip' => '<p>This controls the language of any predefined text strings provided by Facebook. For example, the descriptive text that accompanies some timeline posts (eg: Smash Balloon created an event) and the text in the \'Like Box\' widget. To find out how to translate the other text in the plugin see <a href="https://smashballoon.com/cff-how-does-the-plugin-handle-text-and-language-translation/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs">this FAQ</a>.</p>'
 				),
 				'timezoneBox' => array(
 					'title'	=> __('Timezone', 'custom-facebook-feed')
@@ -1042,7 +1064,7 @@ class CFF_Global_Settings
 				'customJSBox' => array(
 					'title'	=> __('Custom JS', 'custom-facebook-feed'),
 					'placeholder' => __('Enter any custom JS here', 'custom-facebook-feed'),
-					'message' => sprintf(__('The Custom JS field has been deprecated. Your JavaScript is displayed below. To continue using this JavaScript, please first review the code below and follow the directions in %sthis doc%s.', ''), '<a href="https://smashballoon.com/doc/moving-custom-javascript-code-out-of-our-plugins/?utm_campaign=facebook&utm_source=settings&utm_medium=move-js" target="_blank" rel="noopener noreferrer">', '</a>')
+					'message' => sprintf(__('The Custom JS field has been deprecated. Your JavaScript is displayed below. To continue using this JavaScript, please first review the code below and follow the directions in %sthis doc%s.', ''), '<a href="https://smashballoon.com/doc/moving-custom-javascript-code-out-of-our-plugins/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs" target="_blank" rel="noopener noreferrer">', '</a>')
 				)
 			),
 			'translationTab' => array(
@@ -1275,7 +1297,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Extensions</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-license',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 
@@ -1310,7 +1332,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Multifeed</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1334,7 +1356,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Reviews</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1358,7 +1380,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Carousel</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1382,7 +1404,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Date Range</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1406,7 +1428,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Featured Post</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1430,7 +1452,7 @@ class CFF_Global_Settings
 				$status_text = __('Your <b>Album</b> license is Inactive!', 'custom-facebook-feed');
 			}
 			$upgrade_url = sprintf(
-				'https://smashballoon.com/custom-facebook-feed/pricing/?license_key=%s&upgrade=true&utm_campaign=facebook-free&utm_source=settings&utm_medium=upgrade-licen',
+				self::UPGRADE_LICENSE_URL,
 				$license_key
 			);
 			$data[] = array(
@@ -1468,8 +1490,8 @@ class CFF_Global_Settings
 				'fbProfile' => 'https://www.facebook.com/SmashBalloon/',
 				'twitterProfile' => 'https://twitter.com/smashballoon',
 			),
-			'proCachingLink' => 'https://smashballoondemo.com/?utm_campaign=facebook-free&utm_source=settings&utm_medium=pro-caching',
-			'optimizeImagesLink' => 'https://smashballoondemo.com/?utm_campaign=facebook-free&utm_source=settings&utm_medium=optimize-images'
+			'proCachingLink' => 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=settings&utm_medium=pro-caching',
+			'optimizeImagesLink' => 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=settings&utm_medium=optimize-images'
 		);
 	}
 
@@ -1670,7 +1692,7 @@ class CFF_Global_Settings
 	 */
 	public function get_gdpr_auto_info()
 	{
-		$gdpr_doc_url 			= 'https://smashballoon.com/doc/custom-facebook-feed-gdpr-compliance/?facebook';
+		$gdpr_doc_url 			= 'https://smashballoon.com/doc/custom-facebook-feed-gdpr-compliance/?facebook&utm_campaign=facebook-free&utm_source=settings&utm_medium=docs';
 		$output = '';
 		$active_gdpr_plugin = CFF_GDPR_Integrations::gdpr_plugins_active();
 		if ($active_gdpr_plugin) {

@@ -6,7 +6,7 @@
 		by the Smash Balloon Team
 	</strong>
 	<div class="sb-bottom-footer-links">
-		<a href="https://smashballoon.com/docs/facebook/?utm_campaign=facebook-free&amp;utm_source=settings-footer&amp;utm_medium=docs-link&amp;utm_content=Docs" target="_blank"><?php esc_html_e('Docs', 'custom-facebook-feed'); ?></a>
+		<a href="https://smashballoon.com/docs/facebook/?utm_campaign=facebook-free&amp;utm_source=settings-footer&amp;utm_medium=docs&amp;utm_content=Docs" target="_blank"><?php esc_html_e('Docs', 'custom-facebook-feed'); ?></a>
 		<a href="<?php echo esc_url(admin_url('admin.php?page=cff-about-us')); ?>"><?php esc_html_e('Plugins', 'custom-facebook-feed'); ?></a>
 		<a href="https://wordpress.org/support/plugin/custom-facebook-feed/" target="_blank" rel="noreferrer noopener"><?php esc_html_e('Support', 'custom-facebook-feed'); ?></a>
 	</div>

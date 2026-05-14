@@ -113,7 +113,7 @@ class CFF_Notifications
 
 		$output = '';
 
-		$upgrade_url = 'https://smashballoon.com/pricing/facebook-feed/?utm_campaign=facebook-free&utm_source=lite-upgrade-bar&utm_content=upgradingToPro';
+		$upgrade_url = 'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=lite-upgrade-bar&utm_medium=upgrade-bar&utm_content=upgradingToPro';
 		$output .= '<div class="cff-header-notice" id="cff-header-upgrade-notice">';
 		$output .= sprintf(
 			'<span class="cff-notice-bar-message">%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></span>',
@@ -679,7 +679,7 @@ class CFF_Notifications
 				$step1_img_html = sprintf('<div class="bell"><img src="%s" alt="notice"></div>', $step1_img);
 
 				$review_consent = get_option('cff_review_consent');
-				$cff_open_feedback_url = 'https://smashballoon.com/feedback/?plugin=facebook-lite';
+				$cff_open_feedback_url = 'https://smashballoon.com/feedback/?plugin=facebook-lite&utm_campaign=facebook-free&utm_source=notifications&utm_medium=feedback';
 				// step #1 for the review notice
 				if (! $review_consent) {
 					$step1_btns = sprintf(

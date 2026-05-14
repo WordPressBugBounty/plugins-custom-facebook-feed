@@ -4,7 +4,7 @@ Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
 Tested up to: 6.9
-Stable tag: 4.7.6
+Stable tag: 4.7.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,7 +59,7 @@ Show and hide certain parts of each Facebook post, choose whose posts to show in
 
 ### Pro Version (Custom Facebook Feed Pro)
 
-In order to maintain the free version of the Custom Facebook Feed plugin on an ongoing basis, and to provide quick and effective support for free, we offer a Pro version of the plugin. Custom Facebook Feed Pro allows you to display photos, videos, the number of likes, shares, reactions and comments for each Facebook post, choose from multiple layout options, filter Facebook posts by type or #hashtag/string, load more Facebook posts into your feed, and more. [Click here](https://smashballoon.com/differences-between-the-free-version-and-pro-version-of-the-custom-facebook-feed-plugin/ "Differences between free and Pro version of Custom Facebook Feed plugin") for a full list of all differences between the Custom Facebook Feed free and Pro versions.
+In order to maintain the free version of the Custom Facebook Feed plugin on an ongoing basis, and to provide quick and effective support for free, we offer a Pro version of the plugin. Custom Facebook Feed Pro allows you to display photos, videos, the number of likes, shares, reactions and comments for each Facebook post, choose from multiple layout options, filter Facebook posts by type or #hashtag/string, load more Facebook posts into your feed, and more. [Click here](https://smashballoon.com/differences-between-the-free-version-and-pro-version-of-the-custom-facebook-feed-plugin/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs "Differences between free and Pro version of Custom Facebook Feed plugin") for a full list of all differences between the Custom Facebook Feed free and Pro versions.
 
 * [Find out more about Custom Facebook Feed Pro](https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=readme&utm_medium=findout "Custom Facebook Feed Pro")
 * [Try out the Custom Facebook Feed Pro demo](https://smashballoondemo.com/?utm_campaign=facebook-free&utm_source=readme&utm_medium=demo "Custom Facebook Feed Pro Demo").
@@ -89,7 +89,7 @@ For full step-by-step setup directions with screenshots, see [here](https://smas
 
 ### Requesting support
 
-Customer support is a huge deal to us. We pride ourselves on always providing quick, effective, and courteous support to all of our users. If you're having an issue using the Custom Facebook Feed plugin then just let us know and we'll be there to help as soon as possible.  You can either open a ticket on the support forum on [WordPress.org](https://wordpress.org/support/plugin/custom-facebook-feed/ "Custom Facebook Feed Free support forum"), or directly on the Custom Facebook Feed section of [our website](https://smashballoon.com/custom-facebook-feed/support/ "Custom Facebook Feed website support form").  We also have a large collection of help documentation and FAQs [on our website](https://smashballoon.com/custom-facebook-feed/faq/ "Custom Facebook Feed support FAQs") for all common issues related to the Custom Facebook Feed plugin.
+Customer support is a huge deal to us. We pride ourselves on always providing quick, effective, and courteous support to all of our users. If you're having an issue using the Custom Facebook Feed plugin then just let us know and we'll be there to help as soon as possible.  You can either open a ticket on the support forum on [WordPress.org](https://wordpress.org/support/plugin/custom-facebook-feed/ "Custom Facebook Feed Free support forum"), or directly on the Custom Facebook Feed section of [our website](https://smashballoon.com/custom-facebook-feed/support/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs "Custom Facebook Feed website support form").  We also have a large collection of help documentation and FAQs [on our website](https://smashballoon.com/custom-facebook-feed/faq/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs "Custom Facebook Feed support FAQs") for all common issues related to the Custom Facebook Feed plugin.
 
 == Installation ==
 
@@ -101,7 +101,7 @@ Customer support is a huge deal to us. We pride ourselves on always providing qu
 
 == Frequently Asked Questions ==
 
-For a full list of FAQs and help with troubleshooting please visit the **[FAQ & Troubleshooting](https://smashballoon.com/custom-facebook-feed/faq/)** section of the Smash Balloon website
+For a full list of FAQs and help with troubleshooting please visit the **[FAQ & Troubleshooting](https://smashballoon.com/custom-facebook-feed/faq/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs)** section of the Smash Balloon website
 
 = Are there any limitations on which Facebook page feeds I can display? =
 
@@ -133,7 +133,7 @@ Yes. Support was added to allow the plugin to power your Facebook oEmbeds as off
 
 = Can I show photos and videos in my Custom Facebook feed? =
 
-This free plugin only allows you to display text from your Facebook posts. To display photos and videos in your feed you would need to upgrade to the Pro version of the plugin. Try out a demo of the Pro version on the [Custom Facebook Feed website](https://smashballoon.com/custom-facebook-feed/demo/?utm_campaign=facebook-free-readme&utm_source=faq&utm_medium=media "Custom Facebook Feed Demo"), and find out more about the Pro version [here](https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free-readme&utm_source=faq&utm_medium=pro "Custom Facebook Feed Pro"). [Click here](https://smashballoon.com/differences-between-the-free-version-and-pro-version-of-the-custom-facebook-feed-plugin/ "Differences between free and Pro version of Custom Facebook Feed plugin") for a full list of all differences between the free version and Pro version.
+This free plugin only allows you to display text from your Facebook posts. To display photos and videos in your feed you would need to upgrade to the Pro version of the plugin. Try out a demo of the Pro version on the [Custom Facebook Feed website](https://smashballoon.com/custom-facebook-feed/demo/?utm_campaign=facebook-free-readme&utm_source=faq&utm_medium=media "Custom Facebook Feed Demo"), and find out more about the Pro version [here](https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free-readme&utm_source=faq&utm_medium=pro "Custom Facebook Feed Pro"). [Click here](https://smashballoon.com/differences-between-the-free-version-and-pro-version-of-the-custom-facebook-feed-plugin/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs "Differences between free and Pro version of Custom Facebook Feed plugin") for a full list of all differences between the free version and Pro version.
 
 = Can I show the comments, shares and likes associated with each Facebook post? =
 
@@ -203,6 +203,9 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.7.7 =
+* Fix: Additional plugin hardening.
+
 = 4.7.6 =
 * Tweak: Added optional deactivation feedback survey to help us improve the plugin.
 * Fix: Additional Plugin hardening.
@@ -286,7 +289,7 @@ The most common reason for this is that an add-on or extension you have installe
 * Fix: Fixed a PHP error that would occur during some API error reports.
 
 = 4.1.3 =
-* Tweak: Updated our logo and color scheme throughout the plugin to match our new [website](https://smashballoon.com/).
+* Tweak: Updated our logo and color scheme throughout the plugin to match our new [website](https://smashballoon.com/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs).
 * Tweak: Minified the CSS and JavaScript files for better performance.
 * Fix: Added links to the issue in our API error helper doc in error messages for easy debugging on our website.
 * Fix: Dismissing dashboard notifications would prevent the ability to create new feeds until the page was refreshed.
@@ -335,7 +338,7 @@ The most common reason for this is that an add-on or extension you have installe
 = 4.0.2 =
 * Important: With this update, the Custom CSS and Custom JS settings have been deprecated. Please see below for details.
 * Tweak: If any Custom CSS was being used in this field then it will be automatically moved into the native WordPress Customizer "Additional CSS" field instead and continue to work as normal.
-* Tweak: If any Custom JavaScript was being used, then this update will prevent that JavaScript from working. There are [directions here](https://smashballoon.com/doc/moving-custom-javascript-code-out-of-our-plugins/) on how you can migrate this JavaScript into a specialized plugin instead.
+* Tweak: If any Custom JavaScript was being used, then this update will prevent that JavaScript from working. There are [directions here](https://smashballoon.com/doc/moving-custom-javascript-code-out-of-our-plugins/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) on how you can migrate this JavaScript into a specialized plugin instead.
 
 = 4.0.1 =
 * Fix: Fixed a compatibility issue with the Complianz Cookie Consent plugin integration.

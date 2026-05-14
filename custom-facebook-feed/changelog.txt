@@ -101,7 +101,7 @@
 * Tweak: Removed the minimum caching time if you're using your own Facebook Page Access Token
 
 = 2.6.4 =
-* **Important:** If you are displaying Facebook posts from a Facebook page that **you are an admin of** then it is now highly recommended that you retrieve your own Facebook Access Token for that Facebook page to avoid any Facebook API rate limit errors. Simply follow these [step-by-step](https://smashballoon.com/custom-facebook-feed/page-token/) instructions to obtain one.
+* **Important:** If you are displaying Facebook posts from a Facebook page that **you are an admin of** then it is now highly recommended that you retrieve your own Facebook Access Token for that Facebook page to avoid any Facebook API rate limit errors. Simply follow these [step-by-step](https://smashballoon.com/custom-facebook-feed/page-token/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) instructions to obtain one.
 
 = 2.6.3 =
 * Fix: Fixed an issue where Facebook API errors were being cached
@@ -123,7 +123,7 @@
 * Tweak: Increased the minimum caching time to be 15 minutes to reduce Facebook API requests
 
 = 2.5.2 =
-* Important: Due to sudden changes in the Facebook API it is no longer possible to display posts from a Facebook Group. Please [see here](https://smashballoon.com/facebook-api-changes-april-4-2018/) for more information. We apologize for any frustration or inconvenience this has caused.
+* Important: Due to sudden changes in the Facebook API it is no longer possible to display posts from a Facebook Group. Please [see here](https://smashballoon.com/facebook-api-changes-april-4-2018/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) for more information. We apologize for any frustration or inconvenience this has caused.
 * Removed: Due to Facebook API restrictions, it is no longer possible to display information about an event when it is posted or shared to your Facebook Page timeline.
 
 = 2.5.1 =
@@ -164,8 +164,8 @@
 
 = 2.4.2 =
 * Tweak: Group wall feed posts are now ordered based on recent activity, rather than by the date they were created, to better reflect the order on the Facebook Group wall.
-* Tweak: The "5 hours ago" date text strings can now be translated directly in the shortcode if you're displaying different feeds in different languages. See the bottom of the [Shortcode Options table](https://smashballoon.com/custom-facebook-feed/docs/shortcodes/) for more information.
-* Tweak: Created some specific [setup directions](https://smashballoon.com/custom-facebook-feed/docs/free/) for the free version.
+* Tweak: The "5 hours ago" date text strings can now be translated directly in the shortcode if you're displaying different feeds in different languages. See the bottom of the [Shortcode Options table](https://smashballoon.com/custom-facebook-feed/docs/shortcodes/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) for more information.
+* Tweak: Created some specific [setup directions](https://smashballoon.com/custom-facebook-feed/docs/free/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) for the free version.
 * Fix: Minor bug fixes
 
 = 2.4.1.2 =
@@ -307,7 +307,7 @@
 * Fix: When linking the post text to the Facebook post the correct text color is now applied
 
 = 2.0.1 =
-* Tweak: Improved error handling and added an [Error Message reference](https://smashballoon.com/custom-facebook-feed/docs/errors/) to the website
+* Tweak: Improved error handling and added an [Error Message reference](https://smashballoon.com/custom-facebook-feed/docs/errors/?utm_campaign=facebook-free&utm_source=readme&utm_medium=docs) to the website
 
 = 2.0 =
 * New: Added an option to display the post date immediately below the author name - as it is on Facebook. This is now the default date position.

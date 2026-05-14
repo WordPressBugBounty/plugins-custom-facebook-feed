@@ -627,7 +627,7 @@ jQuery(document).ready(function($) {
                         if( cff_multifeed_enabled ) accountsHTML += '<p>To add multiple accounts in the same feed, simply separate them using commas:<br>' +
 								'<code>[custom-facebook-feed account="'+id+', account_2, account_3"]</code>' +
                             '</p>';
-                        accountsHTML += '<p>Click <a href="https://smashballoon.com/custom-facebook-feed/docs/shortcodes/" target="_blank">here</a> to learn more about shortcodes</p>' +
+                        accountsHTML += '<p>Click <a href="https://smashballoon.com/custom-facebook-feed/docs/shortcodes/?utm_campaign=facebook-free&utm_source=admin-scripts&utm_medium=docs" target="_blank">here</a> to learn more about shortcodes</p>' +
                         '</div>' +
                         '<div class="cff_ca_accesstoken">' +
                             '<span class="cff_ca_token_label">Access Token:</span><input type="text" class="cff_ca_token" value="'+accesstoken+'" readonly="readonly" onclick="this.focus();this.select()" title="To copy, click the field then press Ctrl + C (PC) or Cmd + C (Mac).">' +

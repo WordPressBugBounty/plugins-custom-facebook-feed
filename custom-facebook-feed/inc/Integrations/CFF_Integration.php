@@ -41,7 +41,7 @@ class CFF_Integration
 			),
 			'cta_description_pro'               => sprintf(
 				__('You can also add Instagram, Twitter, and YouTube posts into your feed using our %sSocial Wall plugin%s ', 'custom-facebook-feed'),
-				'<a  class="sb-elementor-cta-link" href="https://smashballoon.com/social-wall/?utm_campaign=facebook-pro&utm_source=elementor&utm_medium=widget&utm_content=socialwall">',
+				'<a  class="sb-elementor-cta-link" href="https://smashballoon.com/social-wall/?utm_campaign=facebook-free&utm_source=elementor&utm_medium=widget&utm_content=socialwall">',
 				'</a>'
 			),
 			'plugins'                           => CFF_Feed_Builder::get_smashballoon_plugins_info()

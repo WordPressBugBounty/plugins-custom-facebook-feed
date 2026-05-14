@@ -160,7 +160,7 @@ class CFF_Support
 			'nonce'		        =>  wp_create_nonce('cff-admin'),
 			'links'				=> \CustomFacebookFeed\Builder\CFF_Feed_Builder::get_links_with_utm(),
 			'supportPageUrl'    => admin_url('admin.php?page=cff-support'),
-			'siteSearchUrl'     => 'https://smashballoon.com/search/',
+			'siteSearchUrl'     => 'https://smashballoon.com/search/?utm_campaign=facebook-free&utm_source=support&utm_medium=search',
 			'system_info'       => $this->get_system_info(),
 			'system_info_n'     => str_replace("</br>", "\n", $this->get_system_info()),
 			'feeds'             => $feeds,
@@ -679,7 +679,7 @@ class CFF_Support
 			return 'https://wordpress.org/support/plugin/custom-facebook-feed/';
 		}
 
-		$url = 'https://smashballoon.com/custom-facebook-feed/support/';
+		$url = 'https://smashballoon.com/custom-facebook-feed/support/?utm_campaign=facebook-free&utm_source=support&utm_medium=support';
 		$args = array();
 		$license_key = get_option('cff_license_key');
 		if ($license_key) {

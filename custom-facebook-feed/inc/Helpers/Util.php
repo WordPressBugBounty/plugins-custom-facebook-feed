@@ -21,7 +21,17 @@ class Util
 	 */
 	public static function is_fb_page()
 	{
-		return get_current_screen() !== null && ! empty($_GET['page']) && strpos($_GET['page'], 'cff-') !== false;
+		static $plugin_pages = array(
+			'cff-top',
+			'cff-feed-builder',
+			'cff-settings',
+			'cff-oembeds-manager',
+			'cff-extensions-manager',
+			'cff-about-us',
+			'cff-support',
+		);
+		$current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+		return in_array($current_page, $plugin_pages, true);
 	}
 
 	/**

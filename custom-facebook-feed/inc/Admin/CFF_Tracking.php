@@ -714,7 +714,7 @@ class CFF_Tracking
 
 					<p class="content">
 						<?php echo __('Understanding how you are using the plugin allows us to further improve it. Opt-in below to agree to send a weekly report of plugin usage data.', 'custom-facebook-feed'); ?>
-						<a target="_blank" rel="noopener noreferrer" href="https://smashballoon.com/custom-facebook-feed/docs/usage-tracking/"><?php echo __('More information', 'custom-facebook-feed'); ?></a>
+						<a target="_blank" rel="noopener noreferrer" href="https://smashballoon.com/custom-facebook-feed/docs/usage-tracking/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs"><?php echo __('More information', 'custom-facebook-feed'); ?></a>
 					</p>
 
 					<div class="buttons">

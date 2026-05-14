@@ -84,7 +84,7 @@ class CFF_Admin
 			__('Upgrade to Pro', 'custom-facebook-feed'),
 			__('<span class="cff_get_pro">Upgrade to Pro</span>', 'custom-facebook-feed'),
 			$cap,
-			'https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=menu-link&utm_medium=upgrade-link&utm_content=UpgradeToPro',
+			'https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_campaign=facebook-free&utm_source=menu-link&utm_medium=upgrade-link&utm_content=UpgradeToPro',
 			''
 		);
 		if (version_compare(PHP_VERSION, '7.4.0') >= 0 && !is_plugin_active('feeds-for-tiktok/feeds-for-tiktok.php') && !is_plugin_active('tiktok-feeds-pro/tiktok-feeds-pro.php')) {

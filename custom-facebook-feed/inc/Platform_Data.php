@@ -313,7 +313,7 @@ class Platform_Data
 		$details = '<p>' . sprintf(__('An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin on %s. If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website due to Facebook data privacy rules.', 'custom-facebook-feed'), $site_url) . '</p>';
 		$settings_page = sprintf('<a href="%s">%s</a>', esc_url($link), esc_html__('Settings Page', 'custom-facebook-feed'));
 		$details .= '<p>' . sprintf(__('To prevent the automated deletion of data for the source, please reconnect your source for the Facebook Feed plugin %s within 7 days.', 'custom-facebook-feed'), $settings_page) . '</p>';
-		$details .= '<p><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-pro&utm_source=permissionerror&utm_medium=email&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a></p>';
+		$details .= '<p><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-free&utm_source=error&utm_medium=email&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a></p>';
 
 		Email_Notification::send($title, $bold, $details);
 	}

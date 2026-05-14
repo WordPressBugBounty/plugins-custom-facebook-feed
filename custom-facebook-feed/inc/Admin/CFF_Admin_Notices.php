@@ -59,7 +59,7 @@ class CFF_Admin_Notices
 			return;
 		}
 		$close_href = add_query_arg(array('cff_dismiss_notice' => 'group_deprecation'));
-		$group_doc_url = 'https://smashballoon.com/doc/facebook-api-changes-affecting-groups-april-2024';
+		$group_doc_url = 'https://smashballoon.com/doc/facebook-api-changes-affecting-groups-april-2024/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs';
 		?>
 			<div class="notice notice-error is-dismissible cff-dismissible">
 				<p>
