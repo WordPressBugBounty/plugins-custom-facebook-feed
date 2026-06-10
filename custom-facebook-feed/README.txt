@@ -3,8 +3,8 @@ Contributors: smashballoon, craig-at-smash-balloon, am, smub
 Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
-Tested up to: 6.9
-Stable tag: 4.7.7
+Tested up to: 7.0
+Stable tag: 4.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,15 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.8.1 =
+* New: Added a modern Gutenberg block and Elementor widget for the Facebook feed. Existing feeds using the legacy block continue to render without reconfiguration.
+* New: Added a Help widget to the feed builder for in-app access to documentation and support.
+* Tweak: Compatibility with WP 7.
+* Tweak: Corrected typos and grammar in plugin UI strings, admin notices, and tooltips.
+* Fix: Feed blocks now render a live preview correctly inside the WP 7.0+ iframed block editor.
+* Fix: Corrupted onboarding data no longer causes a fatal error.
+* Fix: The legacy Elementor widget is hidden from the element search, and the widget title is now translatable.
+
 = 4.7.7 =
 * Fix: Additional plugin hardening.
 

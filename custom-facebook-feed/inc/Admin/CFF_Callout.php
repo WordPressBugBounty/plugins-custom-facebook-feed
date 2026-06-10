@@ -355,7 +355,7 @@ class CFF_Callout
 				</div>
 				<div class="sb-callout-progress-text">
 					<strong><?php echo __('Setup is almost complete', 'custom-facebook-feed') ?></strong>
-					<span><?php echo __('Complete your Smash Balloon feed setup and increase engagment', 'custom-facebook-feed') ?></span>
+					<span><?php echo __('Complete your Smash Balloon feed setup and increase engagement', 'custom-facebook-feed') ?></span>
 				</div>
 			</div>
 			<div class="sb-callout-plugins sb-fs">

@@ -190,7 +190,6 @@ cffBuilder = new Vue({
 				'welcome',
 				'selectFeed'
 			],
-			footerWidget : false,
 
 			// welcome, selectFeed
 			pageScreen : 'welcome',
@@ -3131,6 +3130,8 @@ cffBuilder = new Vue({
 					self.onboardingSuccessMessagesDisplay.push( self.onboardingSuccessMessages.feedPlugins.replace('#', settingsKeys[stInd])  );
 				}else if( st?.id === 'reviews' ){
 					self.onboardingSuccessMessagesDisplay.push( 'Reviews ' + self.genericText.installed );
+				}else if( st?.id === 'wpchat' ){
+					self.onboardingSuccessMessagesDisplay.push( 'WPChat ' + self.genericText.installed );
 				}else if( st?.type === 'install_plugins' ){
 					self.onboardingSuccessMessagesDisplay.push( '<span class="sb-onboarding-wizard-succes-name"> ' + st?.pluginName + '</span> ' + self.genericText.installed );
 				}

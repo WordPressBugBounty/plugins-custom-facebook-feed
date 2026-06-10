@@ -4,7 +4,6 @@ var support_data = {
     system_info: cff_support.system_info,
     system_info_n: cff_support.system_info_n,
     exportFeed: 'none',
-    stickyWidget: false,
     feeds: cff_support.feeds,
     supportUrl: cff_support.supportUrl,
     socialWallActivated: cff_support.socialWallActivated,
@@ -116,14 +115,6 @@ var cffsupport = new Vue({
             if ( this.searchKeywords !== null && this.siteSearchUrlWithArgs !== null ) {
                 window.open( this.siteSearchUrlWithArgs, '_blank');
             }
-        },
-        /**
-         * Toggle Sticky Widget view
-         *
-         * @since 4.0
-         */
-         toggleStickyWidget: function() {
-            this.stickyWidget = !this.stickyWidget;
         },
          /**
 		 * Copy text to clipboard

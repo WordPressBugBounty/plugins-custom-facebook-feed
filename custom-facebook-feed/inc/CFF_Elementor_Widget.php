@@ -28,6 +28,12 @@ class CFF_Elementor_Widget extends Widget_Base
 	{
 		return array('smash-balloon');
 	}
+	public function show_in_panel() {
+		return false;
+	}
+	public function hide_on_search() {
+		return true;
+	}
 	public function get_script_depends()
 	{
 		return [

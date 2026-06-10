@@ -244,7 +244,7 @@ class Platform_Data
 			\cff_main()->cff_error_reporter->add_error(
 				'unused_feed',
 				array(
-					__('Your Facebook feed has been not viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time. To avoid automated data deletion, simply view the Facebook feed on your website within the next 7 days.', 'custom-facebook-feed')
+					__('Your Facebook feed has not been viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time. To avoid automated data deletion, simply view the Facebook feed on your website within the next 7 days.', 'custom-facebook-feed')
 				)
 			);
 			$this->send_unused_feed_usage_notification_email();
@@ -328,7 +328,7 @@ class Platform_Data
 		$title = __('There has been a problem with your Facebook Feed.', 'custom-facebook-feed');
 		$bold = __('Action Required Within 7 Days', 'custom-facebook-feed');
 		$site_url = sprintf('<a href="%s">%s<a/>', esc_url(home_url()), __('your website', 'custom-facebook-feed'));
-		$details = '<p>' . sprintf(__('An Facebook feed on %s has been not viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time.', 'custom-facebook-feed'), $site_url) . '</p>';
+		$details = '<p>' . sprintf(__('A Facebook feed on %s has not been viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time.', 'custom-facebook-feed'), $site_url) . '</p>';
 		$details .= '<p>' . __('To avoid automated data deletion, simply view the Facebook feed on your website within the next 7 days.', 'custom-facebook-feed') . '</p>';
 		Email_Notification::send($title, $bold, $details);
 	}

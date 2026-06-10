@@ -47,6 +47,30 @@ class ApiClient
      */
     const STAGING_WPCHAT_ENDPOINT = 'https://staging.wpchat.com/wp-json/sb/v1/feedback';
     /**
+     * Default feature request API endpoint.
+     *
+     * @var string
+     */
+    const FEATURE_REQUEST_ENDPOINT = 'https://smashballoon.com/wp-json/sb/v1/feature-request';
+    /**
+     * WPChat feature request API endpoint.
+     *
+     * @var string
+     */
+    const WPCHAT_FEATURE_REQUEST_ENDPOINT = 'https://wpchat.com/wp-json/sb/v1/feature-request';
+    /**
+     * Staging feature request API endpoint.
+     *
+     * @var string
+     */
+    const STAGING_FEATURE_REQUEST_ENDPOINT = 'https://staging.smashballoon.com/wp-json/sb/v1/feature-request';
+    /**
+     * Staging WPChat feature request API endpoint.
+     *
+     * @var string
+     */
+    const STAGING_WPCHAT_FEATURE_REQUEST_ENDPOINT = 'https://staging.wpchat.com/wp-json/sb/v1/feature-request';
+    /**
      * Plugin slugs that should use the WPChat endpoint.
      *
      * @var array
@@ -64,7 +88,7 @@ class ApiClient
             return \true;
         }
         // Check WordPress environment type (WP 5.5+).
-        if (function_exists('FacebookFeed\Vendor\wp_get_environment_type')) {
+        if (function_exists('wp_get_environment_type')) {
             $env = wp_get_environment_type();
             if (in_array($env, ['local', 'development', 'staging'], \true)) {
                 return \true;
@@ -87,6 +111,22 @@ class ApiClient
             return $is_dev ? self::STAGING_WPCHAT_ENDPOINT : self::WPCHAT_ENDPOINT;
         }
         return $is_dev ? self::STAGING_DEFAULT_ENDPOINT : self::DEFAULT_ENDPOINT;
+    }
+    /**
+     * Get the feature request API endpoint for a given plugin slug.
+     *
+     * @param string $plugin_slug Plugin slug.
+     *
+     * @return string API endpoint URL.
+     */
+    public static function get_feature_request_endpoint_for_slug($plugin_slug)
+    {
+        $is_dev = self::is_dev_environment();
+        $is_wpchat = in_array($plugin_slug, self::WPCHAT_SLUGS, \true);
+        if ($is_wpchat) {
+            return $is_dev ? self::STAGING_WPCHAT_FEATURE_REQUEST_ENDPOINT : self::WPCHAT_FEATURE_REQUEST_ENDPOINT;
+        }
+        return $is_dev ? self::STAGING_FEATURE_REQUEST_ENDPOINT : self::FEATURE_REQUEST_ENDPOINT;
     }
     /**
      * Send feedback data to the API endpoint.

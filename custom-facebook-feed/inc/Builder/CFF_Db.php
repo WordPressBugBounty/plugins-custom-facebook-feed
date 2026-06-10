@@ -319,6 +319,23 @@ class CFF_Db
 		return $feeds_elementor;
 	}
 
+	/**
+	 * Query feeds list for the modern Elementor widget.
+	 *
+	 * Returns feed objects with id and feed_name properties,
+	 * suitable for localized script data.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return array
+	 */
+	public static function elementor_feeds_list() {
+		global $wpdb;
+		$feeds_table_name = $wpdb->prefix . 'cff_feeds';
+		// Table name is composed from $wpdb->prefix and a hardcoded suffix (no user input); identifiers cannot be bound via $wpdb->prepare().
+		return $wpdb->get_results( "SELECT id, feed_name FROM $feeds_table_name" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
 
 	/**
 	 * Count the cff_feeds table
@@ -1046,6 +1063,7 @@ class CFF_Db
 	{
 		global $wpdb;
 		$sources_table_name = $wpdb->prefix . 'cff_sources';
+		// @phpstan-ignore return.missing
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM $sources_table_name WHERE id = %d; ",

@@ -295,7 +295,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 
 			$plugins_info = [];
 			foreach ($smash_plugin_list['plugins'] as $p_item) {
-				if ($p_item['is_istalled'] === false) {
+				if ($p_item['is_installed'] === false) {
 					array_push(
 						$plugins_info,
 						$p_item
@@ -327,6 +327,12 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		$reviews_plugin = self::get_smash_reviews_plugin();
 		if ($reviews_plugin !== false) {
 			array_push($features_list, $reviews_plugin);
+		}
+
+		// WPChat Plugin
+		$wpchat_plugin = self::get_smash_wpchat_plugin();
+		if ($wpchat_plugin !== false) {
+			array_push($features_list, $wpchat_plugin);
 		}
 
 		return $features_list;
@@ -395,21 +401,21 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 			'plugins' => [
 				[
 					'type' => 'instagram',
-					'is_istalled' => $is_instagram_installed,
+					'is_installed' => $is_instagram_installed,
 					'download_link' => $instagram_plugin,
 					'min_php' => '5.6.0',
 					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/insta-icon.svg'
 				],
 				[
 					'type' => 'facebook',
-					'is_istalled' => $is_facebook_installed,
+					'is_installed' => $is_facebook_installed,
 					'download_link' => $facebook_plugin,
 					'min_php' => '5.6.0',
 					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/fb-icon.svg'
 				],
 				[
 					'type' => 'twitter',
-					'is_istalled' => $is_twitter_installed,
+					'is_installed' => $is_twitter_installed,
 					'download_link' => $twitter_plugin,
 					'min_php' => '5.6.0',
 					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/twitter-icon.svg'
@@ -417,14 +423,14 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				],
 				[
 					'type' => 'youtube',
-					'is_istalled' => $is_youtube_installed,
+					'is_installed' => $is_youtube_installed,
 					'download_link' => $youtube_plugin,
 					'min_php' => '5.6.0',
 					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/youtube-icon.svg'
 				],
 				[
 					'type' => 'tiktok',
-					'is_istalled' => $is_tiktok_installed,
+					'is_installed' => $is_tiktok_installed,
 					'download_link' => $tiktok_plugin,
 					'min_php' => '7.0',
 					'icon' => CFF_PLUGIN_URL . 'admin/assets/img/tiktok-icon.svg'
@@ -433,9 +439,9 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 		];
 		foreach ($smash_list['plugins'] as $mash_plugin) {
 			if (version_compare(PHP_VERSION, $mash_plugin['min_php'], '<')) {
-				$mash_plugin['is_istalled'] = true;
+				$mash_plugin['is_installed'] = true;
 			}
-			if ($mash_plugin['type'] === self::$plugin_name || $mash_plugin['is_istalled'] === true) {
+			if ($mash_plugin['type'] === self::$plugin_name || $mash_plugin['is_installed'] === true) {
 				unset($mash_plugin);
 			} else {
 				array_push($smash_list['text'], ucfirst($mash_plugin['type']));
@@ -485,13 +491,64 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 				'plugins' => [
 					[
 						'type' => 'reviews',
-						'is_istalled' => $is_reviews_installed,
+						'is_installed' => $is_reviews_installed,
 						'download_link' => $reviews_plugin,
 						'min_php' => $min_php,
 						'icon' => CFF_PLUGIN_URL . 'admin/assets/img/reviews-icon.svg'
 					]
 				],
 				'tooltip' => __('Enabling this feature will install Reviews Feed plugin. Reviews Feed by Smash Balloon helps users to display reviews from Google, TripAdvisor, TrustPilot and more.', 'custom-facebook-feed'),
+			];
+		}
+		return false;
+	}
+
+	/**
+	 * Return WPChat Plugin if not Installed
+	 *
+	 * @return array
+	 *
+	 * @since 6.X
+	 */
+	public static function get_smash_wpchat_plugin()
+	{
+		$installed_plugins = get_plugins();
+		$min_php = '8.0';
+
+		$is_wpchat_installed = false;
+		$wpchat_plugin = 'smashballoon-wpchat-livechat-customer-support/wp-chat.php';
+		if (isset($installed_plugins['wp-chat-pro/wp-chat-pro.php'])) {
+			$is_wpchat_installed = true;
+			$wpchat_plugin = 'wp-chat-pro/wp-chat-pro.php';
+		} elseif (isset($installed_plugins['smashballoon-wpchat-livechat-customer-support/wp-chat.php'])) {
+			$is_wpchat_installed = true;
+		}
+
+		if (version_compare(PHP_VERSION, $min_php, '<')) {
+			$is_wpchat_installed = true;
+		}
+
+		if ($is_wpchat_installed === false) {
+			return [
+				'data' => [
+					'id' => 'wpchat',
+					'type' => 'install_plugins'
+				],
+				'heading' => __('Live Chat Customer Support', 'custom-facebook-feed'),
+				'description' => __('Install WPChat and connect with customers on WhatsApp, Messenger, Telegram & Instagram and more', 'custom-facebook-feed'),
+				'color'	=> 'blue',
+				'active'	=> true,
+				'icon' => '<svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40"/><path d="M24.9043 5.62825C32.4709 5.62825 38.6048 11.7622 38.6048 19.3287C38.6048 27.0749 32.2378 33.1326 24.7466 33.0311L1.3954 34.2794L4.02646 26.2735C2.36821 24.0988 1.39563 21.3894 1.39563 18.4817C1.39563 11.3829 7.15032 5.62825 14.2491 5.62825H24.9043Z" fill="#F53C5E"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.4226 18.6218V18.7695C15.4226 20.8897 17.1414 22.6085 19.2616 22.6085C21.3819 22.6085 23.1007 20.8897 23.1007 18.7695V18.6218H26.9397V18.7695C26.9397 23.0099 23.5021 26.4475 19.2616 26.4475C15.0211 26.4475 11.5836 23.0099 11.5836 18.7695V18.6218H15.4226Z" fill="white"/></svg>',
+				'plugins' => [
+					[
+						'type' => 'wpchat',
+						'is_installed' => $is_wpchat_installed,
+						'download_link' => $wpchat_plugin,
+						'min_php' => $min_php,
+						'icon' => CFF_PLUGIN_URL . 'admin/assets/img/wpchat-icon.svg'
+					]
+				],
+				'tooltip' => __('Enabling this feature will install WPChat plugin. WPChat by Smash Balloon helps you add live chat and customer support to your website.', 'custom-facebook-feed'),
 			];
 		}
 		return false;
@@ -690,6 +747,9 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 			case 'reviews':
 				$plugin_download = 'https://downloads.wordpress.org/plugin/reviews-feed.zip';
 				break;
+			case 'wpchat':
+				$plugin_download = 'https://downloads.wordpress.org/plugin/smashballoon-wpchat-livechat-customer-support.zip';
+				break;
 			case 'allinoneseo':
 				$plugin_download = 'https://downloads.wordpress.org/plugin/all-in-one-seo-pack.zip';
 				break;
@@ -882,6 +942,7 @@ class CFF_Onboarding_Wizard extends CFF_Feed_Builder
 			'youtube' 		=> 'sby_plugin_do_activation_redirect',
 			'twitter' 		=> 'ctf_plugin_do_activation_redirect',
 			'reviews' 		=> 'sbr_plugin_do_activation_redirect',
+			'wpchat' 		=> 'wpchat_plugin_do_activation_redirect',
 		];
 
 		if (isset($smash_list[self::$plugin_name])) {

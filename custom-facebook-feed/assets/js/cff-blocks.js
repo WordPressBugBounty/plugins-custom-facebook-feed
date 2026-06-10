@@ -7,12 +7,95 @@ window.cffmetatrans = false;
         ServerSideRender = _wp$serverSideRender === void 0 ? wp.components.ServerSideRender : _wp$serverSideRender,
         _ref = wp.blockEditor || wp.editor,
         InspectorControls = _ref.InspectorControls,
+        useBlockProps = _ref.useBlockProps,
         _wp$components = wp.components,
         TextareaControl = _wp$components.TextareaControl,
         Button = _wp$components.Button,
         PanelBody = _wp$components.PanelBody,
         Placeholder = _wp$components.Placeholder,
         registerBlockType = wp.blocks.registerBlockType;
+
+    // Locate the WP 7.0 block editor canvas iframe. Returns null if the
+    // iframe doesn't exist yet or its contentDocument isn't reachable.
+    function getEditorIframe() {
+        var selectors = [
+            'iframe[name="editor-canvas"]',
+            'iframe.edit-post-visual-editor__content-area',
+            'iframe.editor-canvas'
+        ];
+        for (var i = 0; i < selectors.length; i++) {
+            var el = document.querySelector(selectors[i]);
+            if (el && el.contentDocument && el.contentDocument.head) {
+                return el;
+            }
+        }
+        return null;
+    }
+
+    // Inject cff-scripts.min.js (and jQuery if needed) into the editor
+    // iframe's <head>, so window.cff_init exists inside the iframe and can
+    // find the feed DOM that ServerSideRender mounts there.
+    var iframeAssetsPromise = null;
+    function ensureIframeFeedAssets() {
+        if (iframeAssetsPromise) {
+            return iframeAssetsPromise;
+        }
+        iframeAssetsPromise = new Promise(function (resolve, reject) {
+            var attempts = 0;
+            var tryInject = function () {
+                attempts++;
+                var iframe = getEditorIframe();
+                if (!iframe) {
+                    if (attempts > 40) {
+                        reject(new Error('cff: editor iframe not found'));
+                        return;
+                    }
+                    setTimeout(tryInject, 250);
+                    return;
+                }
+                var doc = iframe.contentDocument;
+                if (doc.documentElement.getAttribute('data-cff-feed-assets-injected')) {
+                    resolve(iframe);
+                    return;
+                }
+                doc.documentElement.setAttribute('data-cff-feed-assets-injected', '1');
+
+                var loadScript = function (src) {
+                    return new Promise(function (res, rej) {
+                        var s = doc.createElement('script');
+                        s.src = src;
+                        s.onload = function () { res(); };
+                        s.onerror = function () { rej(new Error('cff: failed to load ' + src)); };
+                        doc.head.appendChild(s);
+                    });
+                };
+
+                var chain = Promise.resolve();
+                if (!iframe.contentWindow.jQuery && cff_block_editor.jqueryUrl) {
+                    chain = chain.then(function () { return loadScript(cff_block_editor.jqueryUrl); });
+                }
+                if (cff_block_editor.iframeScriptUrl) {
+                    chain = chain.then(function () { return loadScript(cff_block_editor.iframeScriptUrl); });
+                }
+                chain.then(function () { resolve(iframe); }, reject);
+            };
+            tryInject();
+        });
+        return iframeAssetsPromise;
+    }
+
+    // Call cff_init() inside the iframe (WP 7.0+) or in the outer scope as a
+    // fallback for pre-iframe editors.
+    function triggerCffInit() {
+        var iframe = getEditorIframe();
+        if (iframe && iframe.contentWindow && typeof iframe.contentWindow.cff_init === 'function') {
+            try { iframe.contentWindow.cff_init(); } catch (e) {}
+            return;
+        }
+        if (!iframe && typeof cff_init !== 'undefined') {
+            try { cff_init(); } catch (e) {}
+        }
+    }
 
     var cffIcon = createElement('svg', {
         width: 20,
@@ -25,6 +108,7 @@ window.cffmetatrans = false;
     }));
 
     registerBlockType('cff/cff-feed-block', {
+        apiVersion: 3,
         title: 'Custom Facebook Feed (Deprecated)',
         icon: cffIcon,
         category: 'widgets',
@@ -40,6 +124,7 @@ window.cffmetatrans = false;
             }
         },
         edit: function edit(props) {
+            var blockProps = typeof useBlockProps === 'function' ? useBlockProps() : {};
             var _props = props,
                 setAttributes = _props.setAttributes,
                 _props$attributes = _props.attributes,
@@ -89,6 +174,15 @@ window.cffmetatrans = false;
             }
 
             function afterRender() {
+                // Inject cff-scripts into the WP 7.0 iframe (no-op once injected),
+                // then poll-trigger cff_init in iframe scope. ServerSideRender
+                // doesn't expose an onload callback, so we retry on intervals.
+                ensureIframeFeedAssets().catch(function () {});
+                setTimeout(triggerCffInit, 1000);
+                setTimeout(triggerCffInit, 2000);
+                setTimeout(triggerCffInit, 3000);
+                setTimeout(triggerCffInit, 5000);
+                setTimeout(triggerCffInit, 10000);
                 jQuery(window).resize(function () {
                     setTimeout(function(){
                         cffGutenbergSizeVisualHeader();
@@ -141,7 +235,7 @@ window.cffmetatrans = false;
                 }, cff_block_editor.i18n.preview)));
             }
 
-            return jsx;
+            return createElement('div', blockProps, jsx);
         },
         save: function save() {
             return null;

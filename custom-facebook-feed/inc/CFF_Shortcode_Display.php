@@ -509,7 +509,7 @@ class CFF_Shortcode_Display
 			],
 			'linkedin' => [
 				'icon' => 'linkedin',
-				'text' => esc_html__('Share on Linked In', 'custom-facebook-feed'),
+				'text' => esc_html__('Share on LinkedIn', 'custom-facebook-feed'),
 				'share_link' => 'https://www.linkedin.com/shareArticle?mini=true&amp;url=' . urlencode($link) . '&amp;title=' . rawurlencode(strip_tags($cff_post_text_to_share))
 			],
 			'email' => [

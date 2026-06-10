@@ -1,39 +1,44 @@
 # Copyright (C) 2026 Smash Balloon
-# This file is distributed under the same license as the Smash Balloon Custom Facebook Feed plugin.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Smash Balloon Custom Facebook Feed 4.3.4\n"
+"Project-Id-Version: Smash Balloon Custom Facebook Feed 4.8.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/custom-facebook-feed\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-19T13:38:18+00:00\n"
+"POT-Creation-Date: 2026-06-05T09:48:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.4.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: custom-facebook-feed\n"
 
 #. Plugin Name of the plugin
+#: custom-facebook-feed.php
 msgid "Smash Balloon Custom Facebook Feed"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: custom-facebook-feed.php
 msgid "https://smashballoon.com/custom-facebook-feed"
 msgstr ""
 
 #. Description of the plugin
+#: custom-facebook-feed.php
 msgid "Add completely customizable Facebook feeds to your WordPress site"
 msgstr ""
 
 #. Author of the plugin
+#: custom-facebook-feed.php
 #: inc/Admin/CFF_Onboarding_Wizard.php:119
-#: inc/CFF_Blocks.php:212
-#: inc/CFF_Elementor_Base.php:92
+#: inc/CFF_Blocks.php:295
+#: inc/CFF_Elementor_Base.php:109
 msgid "Smash Balloon"
 msgstr ""
 
 #. Author URI of the plugin
+#: custom-facebook-feed.php
 msgid "http://smashballoon.com/"
 msgstr ""
 
@@ -98,10 +103,12 @@ msgid "An error occurred when trying to disable your oEmbed token."
 msgstr ""
 
 #: admin/admin-functions.php:350
+#, php-format
 msgid "You are currently using Custom CSS or JavaScript in the Custom Facebook Feed plugin, however, these settings have now been deprecated. To continue using any custom code, please go to the Custom CSS and JS settings %shere%s and follow the directions."
 msgstr ""
 
 #: admin/admin-functions.php:352
+#, php-format
 msgid "You are currently using Custom CSS in the Custom Facebook Feed plugin, however, this setting has now been deprecated. Your CSS has been moved to the \"Additional CSS\" field in the WordPress Customizer %shere%s instead."
 msgstr ""
 
@@ -116,16 +123,6 @@ msgstr ""
 msgid "Clicking Next will install "
 msgstr ""
 
-#: admin/builder/templates/sections/footer.php:40
-#: admin/views/sections/sticky_widget.php:21
-msgid "Our Feeds for other platforms"
-msgstr ""
-
-#: admin/builder/templates/sections/footer.php:56
-#: admin/views/sections/sticky_widget.php:37
-msgid "Follow Us"
-msgstr ""
-
 #: admin/builder/templates/sections/popup/temp-login-about.php:12
 msgid "Temporary Login Links"
 msgstr ""
@@ -135,7 +132,7 @@ msgid "What are they used for?"
 msgstr ""
 
 #: admin/builder/templates/sections/popup/temp-login-about.php:40
-msgid "Solving an issue in your plugin might sometime require testing API access but with your setup. We do not want to expose your API keys over support messages and hence we use a temporary login link system to securely access it."
+msgid "Solving an issue in your plugin might sometimes require testing API access but with your setup. We do not want to expose your API keys over support messages and hence we use a temporary login link system to securely access it."
 msgstr ""
 
 #: admin/builder/templates/sections/popup/temp-login-about.php:48
@@ -159,7 +156,7 @@ msgstr ""
 #: inc/Admin/CFF_About_Us.php:243
 #: inc/Admin/CFF_Admin.php:207
 #: inc/Admin/CFF_Admin.php:225
-#: inc/Admin/CFF_Global_Settings.php:959
+#: inc/Admin/CFF_Global_Settings.php:981
 #: inc/Builder/CFF_Feed_Builder.php:161
 #: inc/Builder/CFF_Feed_Builder.php:1103
 msgid "Activate"
@@ -167,6 +164,7 @@ msgstr ""
 
 #: admin/enqueu-script.php:66
 #: inc/Admin/CFF_Admin.php:208
+#: assets/dist/blocks.js:1
 msgid "Activated"
 msgstr ""
 
@@ -178,7 +176,7 @@ msgstr ""
 #: admin/enqueu-script.php:68
 #: inc/Admin/CFF_About_Us.php:244
 #: inc/Admin/CFF_Admin.php:210
-#: inc/Admin/CFF_Global_Settings.php:958
+#: inc/Admin/CFF_Global_Settings.php:980
 msgid "Deactivate"
 msgstr ""
 
@@ -292,7 +290,7 @@ msgstr ""
 #: inc/Admin/CFF_Support.php:73
 #: inc/Admin/CFF_Support.php:74
 #: inc/Admin/CFF_Support.php:174
-#: inc/Builder/CFF_Feed_Builder.php:2790
+#: inc/Builder/CFF_Feed_Builder.php:2788
 msgid "Support"
 msgstr ""
 
@@ -322,6 +320,7 @@ msgstr ""
 
 #. translators: %s: link to download previous version
 #: custom-facebook-feed.php:118
+#, php-format
 msgid "To continue using the plugin, you can either manually reinstall the previous version of the plugin (%s) or contact your host to request that they upgrade your PHP version to 7.4 or higher."
 msgstr ""
 
@@ -332,7 +331,7 @@ msgstr ""
 #: inc/Admin/CFF_About_Us.php:65
 #: inc/Admin/CFF_About_Us.php:66
 #: inc/Admin/CFF_About_Us.php:160
-#: inc/Builder/CFF_Feed_Builder.php:2789
+#: inc/Builder/CFF_Feed_Builder.php:2787
 msgid "About Us"
 msgstr ""
 
@@ -383,7 +382,7 @@ msgid "Combine feeds from all of our plugins into a single wall"
 msgstr ""
 
 #: inc/Admin/CFF_About_Us.php:186
-#: inc/Admin/CFF_Onboarding_Wizard.php:546
+#: inc/Admin/CFF_Onboarding_Wizard.php:603
 msgid "WPForms"
 msgstr ""
 
@@ -400,7 +399,7 @@ msgid "MonsterInsights makes it “effortless” to properly connect your WordPr
 msgstr ""
 
 #: inc/Admin/CFF_About_Us.php:204
-#: inc/Admin/CFF_Onboarding_Wizard.php:574
+#: inc/Admin/CFF_Onboarding_Wizard.php:631
 msgid "OptinMonster"
 msgstr ""
 
@@ -429,7 +428,7 @@ msgid "All in One SEO Pack"
 msgstr ""
 
 #: inc/Admin/CFF_About_Us.php:232
-#: inc/Admin/CFF_Onboarding_Wizard.php:521
+#: inc/Admin/CFF_Onboarding_Wizard.php:578
 msgid "Out-of-the-box SEO for WordPress. Features like XML Sitemaps, SEO for custom post types, SEO for blogs, business sites, or ecommerce sites, and much more."
 msgstr ""
 
@@ -479,7 +478,7 @@ msgstr ""
 #: inc/Admin/CFF_About_Us.php:331
 #: inc/Admin/CFF_Admin.php:117
 #: inc/Admin/CFF_Admin.php:118
-#: inc/Builder/CFF_Feed_Builder.php:2379
+#: inc/Builder/CFF_Feed_Builder.php:2377
 msgid "Instagram Feed"
 msgstr ""
 
@@ -496,7 +495,7 @@ msgid "A customizable way to display tweets from your Twitter account. "
 msgstr ""
 
 #: inc/Admin/CFF_About_Us.php:351
-#: inc/Builder/CFF_Feed_Builder.php:2403
+#: inc/Builder/CFF_Feed_Builder.php:2401
 msgid "Feeds for YouTube"
 msgstr ""
 
@@ -520,7 +519,7 @@ msgstr ""
 
 #: inc/Admin/CFF_Admin.php:129
 #: inc/Admin/CFF_Admin.php:130
-#: inc/Builder/CFF_Feed_Builder.php:2391
+#: inc/Builder/CFF_Feed_Builder.php:2389
 msgid "Twitter Feed"
 msgstr ""
 
@@ -530,6 +529,7 @@ msgid "YouTube Feed"
 msgstr ""
 
 #: inc/Admin/CFF_Admin_Notices.php:69
+#, php-format
 msgid "Due to changes with the Facebook API, which we use to create feeds, group feeds will no longer update after April of 2024 %sLearn More %s"
 msgstr ""
 
@@ -547,7 +547,7 @@ msgid "Setup is almost complete"
 msgstr ""
 
 #: inc/Admin/CFF_Callout.php:358
-msgid "Complete your Smash Balloon feed setup and increase engagment"
+msgid "Complete your Smash Balloon feed setup and increase engagement"
 msgstr ""
 
 #: inc/Admin/CFF_Callout.php:366
@@ -580,572 +580,573 @@ msgstr ""
 msgid "Skip this step"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:252
-#: inc/Admin/CFF_Global_Settings.php:340
+#: inc/Admin/CFF_Global_Settings.php:261
+#: inc/Admin/CFF_Global_Settings.php:349
 msgid "License key required!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:749
+#: inc/Admin/CFF_Global_Settings.php:758
 msgid "You have reached the maximum number of sites available in your plan"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:752
+#: inc/Admin/CFF_Global_Settings.php:761
 msgid "Learn more about it"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:755
+#: inc/Admin/CFF_Global_Settings.php:764
 msgid "or upgrade your plan."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:757
-#: inc/Admin/CFF_Global_Settings.php:957
+#: inc/Admin/CFF_Global_Settings.php:766
+#: inc/Admin/CFF_Global_Settings.php:979
 #: inc/Builder/CFF_Feed_Builder.php:998
 msgid "Upgrade"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:769
+#: inc/Admin/CFF_Global_Settings.php:778
 msgid "The license expired on "
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:771
+#: inc/Admin/CFF_Global_Settings.php:780
 msgid "Please renew it and try again."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:773
+#: inc/Admin/CFF_Global_Settings.php:782
 msgid "Renew"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:780
+#: inc/Admin/CFF_Global_Settings.php:789
 msgid "This license is invalid."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:818
+#: inc/Admin/CFF_Global_Settings.php:840
 #: inc/Builder/CFF_Feed_Builder.php:988
 #: inc/Builder/CFF_Feed_Builder.php:999
 #: inc/Builder/CFF_Feed_Builder.php:1875
 #: inc/Builder/CFF_Feed_Builder.php:1917
-#: inc/Builder/CFF_Feed_Builder.php:2786
+#: inc/Builder/CFF_Feed_Builder.php:2784
 #: inc/Builder/Tabs/CFF_Builder_Customizer_Tab.php:36
 msgid "Settings"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:819
+#: inc/Admin/CFF_Global_Settings.php:841
 msgid "Settings "
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:944
+#: inc/Admin/CFF_Global_Settings.php:966
 msgid "License Key"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:945
+#: inc/Admin/CFF_Global_Settings.php:967
 msgid "Your license key provides access to updates and support"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:946
+#: inc/Admin/CFF_Global_Settings.php:968
 msgid "Your <b>Custom Facebook Feed Pro</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:947
+#: inc/Admin/CFF_Global_Settings.php:969
 msgid "Your <b>Custom Facebook Feed Pro</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:948
+#: inc/Admin/CFF_Global_Settings.php:970
 msgid "Already purchased? Simply enter your license key below to activate Custom Facebook Feed Pro."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:949
+#: inc/Admin/CFF_Global_Settings.php:971
 msgid "Paste license key here"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:950
+#: inc/Admin/CFF_Global_Settings.php:972
 msgid "You are using the Lite version of the plugin–no license needed. Enjoy! 🙂 To unlock more features, consider <a href=\""
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:951
+#: inc/Admin/CFF_Global_Settings.php:973
 msgid "As a valued user of our Lite plugin, you receive 50% OFF - automatically applied at checkout!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:952
+#: inc/Admin/CFF_Global_Settings.php:974
 msgid "Manage License"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:953
+#: inc/Admin/CFF_Global_Settings.php:975
 msgid "Test Connection"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:954
+#: inc/Admin/CFF_Global_Settings.php:976
 msgid "Connection successful"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:955
+#: inc/Admin/CFF_Global_Settings.php:977
 msgid "Connection failed"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:956
+#: inc/Admin/CFF_Global_Settings.php:978
 msgid "View error"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:960
+#: inc/Admin/CFF_Global_Settings.php:982
 msgid "Install Pro"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:963
+#: inc/Admin/CFF_Global_Settings.php:985
 msgid "Manage Sources"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:964
+#: inc/Admin/CFF_Global_Settings.php:986
 msgid "Add or remove connected Facebook accounts"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:967
+#: inc/Admin/CFF_Global_Settings.php:989
 msgid "Preserve settings if plugin is removed"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:968
+#: inc/Admin/CFF_Global_Settings.php:990
 msgid "This will make sure that all of your feeds and settings are still saved even if the plugin is uninstalled"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:971
+#: inc/Admin/CFF_Global_Settings.php:993
 msgid "Import Feed Settings"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:972
+#: inc/Admin/CFF_Global_Settings.php:994
 msgid "You will need a JSON file previously exported from the Custom Facebook Feed Plugin"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:973
+#: inc/Admin/CFF_Global_Settings.php:995
 msgid "Import"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:976
+#: inc/Admin/CFF_Global_Settings.php:998
 msgid "Export Feed Settings"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:977
+#: inc/Admin/CFF_Global_Settings.php:999
 msgid "Export settings for one or more of your feeds"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:978
+#: inc/Admin/CFF_Global_Settings.php:1000
 #: inc/Admin/CFF_Support.php:212
 msgid "Export"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:983
+#: inc/Admin/CFF_Global_Settings.php:1005
 #: inc/Admin/CFF_Onboarding_Wizard.php:182
 msgid "Localization"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:987
+#: inc/Admin/CFF_Global_Settings.php:1009
 #: inc/Builder/CFF_Feed_Builder.php:2019
 msgid "Timezone"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:990
+#: inc/Admin/CFF_Global_Settings.php:1012
 msgid "Caching"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:991
+#: inc/Admin/CFF_Global_Settings.php:1013
 msgid "When the Page loads"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:992
+#: inc/Admin/CFF_Global_Settings.php:1014
 msgid "In the Background"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:994
+#: inc/Admin/CFF_Global_Settings.php:1016
 msgid "Every 30 minutes"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:995
+#: inc/Admin/CFF_Global_Settings.php:1017
 msgid "Every hour"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:996
+#: inc/Admin/CFF_Global_Settings.php:1018
 msgid "Every 12 hours"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:997
+#: inc/Admin/CFF_Global_Settings.php:1019
 msgid "Every 24 hours"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1000
+#: inc/Admin/CFF_Global_Settings.php:1022
 msgid "Minutes"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1001
+#: inc/Admin/CFF_Global_Settings.php:1023
 msgid "Hours"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1002
+#: inc/Admin/CFF_Global_Settings.php:1024
 #: inc/Admin/CFF_Support.php:193
 msgid "Days"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1004
+#: inc/Admin/CFF_Global_Settings.php:1026
 msgid "AM"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1005
+#: inc/Admin/CFF_Global_Settings.php:1027
 msgid "PM"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1006
+#: inc/Admin/CFF_Global_Settings.php:1028
 msgid "Clear All Caches"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1007
+#: inc/Admin/CFF_Global_Settings.php:1029
 msgid "Update feeds asynchronously in the background with Facebook Feed Pro"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1010
+#: inc/Admin/CFF_Global_Settings.php:1032
 msgid "GDPR"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1011
+#: inc/Admin/CFF_Global_Settings.php:1033
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:639
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:682
 msgid "Automatic"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1012
+#: inc/Admin/CFF_Global_Settings.php:1034
 #: inc/Admin/CFF_New_User.php:342
 #: inc/Admin/CFF_Notifications.php:687
 msgid "Yes"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1013
+#: inc/Admin/CFF_Global_Settings.php:1035
 #: inc/Admin/CFF_New_User.php:348
 #: inc/Admin/CFF_Notifications.php:692
 msgid "No"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1015
-msgid "No requests will be made to third-party websites. To accomodate this, some features of the plugin will be limited."
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1016
-msgid "The plugin will function as normal and load images and videos directly from Facebook"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1017
-msgid "Some Facebook Feed features will be limited for visitors to ensure GDPR compliance, until they give consent."
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1018
-msgid "What will be limited?"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1024
-msgid "Features that would be disabled or limited include: "
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1026
-msgid "Only local images (not directly from Facebook) will be displayed in the feed"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1027
-msgid "Placeholder blank images will be displayed until images are available"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1028
-msgid "The images in the Visual header will not be displayed"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1029
-msgid "To play videos visitors will click a link to view the video in Facebook."
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1030
-msgid "The “Load more” button will be disabled"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1031
-msgid "The “Like Box” widget will be disabled"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1032
-msgid "For album feeds, only the album cover image is available in lightbox"
-msgstr ""
-
-#: inc/Admin/CFF_Global_Settings.php:1033
-msgid "The maximum image resolution will be 700px wide in the lightbox. If your images are smaller, reset the “resized images” using the button in “Advanced” section."
+#: inc/Admin/CFF_Global_Settings.php:1037
+msgid "No requests will be made to third-party websites. To accommodate this, some features of the plugin will be limited."
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1038
-msgid "Custom CSS"
+msgid "The plugin will function as normal and load images and videos directly from Facebook"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1039
-msgid "Enter any custom CSS here"
+msgid "Some Facebook Feed features will be limited for visitors to ensure GDPR compliance, until they give consent."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1043
-msgid "Custom JS"
+#: inc/Admin/CFF_Global_Settings.php:1040
+msgid "What will be limited?"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1044
-msgid "Enter any custom JS here"
+#: inc/Admin/CFF_Global_Settings.php:1046
+msgid "Features that would be disabled or limited include: "
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1048
+msgid "Only local images (not directly from Facebook) will be displayed in the feed"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1049
-msgid "Custom Text/Translate"
+msgid "Placeholder blank images will be displayed until images are available"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1050
-msgid "Enter custom text for the words below, or translate it into the language you would like to use."
+msgid "The images in the Visual header will not be displayed"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1051
+msgid "To play videos visitors will click a link to view the video in Facebook."
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1052
-msgid "Original Text"
+msgid "The “Load more” button will be disabled"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1053
-msgid "Custom text/translation"
+msgid "The “Like Box” widget will be disabled"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1054
-msgid "Context"
+msgid "For album feeds, only the album cover image is available in lightbox"
 msgstr ""
 
 #: inc/Admin/CFF_Global_Settings.php:1055
+msgid "The maximum image resolution will be 700px wide in the lightbox. If your images are smaller, reset the “resized images” using the button in “Advanced” section."
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1060
+msgid "Custom CSS"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1061
+msgid "Enter any custom CSS here"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1065
+msgid "Custom JS"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1066
+msgid "Enter any custom JS here"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1071
+msgid "Custom Text/Translate"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1072
+msgid "Enter custom text for the words below, or translate it into the language you would like to use."
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1074
+msgid "Original Text"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1075
+msgid "Custom text/translation"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1076
+msgid "Context"
+msgstr ""
+
+#: inc/Admin/CFF_Global_Settings.php:1077
 #: inc/Builder/CFF_Feed_Builder.php:1998
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1477
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1481
 msgid "Post Text"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1056
+#: inc/Admin/CFF_Global_Settings.php:1078
 #: inc/Builder/CFF_Feed_Builder.php:2192
 #: inc/CFF_Shortcode.php:2006
 msgid "See More"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1057
+#: inc/Admin/CFF_Global_Settings.php:1079
 #: inc/Builder/CFF_Feed_Builder.php:2193
 #: inc/CFF_Shortcode.php:2007
 msgid "See Less"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1058
+#: inc/Admin/CFF_Global_Settings.php:1080
 msgid "Used when truncating the post text"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1059
+#: inc/Admin/CFF_Global_Settings.php:1081
 #: inc/Builder/CFF_Feed_Builder.php:1259
 msgid "Events"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1060
+#: inc/Admin/CFF_Global_Settings.php:1082
 msgid "Map"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1061
+#: inc/Admin/CFF_Global_Settings.php:1083
 msgid "Added after the address of an event"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1062
+#: inc/Admin/CFF_Global_Settings.php:1084
 msgid "No upcoming events"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1063
+#: inc/Admin/CFF_Global_Settings.php:1085
 msgid "Shown when there are no upcoming events to display"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1064
+#: inc/Admin/CFF_Global_Settings.php:1086
 msgid "interested"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1065
+#: inc/Admin/CFF_Global_Settings.php:1087
 msgid "Used for the number of people interested in an event"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1066
+#: inc/Admin/CFF_Global_Settings.php:1088
 msgid "going"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1067
+#: inc/Admin/CFF_Global_Settings.php:1089
 msgid "Used for the number of people going to an event"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1068
+#: inc/Admin/CFF_Global_Settings.php:1090
 msgid "Buy tickets"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1069
+#: inc/Admin/CFF_Global_Settings.php:1091
 msgid "Shown when there is a link to buy event tickets"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1070
+#: inc/Admin/CFF_Global_Settings.php:1092
 #: inc/Builder/CFF_Feed_Builder.php:2004
-#: inc/Builder/CFF_Feed_Builder.php:2709
+#: inc/Builder/CFF_Feed_Builder.php:2707
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1535
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1539
 msgid "Post Action Links"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1071
+#: inc/Admin/CFF_Global_Settings.php:1093
 #: inc/Builder/CFF_Feed_Saver.php:482
 #: inc/CFF_Shortcode.php:2008
 #: inc/CFF_Shortcode_Display.php:538
 msgid "View on Facebook"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1072
+#: inc/Admin/CFF_Global_Settings.php:1094
 msgid "Used for the link to the post on Facebook"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1073
+#: inc/Admin/CFF_Global_Settings.php:1095
 #: inc/Builder/CFF_Feed_Saver.php:483
 #: inc/CFF_Shortcode.php:2009
 #: inc/CFF_Shortcode_Display.php:548
 msgid "Share"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1074
+#: inc/Admin/CFF_Global_Settings.php:1096
 msgid "Used for sharing the Facebook post via Social Media"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1075
+#: inc/Admin/CFF_Global_Settings.php:1097
 msgid "“Load More” Button"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1076
+#: inc/Admin/CFF_Global_Settings.php:1098
 msgid "Load More"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1077
+#: inc/Admin/CFF_Global_Settings.php:1099
 msgid "Media"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1078
+#: inc/Admin/CFF_Global_Settings.php:1100
 #: inc/Builder/CFF_Feed_Builder.php:1009
 #: inc/CFF_Shortcode_Display.php:478
 msgid "Photo"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1079
+#: inc/Admin/CFF_Global_Settings.php:1101
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:299
 #: inc/CFF_Shortcode_Display.php:479
 msgid "Video"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1080
+#: inc/Admin/CFF_Global_Settings.php:1102
 msgid "Used to link photos on Facebook"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1081
+#: inc/Admin/CFF_Global_Settings.php:1103
 msgid "Used to link videos on Facebook"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1082
+#: inc/Admin/CFF_Global_Settings.php:1104
 msgid "Used in the button that loads more posts"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1083
+#: inc/Admin/CFF_Global_Settings.php:1105
 msgid "No more posts"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1084
+#: inc/Admin/CFF_Global_Settings.php:1106
 msgid "Used when there are no more posts to load"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1085
+#: inc/Admin/CFF_Global_Settings.php:1107
 #: inc/Builder/CFF_Feed_Builder.php:2001
-#: inc/Builder/CFF_Feed_Builder.php:2628
+#: inc/Builder/CFF_Feed_Builder.php:2626
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1603
 msgid "Likes, Shares and Comments"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1086
+#: inc/Admin/CFF_Global_Settings.php:1108
 msgid "View more comments"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1087
+#: inc/Admin/CFF_Global_Settings.php:1109
 msgid "Used in the comments section (when applicable)"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1088
+#: inc/Admin/CFF_Global_Settings.php:1110
 #: inc/Builder/CFF_Feed_Builder.php:2209
 msgid "Comment on Facebook"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1089
+#: inc/Admin/CFF_Global_Settings.php:1111
 msgid "Used at the bottom of the comments section"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1090
+#: inc/Admin/CFF_Global_Settings.php:1112
+#: assets/dist/blocks.js:1
 msgid "photos"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1091
+#: inc/Admin/CFF_Global_Settings.php:1113
 msgid "Added to the end of an album name. Eg. (6 photos)"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1092
+#: inc/Admin/CFF_Global_Settings.php:1114
 msgid "like this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1093
+#: inc/Admin/CFF_Global_Settings.php:1115
 msgid "likes this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1094
+#: inc/Admin/CFF_Global_Settings.php:1116
 msgid "Eg. __ and __ like this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1095
+#: inc/Admin/CFF_Global_Settings.php:1117
 msgid "Eg. __ likes this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1096
+#: inc/Admin/CFF_Global_Settings.php:1118
 msgid "reacted to this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1097
+#: inc/Admin/CFF_Global_Settings.php:1119
 msgid "Eg. __ reacted to this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1098
+#: inc/Admin/CFF_Global_Settings.php:1120
 msgid "and"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1099
+#: inc/Admin/CFF_Global_Settings.php:1121
 msgid "other"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1100
+#: inc/Admin/CFF_Global_Settings.php:1122
 msgid "Eg. __, __ and 1 other like this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1101
+#: inc/Admin/CFF_Global_Settings.php:1123
 msgid "others"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1102
+#: inc/Admin/CFF_Global_Settings.php:1124
 msgid "Eg. __, __ and 10 others like this"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1103
+#: inc/Admin/CFF_Global_Settings.php:1125
 msgid "reply"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1104
+#: inc/Admin/CFF_Global_Settings.php:1126
 msgid "Eg. 1 reply"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1105
+#: inc/Admin/CFF_Global_Settings.php:1127
 msgid "replies"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1106
+#: inc/Admin/CFF_Global_Settings.php:1128
 msgid "Eg. 5 replies"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1107
+#: inc/Admin/CFF_Global_Settings.php:1129
 msgid "Call to Action Buttons"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1108
+#: inc/Admin/CFF_Global_Settings.php:1130
 #: inc/Admin/CFF_Support.php:188
 #: inc/Builder/CFF_Feed_Builder.php:1022
 #: inc/Builder/CFF_Tooltip_Wizard.php:140
@@ -1154,354 +1155,354 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1109
+#: inc/Admin/CFF_Global_Settings.php:1131
 msgid "Used for the 'Learn More' button"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1110
+#: inc/Admin/CFF_Global_Settings.php:1132
 #: inc/CFF_Shortcode.php:2012
 msgid "Shop Now"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1111
+#: inc/Admin/CFF_Global_Settings.php:1133
 msgid "Used for the 'Shop Now' button"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1112
+#: inc/Admin/CFF_Global_Settings.php:1134
 msgid "Used for the 'Message Page' button"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1113
+#: inc/Admin/CFF_Global_Settings.php:1135
 msgid "Used for the 'Get Directions' button"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1114
+#: inc/Admin/CFF_Global_Settings.php:1136
 #: inc/CFF_Shortcode.php:2013
 msgid "Message Page"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1115
+#: inc/Admin/CFF_Global_Settings.php:1137
 #: inc/CFF_Shortcode.php:2014
 msgid "Get Directions"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1116
+#: inc/Admin/CFF_Global_Settings.php:1138
 #: inc/Builder/CFF_Feed_Builder.php:1999
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1492
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:598
 msgid "Date"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1117
-#: inc/Admin/CFF_Global_Settings.php:1118
+#: inc/Admin/CFF_Global_Settings.php:1139
+#: inc/Admin/CFF_Global_Settings.php:1140
 #: inc/Builder/CFF_Feed_Builder.php:2194
 msgid "second"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1119
+#: inc/Admin/CFF_Global_Settings.php:1141
 msgid "Used for “Posted a second ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1120
-#: inc/Admin/CFF_Global_Settings.php:1133
+#: inc/Admin/CFF_Global_Settings.php:1142
+#: inc/Admin/CFF_Global_Settings.php:1155
 msgid "Used for “Posted __ seconds ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1121
+#: inc/Admin/CFF_Global_Settings.php:1143
 msgid "Used for “Posted a minute ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1122
+#: inc/Admin/CFF_Global_Settings.php:1144
 msgid "Used for “Posted __ minutes ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1123
+#: inc/Admin/CFF_Global_Settings.php:1145
 msgid "Used for “Posted a hour ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1124
+#: inc/Admin/CFF_Global_Settings.php:1146
 msgid "Used for “Posted __ hours ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1125
+#: inc/Admin/CFF_Global_Settings.php:1147
 msgid "Used for “Posted a day ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1126
+#: inc/Admin/CFF_Global_Settings.php:1148
 msgid "Used for “Posted __ days ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1127
+#: inc/Admin/CFF_Global_Settings.php:1149
 msgid "Used for “Posted a week ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1128
+#: inc/Admin/CFF_Global_Settings.php:1150
 msgid "Used for “Posted __ weeks ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1129
+#: inc/Admin/CFF_Global_Settings.php:1151
 msgid "Used for “Posted a month ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1130
+#: inc/Admin/CFF_Global_Settings.php:1152
 msgid "Used for “Posted __ months ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1131
+#: inc/Admin/CFF_Global_Settings.php:1153
 msgid "Used for “Posted a year ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1132
+#: inc/Admin/CFF_Global_Settings.php:1154
 msgid "Used for “Posted __ years ago”"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1134
+#: inc/Admin/CFF_Global_Settings.php:1156
 #: inc/Builder/CFF_Feed_Builder.php:2196
 msgid "minute"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1135
+#: inc/Admin/CFF_Global_Settings.php:1157
 #: inc/Builder/CFF_Feed_Builder.php:2197
 msgid "minutes"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1136
+#: inc/Admin/CFF_Global_Settings.php:1158
 #: inc/Builder/CFF_Feed_Builder.php:2198
 msgid "hour"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1137
+#: inc/Admin/CFF_Global_Settings.php:1159
 #: inc/Builder/CFF_Feed_Builder.php:2199
 msgid "hours"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1138
+#: inc/Admin/CFF_Global_Settings.php:1160
 #: inc/Builder/CFF_Feed_Builder.php:2200
 msgid "day"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1139
+#: inc/Admin/CFF_Global_Settings.php:1161
 #: inc/Builder/CFF_Feed_Builder.php:2201
 msgid "days"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1140
+#: inc/Admin/CFF_Global_Settings.php:1162
 #: inc/Builder/CFF_Feed_Builder.php:2202
 msgid "week"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1141
+#: inc/Admin/CFF_Global_Settings.php:1163
 #: inc/Builder/CFF_Feed_Builder.php:2203
 msgid "weeks"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1142
+#: inc/Admin/CFF_Global_Settings.php:1164
 #: inc/Builder/CFF_Feed_Builder.php:2204
 msgid "month"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1143
+#: inc/Admin/CFF_Global_Settings.php:1165
 #: inc/Builder/CFF_Feed_Builder.php:2205
 msgid "months"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1144
+#: inc/Admin/CFF_Global_Settings.php:1166
 #: inc/Builder/CFF_Feed_Builder.php:2206
 msgid "year"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1145
+#: inc/Admin/CFF_Global_Settings.php:1167
 #: inc/Builder/CFF_Feed_Builder.php:2207
 msgid "years"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1146
+#: inc/Admin/CFF_Global_Settings.php:1168
 #: inc/Builder/CFF_Feed_Builder.php:2208
 msgid "ago"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1151
+#: inc/Admin/CFF_Global_Settings.php:1173
 msgid "Optimize Images"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1152
+#: inc/Admin/CFF_Global_Settings.php:1174
 msgid "This will create multiple local copies of images in different sizes. The plugin then displays the smallest version based on the size of the feed."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1153
+#: inc/Admin/CFF_Global_Settings.php:1175
 #: inc/Builder/CFF_Feed_Builder.php:1032
 msgid "Reset"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1154
+#: inc/Admin/CFF_Global_Settings.php:1176
 msgid "Optimize images with Facebook Feed Pro"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1157
+#: inc/Admin/CFF_Global_Settings.php:1179
 msgid "Usage Tracking"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1158
-msgid "This helps to prevent plugin and theme conflicts by sending a report in the background once per week about your settings and relevant site stats. It does not send sensitive information like access tokens, email addresses, or user info. This will also not affect your site performace. <a href=\""
+#: inc/Admin/CFF_Global_Settings.php:1180
+msgid "This helps to prevent plugin and theme conflicts by sending a report in the background once per week about your settings and relevant site stats. It does not send sensitive information like access tokens, email addresses, or user info. This will also not affect your site performance. <a href=\""
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1161
+#: inc/Admin/CFF_Global_Settings.php:1183
 msgid "AJAX theme loading fix"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1162
+#: inc/Admin/CFF_Global_Settings.php:1184
 msgid "Fixes issues caused by Ajax loading themes. It can also be used to workaround JavaScript errors on the page."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1165
+#: inc/Admin/CFF_Global_Settings.php:1187
 msgid "Show Credit Link"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1166
+#: inc/Admin/CFF_Global_Settings.php:1188
 msgid "Display a link at the bottom of the feed to the Smash Balloon website. Thank you! :)"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1169
+#: inc/Admin/CFF_Global_Settings.php:1191
 msgid "Fix a text shortening issue caused by some themes"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1172
+#: inc/Admin/CFF_Global_Settings.php:1194
 msgid "Admin Error Notice"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1173
+#: inc/Admin/CFF_Global_Settings.php:1195
 msgid "This will disable or enable the feed error notice that displays in the bottom right corner of your site for logged-in admins."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1176
+#: inc/Admin/CFF_Global_Settings.php:1198
 msgid "Feed Issue Email Reports"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1177
+#: inc/Admin/CFF_Global_Settings.php:1199
 msgid "If the feed is down due to a critical issue, we will switch to a cached version and notify you based on these settings. <a href=\""
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1178
+#: inc/Admin/CFF_Global_Settings.php:1200
 msgid "Send a report every"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1179
+#: inc/Admin/CFF_Global_Settings.php:1201
 msgid "to"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1180
-msgid "Enter one or more email address separated by comma"
+#: inc/Admin/CFF_Global_Settings.php:1202
+msgid "Enter one or more email addresses separated by comma"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1184
+#: inc/Admin/CFF_Global_Settings.php:1206
 msgid "Monday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1188
+#: inc/Admin/CFF_Global_Settings.php:1210
 msgid "Tuesday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1192
+#: inc/Admin/CFF_Global_Settings.php:1214
 msgid "Wednesday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1196
+#: inc/Admin/CFF_Global_Settings.php:1218
 msgid "Thursday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1200
+#: inc/Admin/CFF_Global_Settings.php:1222
 msgid "Friday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1204
+#: inc/Admin/CFF_Global_Settings.php:1226
 msgid "Saturday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1208
+#: inc/Admin/CFF_Global_Settings.php:1230
 msgid "Sunday"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1213
+#: inc/Admin/CFF_Global_Settings.php:1235
 msgid "Manage Data"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1214
+#: inc/Admin/CFF_Global_Settings.php:1236
 msgid "Warning: Clicking this button will permanently delete all Facebook data, including all connected accounts, cached posts, and stored images."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1215
+#: inc/Admin/CFF_Global_Settings.php:1237
 msgid "Delete all Platform Data"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1220
+#: inc/Admin/CFF_Global_Settings.php:1242
 #: inc/Builder/CFF_Feed_Builder.php:682
 #: inc/Builder/CFF_Feed_Builder.php:686
 #: inc/Builder/CFF_Feed_Builder.php:698
 msgid "Delete \"#\"?"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1221
+#: inc/Admin/CFF_Global_Settings.php:1243
 #: inc/Builder/CFF_Feed_Builder.php:699
 msgid "This source is being used in a feed on your site. If you delete this source then new posts can no longer be retrieved for these feeds."
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1273
+#: inc/Admin/CFF_Global_Settings.php:1295
 msgid "Your <b>Extensions</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1275
+#: inc/Admin/CFF_Global_Settings.php:1297
 msgid "Your <b>Extensions</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1308
+#: inc/Admin/CFF_Global_Settings.php:1330
 msgid "Your <b>Multifeed</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1310
+#: inc/Admin/CFF_Global_Settings.php:1332
 msgid "Your <b>Multifeed</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1332
+#: inc/Admin/CFF_Global_Settings.php:1354
 msgid "Your <b>Reviews</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1334
+#: inc/Admin/CFF_Global_Settings.php:1356
 msgid "Your <b>Reviews</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1356
+#: inc/Admin/CFF_Global_Settings.php:1378
 msgid "Your <b>Carousel</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1358
+#: inc/Admin/CFF_Global_Settings.php:1380
 msgid "Your <b>Carousel</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1380
+#: inc/Admin/CFF_Global_Settings.php:1402
 msgid "Your <b>Date Range</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1382
+#: inc/Admin/CFF_Global_Settings.php:1404
 msgid "Your <b>Date Range</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1404
+#: inc/Admin/CFF_Global_Settings.php:1426
 msgid "Your <b>Featured Post</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1406
+#: inc/Admin/CFF_Global_Settings.php:1428
 msgid "Your <b>Featured Post</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1428
+#: inc/Admin/CFF_Global_Settings.php:1450
 msgid "Your <b>Album</b> license is Active!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1430
+#: inc/Admin/CFF_Global_Settings.php:1452
 msgid "Your <b>Album</b> license is Inactive!"
 msgstr ""
 
-#: inc/Admin/CFF_Global_Settings.php:1679
+#: inc/Admin/CFF_Global_Settings.php:1701
 msgid "No GDPR consent plugin detected. Install a compatible <a href=\""
 msgstr ""
 
@@ -1551,7 +1552,7 @@ msgstr ""
 #: inc/Admin/CFF_oEmbeds.php:69
 #: inc/Admin/CFF_oEmbeds.php:70
 #: inc/Admin/CFF_oEmbeds.php:187
-#: inc/Builder/CFF_Feed_Builder.php:2787
+#: inc/Builder/CFF_Feed_Builder.php:2785
 msgid "oEmbeds"
 msgstr ""
 
@@ -1763,6 +1764,7 @@ msgid "Upgrade to Facebook Feed Pro"
 msgstr ""
 
 #: inc/Admin/CFF_Onboarding_Wizard.php:235
+#, php-format
 msgid "Upgrade today and %ssave 50%% on a Pro License!%s%s (auto-applied at checkout)"
 msgstr ""
 
@@ -1795,75 +1797,87 @@ msgstr ""
 msgid "Smash Balloon offers the best social media feed solutions for WordPress. Enabling this feature will install additional plugins to power all of the supported platforms"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:480
+#: inc/Admin/CFF_Onboarding_Wizard.php:486
 msgid "Customer Reviews Plugin"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:481
+#: inc/Admin/CFF_Onboarding_Wizard.php:487
 msgid "Install Reviews Feed to display customer reviews from Google or Yelp and build trust"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:494
+#: inc/Admin/CFF_Onboarding_Wizard.php:500
 msgid "Enabling this feature will install Reviews Feed plugin. Reviews Feed by Smash Balloon helps users to display reviews from Google, TripAdvisor, TrustPilot and more."
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:518
+#: inc/Admin/CFF_Onboarding_Wizard.php:537
+msgid "Live Chat Customer Support"
+msgstr ""
+
+#: inc/Admin/CFF_Onboarding_Wizard.php:538
+msgid "Install WPChat and connect with customers on WhatsApp, Messenger, Telegram & Instagram and more"
+msgstr ""
+
+#: inc/Admin/CFF_Onboarding_Wizard.php:551
+msgid "Enabling this feature will install WPChat plugin. WPChat by Smash Balloon helps you add live chat and customer support to your website."
+msgstr ""
+
+#: inc/Admin/CFF_Onboarding_Wizard.php:575
 msgid "All in One SEO"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:520
+#: inc/Admin/CFF_Onboarding_Wizard.php:577
 msgid "All in One SEO Toolkit"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:532
+#: inc/Admin/CFF_Onboarding_Wizard.php:589
 msgid "Monster Insights"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:534
+#: inc/Admin/CFF_Onboarding_Wizard.php:591
 msgid "Analytics by MonsterInsights"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:535
+#: inc/Admin/CFF_Onboarding_Wizard.php:592
 msgid "Make it “effortless” to connect your WordPress site with Google Analytics, so you can start making data-driven decisions to grow your business."
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:548
+#: inc/Admin/CFF_Onboarding_Wizard.php:605
 msgid "Forms by WPForms"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:549
+#: inc/Admin/CFF_Onboarding_Wizard.php:606
 msgid "Create contact, subscription or payment forms with the most beginner friendly drag & drop WordPress forms plugin"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:560
+#: inc/Admin/CFF_Onboarding_Wizard.php:617
 msgid "SeedProd"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:562
+#: inc/Admin/CFF_Onboarding_Wizard.php:619
 msgid "SeedProd Website Builder"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:563
+#: inc/Admin/CFF_Onboarding_Wizard.php:620
 msgid "A simple and powerful theme builder, landing page builder, \"coming soon\" page builder, and maintenance mode notice builder"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:576
+#: inc/Admin/CFF_Onboarding_Wizard.php:633
 msgid "OptinMonster Popup Builder"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:577
+#: inc/Admin/CFF_Onboarding_Wizard.php:634
 msgid "Make popups & opt-in forms to build your email newsletter subscribers, generate leads, and close sales"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:588
+#: inc/Admin/CFF_Onboarding_Wizard.php:645
 msgid "PushEngage"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:590
+#: inc/Admin/CFF_Onboarding_Wizard.php:647
 msgid "PushEngage Notifications"
 msgstr ""
 
-#: inc/Admin/CFF_Onboarding_Wizard.php:591
+#: inc/Admin/CFF_Onboarding_Wizard.php:648
 msgid "Create and send high-converting web push notifications to your website visitors."
 msgstr ""
 
@@ -1930,7 +1944,7 @@ msgstr ""
 
 #: inc/Admin/CFF_Support.php:191
 #: inc/Builder/CFF_Feed_Builder.php:1952
-#: inc/Builder/CFF_Feed_Builder.php:2649
+#: inc/Builder/CFF_Feed_Builder.php:2647
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:462
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1294
 #: inc/Builder/Tabs/CFF_Styling_Tab.php:318
@@ -2122,7 +2136,7 @@ msgstr ""
 #: inc/Builder/CFF_Feed_Builder.php:190
 #: inc/Builder/CFF_Feed_Builder.php:238
 #: inc/Builder/CFF_Feed_Builder.php:599
-#: inc/Builder/CFF_Feed_Builder.php:2785
+#: inc/Builder/CFF_Feed_Builder.php:2783
 msgid "All Feeds"
 msgstr ""
 
@@ -2295,6 +2309,7 @@ msgstr ""
 #: inc/Builder/CFF_Feed_Builder.php:545
 #: inc/Builder/CFF_Feed_Builder.php:566
 #: inc/Builder/CFF_Feed_Builder.php:587
+#: inc/Builder/CFF_Feed_Builder.php:1128
 msgid "Popup photo/video lightbox"
 msgstr ""
 
@@ -2609,6 +2624,7 @@ msgid "Post URL or ID"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:629
+#, php-format
 msgid "Unable to retrieve post. Please make sure the link is correct. See %shere%s for more help."
 msgstr ""
 
@@ -2681,6 +2697,7 @@ msgid "Album URL or ID"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:660
+#, php-format
 msgid "Unable to retrieve album. Please make sure the link is correct. See %shere%s for more help."
 msgstr ""
 
@@ -2705,6 +2722,7 @@ msgid "To add a single album, add it's URL or ID in the \"Album<br/>URL or ID\" 
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:668
+#, php-format
 msgid "Upgrade to the %sAll Access Bundle%s to get all of our Pro Plugins"
 msgstr ""
 
@@ -2713,6 +2731,7 @@ msgid "Includes all Smash Balloon plugins for one low price: Instagram, Facebook
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:670
+#, php-format
 msgid "%sBonus%s Lite users get %s50&#37; Off%s automatically applied at checkout"
 msgstr ""
 
@@ -2986,6 +3005,7 @@ msgid "Reconnect"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1055
+#: assets/dist/blocks.js:1
 msgid "feed"
 msgstr ""
 
@@ -3006,6 +3026,7 @@ msgid "Fix"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1063
+#, php-format
 msgid "Due to changes with the Facebook API, which we use to create feeds, group feeds will no longer update after April of 2024 %sLearn More%s"
 msgstr ""
 
@@ -3121,10 +3142,6 @@ msgstr ""
 msgid "Filter posts"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:1128
-msgid "Popup photo/video lighbox"
-msgstr ""
-
 #: inc/Builder/CFF_Feed_Builder.php:1132
 msgid "Fast, friendly and effective support"
 msgstr ""
@@ -3211,6 +3228,7 @@ msgid "Enter Events Access Token"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1182
+#, php-format
 msgid "Due to restrictions by Facebook, you need to create a Facebook app and then paste that app Access Token here. We have a guide to help you with just that, which you can read %shere%s"
 msgstr ""
 
@@ -3287,7 +3305,7 @@ msgid "Add Facebook App to your group"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1202
-msgid "To get posts from your group, Facebook requires the \"Smash Balloon Wordpress\" app to be added in your group settings. Just follow the directions here:"
+msgid "To get posts from your group, Facebook requires the \"Smash Balloon WordPress\" app to be added in your group settings. Just follow the directions here:"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1204
@@ -3295,6 +3313,7 @@ msgid "Go to your group settings page by "
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1205
+#, php-format
 msgid "Search for \"Smash Balloon WordPress\" and select our app %s(see screenshot)%s"
 msgstr ""
 
@@ -3307,7 +3326,8 @@ msgid "If you are reconnecting an existing Group then make sure to follow the di
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1209
-msgid "To display a feed form this group, Facebook requires the admin to add the Smash Balloon app in the group settings. Please ask an admin to follow the %sdirections here%s to add the app."
+#, php-format
+msgid "To display a feed from this group, Facebook requires the admin to add the Smash Balloon app in the group settings. Please ask an admin to follow the %sdirections here%s to add the app."
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1209
@@ -3319,6 +3339,7 @@ msgid "For groups you are not an administrator of"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1211
+#, php-format
 msgid "Please note: There are Facebook limitations to displaying group content which may prevent older posts from being displayed. Please %ssee here%s for more information."
 msgstr ""
 
@@ -3469,6 +3490,7 @@ msgid "Legacy Feed Settings"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1806
+#, php-format
 msgid "These settings will impact %s legacy feeds on your site. You can learn more about what legacy feeds are and how they differ from new feeds %shere%s."
 msgstr ""
 
@@ -3559,8 +3581,8 @@ msgid "Sections"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1902
-#: inc/Builder/CFF_Feed_Builder.php:2653
-#: inc/Builder/CFF_Feed_Builder.php:2761
+#: inc/Builder/CFF_Feed_Builder.php:2651
+#: inc/Builder/CFF_Feed_Builder.php:2759
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:414
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:861
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1182
@@ -3571,12 +3593,12 @@ msgid "Background"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1903
-#: inc/Builder/CFF_Feed_Builder.php:2573
-#: inc/Builder/CFF_Feed_Builder.php:2597
-#: inc/Builder/CFF_Feed_Builder.php:2621
-#: inc/Builder/CFF_Feed_Builder.php:2645
-#: inc/Builder/CFF_Feed_Builder.php:2677
-#: inc/Builder/CFF_Feed_Builder.php:2726
+#: inc/Builder/CFF_Feed_Builder.php:2571
+#: inc/Builder/CFF_Feed_Builder.php:2595
+#: inc/Builder/CFF_Feed_Builder.php:2619
+#: inc/Builder/CFF_Feed_Builder.php:2643
+#: inc/Builder/CFF_Feed_Builder.php:2675
+#: inc/Builder/CFF_Feed_Builder.php:2724
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:438
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:557
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:816
@@ -3920,7 +3942,7 @@ msgid "Hide or show individual elements of a post or edit their options"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:1997
-#: inc/Builder/CFF_Feed_Builder.php:2556
+#: inc/Builder/CFF_Feed_Builder.php:2554
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1462
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1467
 msgid "Post Author"
@@ -3933,7 +3955,7 @@ msgid "Photos/Videos"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:2002
-#: inc/Builder/CFF_Feed_Builder.php:2660
+#: inc/Builder/CFF_Feed_Builder.php:2658
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1506
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1510
 msgid "Event Title"
@@ -3949,7 +3971,7 @@ msgid "Shared Post Text"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:2006
-#: inc/Builder/CFF_Feed_Builder.php:2744
+#: inc/Builder/CFF_Feed_Builder.php:2742
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1565
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1569
 msgid "Shared Link Box"
@@ -4161,7 +4183,8 @@ msgid "Regular"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:2054
-msgid "Indvidual Properties"
+#: inc/Builder/Tabs/CFF_Customize_Tab.php:1367
+msgid "Individual Properties"
 msgstr ""
 
 #: inc/Builder/CFF_Feed_Builder.php:2055
@@ -4183,71 +4206,71 @@ msgstr ""
 msgid "seconds"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2378
+#: inc/Builder/CFF_Feed_Builder.php:2376
 msgid "Instagram"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2380
-#: inc/Builder/CFF_Feed_Builder.php:2392
-#: inc/Builder/CFF_Feed_Builder.php:2404
+#: inc/Builder/CFF_Feed_Builder.php:2378
+#: inc/Builder/CFF_Feed_Builder.php:2390
+#: inc/Builder/CFF_Feed_Builder.php:2402
 msgid "By Smash Balloon"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2381
+#: inc/Builder/CFF_Feed_Builder.php:2379
 msgid "To display an Instagram feed, our Instagram plugin is required. </br> It provides a clean and beautiful way to add your Instagram posts to your website. Grab your visitors attention and keep them engaged with your site longer."
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2390
+#: inc/Builder/CFF_Feed_Builder.php:2388
 msgid "Twitter"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2393
-#: inc/Builder/CFF_Feed_Builder.php:2874
+#: inc/Builder/CFF_Feed_Builder.php:2391
+#: inc/Builder/CFF_Feed_Builder.php:2872
 msgid "Custom Twitter Feeds is a highly customizable way to display tweets from your Twitter account. Promote your latest content and update your site content automatically."
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2402
+#: inc/Builder/CFF_Feed_Builder.php:2400
 msgid "YouTube"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2405
+#: inc/Builder/CFF_Feed_Builder.php:2403
 msgid "To display a YouTube feed, our YouTube plugin is required. It provides a simple yet powerful way to display videos from YouTube on your website, Increasing engagement with your channel while keeping visitors on your website."
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2580
+#: inc/Builder/CFF_Feed_Builder.php:2578
 msgid "Post"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2604
+#: inc/Builder/CFF_Feed_Builder.php:2602
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1496
 msgid "Post Date"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2765
+#: inc/Builder/CFF_Feed_Builder.php:2763
 msgid "Title"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2769
+#: inc/Builder/CFF_Feed_Builder.php:2767
 msgid "Description"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2773
+#: inc/Builder/CFF_Feed_Builder.php:2771
 msgid "Url"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2788
+#: inc/Builder/CFF_Feed_Builder.php:2786
 msgid "Extensions"
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2858
+#: inc/Builder/CFF_Feed_Builder.php:2856
 msgid "Custom Facebook Feeds is a highly customizable way to display tweets from your Facebook account. Promote your latest content and update your site content automatically."
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2866
+#: inc/Builder/CFF_Feed_Builder.php:2864
 msgid "Instagram Feeds is a highly customizable way to display tweets from your Instagram account. Promote your latest content and update your site content automatically."
 msgstr ""
 
-#: inc/Builder/CFF_Feed_Builder.php:2882
+#: inc/Builder/CFF_Feed_Builder.php:2880
 msgid "YouTube Feeds is a highly customizable way to display tweets from your YouTube account. Promote your latest content and update your site content automatically."
 msgstr ""
 
@@ -4478,10 +4501,6 @@ msgstr ""
 msgid "Boxed"
 msgstr ""
 
-#: inc/Builder/Tabs/CFF_Customize_Tab.php:1367
-msgid "Individual Properties"
-msgstr ""
-
 #: inc/Builder/Tabs/CFF_Customize_Tab.php:1417
 msgid "Separating Line"
 msgstr ""
@@ -4591,7 +4610,8 @@ msgid "Only show posts containing"
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:387
-msgid "Only display posts containing these text strings, separating multiple strings using commas. If only a few posts, or none at all, are displayed then you may need to increase the plugin's \"API Post Limit\" setting. See %s<a href=\"https://smashballoon.com/filtering-your-facebook-posts/\" target=\"_blank\">this FAQ%s to learn more about how filtering works."
+#, php-format
+msgid "Only display posts containing these text strings, separating multiple strings using commas. If only a few posts, or none at all, are displayed then you may need to increase the plugin's \"API Post Limit\" setting. See %s<a href=\"https://smashballoon.com/filtering-your-facebook-posts/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs\" target=\"_blank\">this FAQ%s to learn more about how filtering works."
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:388
@@ -4680,7 +4700,7 @@ msgstr ""
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:636
 msgid ""
 "This setting controls the number of posts retrieved from the Facebook API. If set to \"Automatic\" then the plugin will automatically get the right number of posts from the Facebook API. You can also use the \"Manual\" option to set this manually.\n"
-"\t\t\t\t\tIf you are using the Multifeed extension then the post limit is the number of posts you retrieve from each Facebook page. Eg, you have 3 Facebook pages and set the limit to be 5 then 15 posts in total will be retrievd from Facebook - 5 for each page."
+"\t\t\t\t\tIf you are using the Multifeed extension then the post limit is the number of posts you retrieve from each Facebook page. Eg, you have 3 Facebook pages and set the limit to be 5 then 15 posts in total will be retrieved from Facebook - 5 for each page."
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:640
@@ -4696,7 +4716,7 @@ msgid "Reviews Retrieval Method"
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:680
-msgid "A single line decription of the feature."
+msgid "A single line description of the feature."
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Settings_Tab.php:683
@@ -4741,6 +4761,7 @@ msgid "Max Length"
 msgstr ""
 
 #: inc/Builder/Tabs/CFF_Styling_Tab.php:164
+#, php-format
 msgid "%sLearn more about custom formats %s"
 msgstr ""
 
@@ -4776,31 +4797,31 @@ msgstr ""
 msgid "Remove Background/Border"
 msgstr ""
 
-#: inc/CFF_Blocks.php:126
+#: inc/CFF_Blocks.php:197
 msgid "Add Settings"
 msgstr ""
 
-#: inc/CFF_Blocks.php:127
+#: inc/CFF_Blocks.php:198
 msgid "Shortcode Settings"
 msgstr ""
 
-#: inc/CFF_Blocks.php:128
+#: inc/CFF_Blocks.php:199
 msgid "Example"
 msgstr ""
 
-#: inc/CFF_Blocks.php:129
+#: inc/CFF_Blocks.php:200
 msgid "Apply Changes"
 msgstr ""
 
-#: inc/CFF_Elementor_Widget.php:47
+#: inc/CFF_Elementor_Widget.php:53
 msgid "Facebook Feed Settings"
 msgstr ""
 
-#: inc/CFF_Elementor_Widget.php:53
+#: inc/CFF_Elementor_Widget.php:59
 msgid "Select a Feed"
 msgstr ""
 
-#: inc/CFF_Elementor_Widget.php:68
+#: inc/CFF_Elementor_Widget.php:74
 msgid "Please choose a feed"
 msgstr ""
 
@@ -4810,6 +4831,7 @@ msgstr ""
 
 #: inc/CFF_Error_Reporter.php:274
 #: inc/CFF_Utils.php:219
+#, php-format
 msgid "API Error %s:"
 msgstr ""
 
@@ -4822,6 +4844,7 @@ msgid "An unknown error has occurred."
 msgstr ""
 
 #: inc/CFF_Error_Reporter.php:411
+#, php-format
 msgid "Facebook Feed related data for the account(s) %s was removed due to permission for the Smash Balloon App on Facebook being revoked. <br><br> To prevent the automated data deletion for the account, please reconnect your account within 7 days."
 msgstr ""
 
@@ -4837,6 +4860,7 @@ msgid "An account admin has deauthorized the Smash Balloon app used to power the
 msgstr ""
 
 #: inc/CFF_Error_Reporter.php:422
+#, php-format
 msgid "If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website for this account (ID: %s) due to Facebook data privacy rules."
 msgstr ""
 
@@ -4859,6 +4883,7 @@ msgstr ""
 
 #. Translators: %s is the link to the article where more details about critical are listed.
 #: inc/CFF_Error_Reporter.php:547
+#, php-format
 msgid "An issue is preventing your Custom Facebook Feeds from updating. %1$sResolve this issue%2$s."
 msgstr ""
 
@@ -4871,6 +4896,7 @@ msgid "A Custom Facebook Feed on your website is currently unable to connect to 
 msgstr ""
 
 #: inc/CFF_Error_Reporter.php:721
+#, php-format
 msgid "This is caused by an issue with your Facebook account connecting to the Facebook API. For information on the exact issue and directions on how to resolve it, please visit the %sCustom Facebook Feed settings page%s on your website."
 msgstr ""
 
@@ -4892,7 +4918,7 @@ msgid "Action Required Within 7 Days:"
 msgstr ""
 
 #: inc/CFF_Error_Reporter.php:914
-msgid "Or you can simply press the \"Fix Usage\" button to fix this issuee."
+msgid "Or you can simply press the \"Fix Usage\" button to fix this issue."
 msgstr ""
 
 #: inc/CFF_Error_Reporter.php:916
@@ -4928,14 +4954,17 @@ msgid "There was an error creating the folder for storing resized images."
 msgstr ""
 
 #: inc/CFF_Shortcode.php:1687
+#, php-format
 msgid "It looks like you have more than one feed. Go to %sthis page%s and enter the intended feed ID in your shortcode like this: [custom-facebook-feed feed=YOUR_FEED_ID_HERE]."
 msgstr ""
 
 #: inc/CFF_Shortcode.php:1700
+#, php-format
 msgid "It looks like you haven't set up a feed yet. Try going to %sthis page%s to create one and then enter the feed id in the shortcode like this [custom-facebook-feed feed=YOUR_FEED_ID_HERE]."
 msgstr ""
 
 #: inc/CFF_Shortcode.php:1706
+#, php-format
 msgid "No source found for this feed. It looks like you may have removed the account this feed was using to display posts. Go to %sthis page%s, switch to the settings tab and click the sources menu item to manage sources for this feed."
 msgstr ""
 
@@ -4948,7 +4977,7 @@ msgid "Share on Twitter"
 msgstr ""
 
 #: inc/CFF_Shortcode_Display.php:512
-msgid "Share on Linked In"
+msgid "Share on LinkedIn"
 msgstr ""
 
 #: inc/CFF_Shortcode_Display.php:517
@@ -4992,6 +5021,7 @@ msgid "Your Custom Facebook Feed is experiencing an error."
 msgstr ""
 
 #: inc/CFF_SiteHealth.php:87
+#, php-format
 msgid "A critical issue has been detected with your Custom Facebook Feed. Visit the %sCustom Facebook Feed settings page%s to fix the issue."
 msgstr ""
 
@@ -5012,10 +5042,12 @@ msgid "Select a Facebook feed to embed"
 msgstr ""
 
 #: inc/Integrations/CFF_Integration.php:38
+#, php-format
 msgid "You can display feeds of Facebook photos, videos, albums, events and more using the %sPro version%s "
 msgstr ""
 
 #: inc/Integrations/CFF_Integration.php:43
+#, php-format
 msgid "You can also add Instagram, Twitter, and YouTube posts into your feed using our %sSocial Wall plugin%s "
 msgstr ""
 
@@ -5035,12 +5067,16 @@ msgstr ""
 msgid "Did you Know?"
 msgstr ""
 
+#: inc/Integrations/Elementor/CFF_Modern_Elementor_Widget.php:23
+msgid "Facebook Feed"
+msgstr ""
+
 #: inc/Platform_Data.php:153
 msgid "An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin. The page was not reconnected within the 7 day limit and all Facebook data was automatically deleted on your website due to Facebook data privacy rules."
 msgstr ""
 
 #: inc/Platform_Data.php:247
-msgid "Your Facebook feed has been not viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time. To avoid automated data deletion, simply view the Facebook feed on your website within the next 7 days."
+msgid "Your Facebook feed has not been viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time. To avoid automated data deletion, simply view the Facebook feed on your website within the next 7 days."
 msgstr ""
 
 #: inc/Platform_Data.php:283
@@ -5059,6 +5095,7 @@ msgid "your website"
 msgstr ""
 
 #: inc/Platform_Data.php:313
+#, php-format
 msgid "An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin on %s. If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website due to Facebook data privacy rules."
 msgstr ""
 
@@ -5068,11 +5105,13 @@ msgid "Settings Page"
 msgstr ""
 
 #: inc/Platform_Data.php:315
+#, php-format
 msgid "To prevent the automated deletion of data for the source, please reconnect your source for the Facebook Feed plugin %s within 7 days."
 msgstr ""
 
 #: inc/Platform_Data.php:331
-msgid "An Facebook feed on %s has been not viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time."
+#, php-format
+msgid "A Facebook feed on %s has not been viewed in the last 14 days. Due to Facebook data privacy rules, all data for this feed will be deleted in 7 days time."
 msgstr ""
 
 #: inc/Platform_Data.php:332
@@ -5084,6 +5123,7 @@ msgid "All Facebook Data has Been Removed"
 msgstr ""
 
 #: inc/Platform_Data.php:348
+#, php-format
 msgid "The page was not reconnected within the 7 day limit and all Facebook data was automatically deleted on %s due to Facebook data privacy rules."
 msgstr ""
 
@@ -5167,5 +5207,95 @@ msgid "for how to solve this error"
 msgstr ""
 
 #: templates/header.php:82
+#, php-format
 msgid "Cover for %s"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Feed Settings"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Select a feed"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Select Facebook feed"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Activating..."
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Installing..."
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "Installed and Activated"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "facebook"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "gallery"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "images"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "social media"
+msgstr ""
+
+#: assets/dist/blocks.js:1
+msgid "smashballoon"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block title"
+msgid "Facebook Feed"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block description"
+msgid "Select and display any of your Facebook feeds"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "facebook"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "feed"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "gallery"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "photos"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "images"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "social media"
+msgstr ""
+
+#: assets/dist/sbf-feed/block.json
+msgctxt "block keyword"
+msgid "smashballoon"
 msgstr ""

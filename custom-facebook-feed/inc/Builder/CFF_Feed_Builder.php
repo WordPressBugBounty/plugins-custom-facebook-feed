@@ -1125,7 +1125,7 @@ class CFF_Feed_Builder
 			'andMuchMore' => __('And Much More!', 'custom-facebook-feed'),
 			'cffFreeCTAFeatures' => array(
 				__('Filter posts', 'custom-facebook-feed'),
-				__('Popup photo/video lighbox', 'custom-facebook-feed'),
+				__('Popup photo/video lightbox', 'custom-facebook-feed'),
 				__('30 day money back guarantee', 'custom-facebook-feed'),
 				__('Multiple post layout options', 'custom-facebook-feed'),
 				__('Video player (HD, 360, Live)', 'custom-facebook-feed'),
@@ -1199,14 +1199,14 @@ class CFF_Feed_Builder
 				'accessToken' => __('Facebook Access Token', 'custom-facebook-feed'),
 				'enterToken' => __('Enter Token', 'custom-facebook-feed'),
 				'addApp' => __('Add Facebook App to your group', 'custom-facebook-feed'),
-				'addAppDetails' => __('To get posts from your group, Facebook requires the "Smash Balloon Wordpress" app to be added in your group settings. Just follow the directions here:', 'custom-facebook-feed'),
+				'addAppDetails' => __('To get posts from your group, Facebook requires the "Smash Balloon WordPress" app to be added in your group settings. Just follow the directions here:', 'custom-facebook-feed'),
 				'addAppSteps' => [
 					__('Go to your group settings page by ', 'custom-facebook-feed'),
 					sprintf(__('Search for "Smash Balloon WordPress" and select our app %s(see screenshot)%s', 'custom-facebook-feed'), '<a href="JavaScript:void(0);" id="cff-group-app-tooltip">', '<img class="cff-group-app-screenshot sb-tr-1" src="' . trailingslashit(CFF_PLUGIN_URL) . 'admin/assets/img/group-app.png" alt="Thumbnail Layout"></a>'),
 					__('Click "Add" and you are done.', 'custom-facebook-feed')
 				],
 				'reconnectingAppDir' => __('If you are reconnecting an existing Group then make sure to follow the directions above to add this new app to your Group settings. The previous app will no longer work. This is required in order for new posts to be retrieved.', 'custom-facebook-feed'),
-				'appMemberInstructions' => sprintf(__('To display a feed form this group, Facebook requires the admin to add the Smash Balloon app in the group settings. Please ask an admin to follow the %sdirections here%s to add the app.', 'custom-facebook-feed'), '<a href="https://smashballoon.com/doc/display-facebook-group-feed/?utm_campaign=facebook-free&utm_source=feed-builder&utm_medium=docs" target="_blank" rel="noopener noreferrer">', '</a>') . '<br><br>' . __('Once this is done, you will be able to display a feed from this group.', 'custom-facebook-feed'),
+				'appMemberInstructions' => sprintf(__('To display a feed from this group, Facebook requires the admin to add the Smash Balloon app in the group settings. Please ask an admin to follow the %sdirections here%s to add the app.', 'custom-facebook-feed'), '<a href="https://smashballoon.com/doc/display-facebook-group-feed/?utm_campaign=facebook-free&utm_source=feed-builder&utm_medium=docs" target="_blank" rel="noopener noreferrer">', '</a>') . '<br><br>' . __('Once this is done, you will be able to display a feed from this group.', 'custom-facebook-feed'),
 				'notAdmin' => __('For groups you are not an administrator of', 'custom-facebook-feed'),
 				'disclaimer' => sprintf(__('Please note: There are Facebook limitations to displaying group content which may prevent older posts from being displayed. Please %ssee here%s for more information.', 'custom-facebook-feed'), '<a href="https://smashballoon.com/doc/facebook-api-change-limits-groups-to-90-days/?utm_campaign=facebook-free&utm_source=feed-builder&utm_medium=docs" target="_blank" rel="noopener noreferrer">', '</a>'),
 				'noGroupTooltip' => __('Due to Facebook limitations, it\'s not possible to display photo feeds from a Group, only a Page.', 'custom-facebook-feed')
@@ -2051,7 +2051,7 @@ class CFF_Feed_Builder
 				'postType' => __('Post Type', 'custom-facebook-feed'),
 				'boxed' => __('boxed', 'custom-facebook-feed'),
 				'regular' => __('Regular', 'custom-facebook-feed'),
-				'indvidualProperties' => __('Indvidual Properties', 'custom-facebook-feed'),
+				'indvidualProperties' => __('Individual Properties', 'custom-facebook-feed'),
 				'backgroundColor' => __('Background Color', 'custom-facebook-feed'),
 				'borderRadius' => __('Border Radius', 'custom-facebook-feed'),
 				'boxShadow' => __('Box Shadow', 'custom-facebook-feed'),
@@ -2230,7 +2230,7 @@ class CFF_Feed_Builder
 		$onboarding_statuses = get_user_meta(get_current_user_id(), 'cff_onboarding', true);
 		$status = false;
 		if (! empty($onboarding_statuses)) {
-			$statuses = unserialize($onboarding_statuses, ['allowed_classes' => false]);
+			$statuses = is_array($onboarding_statuses) ? $onboarding_statuses : unserialize($onboarding_statuses, ['allowed_classes' => false]);
 			$status = isset($statuses[ $type ]) ? $statuses[ $type ] : false;
 		}
 
@@ -2248,15 +2248,13 @@ class CFF_Feed_Builder
 	{
 		$onboarding_statuses = get_user_meta(get_current_user_id(), 'cff_onboarding', true);
 		if (! empty($onboarding_statuses)) {
-			$statuses = unserialize($onboarding_statuses, ['allowed_classes' => false]);
+			$statuses = is_array($onboarding_statuses) ? $onboarding_statuses : unserialize($onboarding_statuses, ['allowed_classes' => false]);
 			$statuses[ $type ] = $value;
 		} else {
 			$statuses = array(
 				$type => $value
 			);
 		}
-
-		$statuses = maybe_serialize($statuses);
 
 		update_user_meta(get_current_user_id(), 'cff_onboarding', $statuses);
 	}

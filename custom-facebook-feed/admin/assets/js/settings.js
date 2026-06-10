@@ -16,7 +16,6 @@ var settings_data = {
 
     socialWallActivated: cff_settings.socialWallActivated,
     socialWallLinks: cff_settings.socialWallLinks,
-    stickyWidget: false,
     exportFeed: 'none',
     locales: cff_settings.locales,
     timezones: cff_settings.timezones,
@@ -681,15 +680,6 @@ var cffSettings = new Vue({
             } else if ( this.optimizeCacheStatus == 'error' ) {
                 return `<i class="fa fa-times-circle"></i>`;
             }
-        },
-
-        /**
-         * Toggle Sticky Widget view
-         *
-         * @since 4.0
-         */
-        toggleStickyWidget: function() {
-            this.stickyWidget = !this.stickyWidget;
         },
 
         printUsedInText: function( usedInNumber ){

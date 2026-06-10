@@ -634,7 +634,7 @@ class CFF_Settings_Tab
 				'conditionHide'		=> true,
 				'heading' 			=> __('API Post Limit', 'custom-facebook-feed'),
 				'tooltip' 			=> __('This setting controls the number of posts retrieved from the Facebook API. If set to "Automatic" then the plugin will automatically get the right number of posts from the Facebook API. You can also use the "Manual" option to set this manually.
-					If you are using the Multifeed extension then the post limit is the number of posts you retrieve from each Facebook page. Eg, you have 3 Facebook pages and set the limit to be 5 then 15 posts in total will be retrievd from Facebook - 5 for each page.', 'custom-facebook-feed'),
+					If you are using the Multifeed extension then the post limit is the number of posts you retrieve from each Facebook page. Eg, you have 3 Facebook pages and set the limit to be 5 then 15 posts in total will be retrieved from Facebook - 5 for each page.', 'custom-facebook-feed'),
 				'options'			=> [
 					'auto' => __('Automatic', 'custom-facebook-feed'),
 					'manual' => __('Manual', 'custom-facebook-feed'),
@@ -677,7 +677,7 @@ class CFF_Settings_Tab
 				'checkExtension'	=> 'reviews',
 				'conditionHide'		=> true,
 				'heading' 			=> __('Reviews Retrieval Method', 'custom-facebook-feed'),
-				'description' 		=> __('A single line decription of the feature.', 'custom-facebook-feed'),
+				'description' 		=> __('A single line description of the feature.', 'custom-facebook-feed'),
 				'options'			=> [
 					'auto' => __('Automatic', 'custom-facebook-feed'),
 					'all' => __('All', 'custom-facebook-feed'),

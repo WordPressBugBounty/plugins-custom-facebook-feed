@@ -37,7 +37,7 @@
 							<?php echo __('What are they used for?', 'custom-facebook-feed') ?>
 						</strong>
 						<p class="cff-fb-fs">
-							<?php echo __('Solving an issue in your plugin might sometime require testing API access but with your setup. We do not want to expose your API keys over support messages and hence we use a temporary login link system to securely access it.', 'custom-facebook-feed') ?>
+							<?php echo __('Solving an issue in your plugin might sometimes require testing API access but with your setup. We do not want to expose your API keys over support messages and hence we use a temporary login link system to securely access it.', 'custom-facebook-feed') ?>
 						<p>
 					</div>
 				</div>

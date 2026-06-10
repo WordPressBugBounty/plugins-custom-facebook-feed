@@ -911,7 +911,7 @@ class CFF_Error_Reporter
 								</h3>
 
 								<p><?php echo $errors['unused_feed']; ?></p>
-								<p><?php echo esc_html__('Or you can simply press the "Fix Usage" button to fix this issuee.', 'custom-facebook-feed'); ?></p>
+								<p><?php echo esc_html__('Or you can simply press the "Fix Usage" button to fix this issue.', 'custom-facebook-feed'); ?></p>
 								<div class="license-action-btns">
 									<button class="sbi-reset-unused-feed-usage sbi-space-left sbi-btn sbi-notice-btn sbi-btn-blue"><?php echo __('Fix Usage', 'custom-facebook-feed'); ?></button>
 								</div>

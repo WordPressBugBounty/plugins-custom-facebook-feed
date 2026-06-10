@@ -7,7 +7,6 @@ var oembeds_data = {
     supportPageUrl: cff_oembeds.supportPageUrl,
     socialWallActivated: cff_oembeds.socialWallActivated,
     socialWallLinks: cff_oembeds.socialWallLinks,
-    stickyWidget: false,
     facebook: cff_oembeds.facebook,
     instagram: cff_oembeds.instagram,
     connectionURL: cff_oembeds.connectionURL,
@@ -178,15 +177,6 @@ var cffoEmbeds = new Vue({
             } else if( this.installerStatus == 'error' ) {
                 return `<i class="fa fa-times-circle"></i>`;
             }
-        },
-
-        /**
-         * Toggle Sticky Widget view
-         *
-         * @since 4.0
-         */
-         toggleStickyWidget: function() {
-            this.stickyWidget = !this.stickyWidget;
         },
     },
     created() {

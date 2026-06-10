@@ -400,7 +400,7 @@ final class Custom_Facebook_Feed
 		$this->cff_oembeds					= new CFF_oEmbeds();
 		$this->cff_about_us					= new CFF_About_Us();
 		$this->cff_support					= new CFF_Support();
-		$this->cff_elementor_base			= CFF_Elementor_Base::instance();
+		$this->cff_elementor_base    = CFF_Elementor_Base::register();
 		$this->cff_onboarding_wizard		= new CFF_Onboarding_Wizard();
 
 		self::$instance->cff_admin_notices		= new CFF_Admin_Notices();
@@ -416,6 +416,9 @@ final class Custom_Facebook_Feed
 		if ($this->cff_blocks->allow_load()) {
 			$this->cff_blocks->load();
 		}
+
+		$recommended_blocks = new \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Blocks\RecommendedBlocks();
+		$recommended_blocks->setup();
 
 		self::$instance->cff_support_tool = new CFF_Support_Tool();
 		self::$instance->cff_divi_handler		= new CFF_Divi_Handler();

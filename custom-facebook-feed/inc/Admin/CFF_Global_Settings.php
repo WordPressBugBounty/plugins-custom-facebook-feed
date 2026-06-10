@@ -1034,7 +1034,7 @@ class CFF_Global_Settings
 					'yes'	=> __('Yes', 'custom-facebook-feed'),
 					'no'	=> __('No', 'custom-facebook-feed'),
 					'infoAuto'	=> $this->get_gdpr_auto_info(),
-					'infoYes'	=> __('No requests will be made to third-party websites. To accomodate this, some features of the plugin will be limited.', 'custom-facebook-feed'),
+					'infoYes'	=> __('No requests will be made to third-party websites. To accommodate this, some features of the plugin will be limited.', 'custom-facebook-feed'),
 					'infoNo'	=> __('The plugin will function as normal and load images and videos directly from Facebook', 'custom-facebook-feed'),
 					'someFacebook' => __('Some Facebook Feed features will be limited for visitors to ensure GDPR compliance, until they give consent.', 'custom-facebook-feed'),
 					'whatLimited' => __('What will be limited?', 'custom-facebook-feed'),
@@ -1177,7 +1177,7 @@ class CFF_Global_Settings
 				),
 				'usageBox' => array(
 					'title' => __('Usage Tracking', 'custom-facebook-feed'),
-					'helpText' => __('This helps to prevent plugin and theme conflicts by sending a report in the background once per week about your settings and relevant site stats. It does not send sensitive information like access tokens, email addresses, or user info. This will also not affect your site performace. <a href="' . $usage_tracking_url . '" target="_blank">Learn More</a>', 'custom-facebook-feed'),
+					'helpText' => __('This helps to prevent plugin and theme conflicts by sending a report in the background once per week about your settings and relevant site stats. It does not send sensitive information like access tokens, email addresses, or user info. This will also not affect your site performance. <a href="' . $usage_tracking_url . '" target="_blank">Learn More</a>', 'custom-facebook-feed'),
 				),
 				'ajaxBox' => array(
 					'title' => __('AJAX theme loading fix', 'custom-facebook-feed'),
@@ -1199,7 +1199,7 @@ class CFF_Global_Settings
 					'helpText' => __('If the feed is down due to a critical issue, we will switch to a cached version and notify you based on these settings. <a href="' . $feed_issue_email_url . '" target="_blank">View Documentation</a>', 'custom-facebook-feed'),
 					'sendReport' => __('Send a report every', 'custom-facebook-feed'),
 					'to' => __('to', 'custom-facebook-feed'),
-					'placeholder' => __('Enter one or more email address separated by comma', 'custom-facebook-feed'),
+					'placeholder' => __('Enter one or more email addresses separated by comma', 'custom-facebook-feed'),
 					'weekDays' => array(
 						array(
 							'val' => 'monday',

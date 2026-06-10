@@ -38,6 +38,10 @@ class CFF_Blocks
 	public function load()
 	{
 		$this->hooks();
+
+		require_once trailingslashit( CFF_PLUGIN_DIR ) . 'inc/Admin/Blocks/CFF_Modern_Feed_Block.php';
+		$modern_block = new \CustomFacebookFeed\Admin\Blocks\CFF_Modern_Feed_Block();
+		$modern_block->register_hooks();
 	}
 
 	/**
@@ -48,16 +52,68 @@ class CFF_Blocks
 	protected function hooks()
 	{
 		add_action('init', array( $this, 'register_block' ));
-		add_action('enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ));
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 25 );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_content_assets' ) );
+		add_filter( 'block_editor_settings_all', array( $this, 'inject_iframe_styles' ) );
 
 		/*
 		* Add smashballoon category and Facebook Feed Block
 		* @since 4.1.9
 		*/
 		add_filter('block_categories_all', array( $this, 'register_block_category' ), 10, 2);
-		add_action('init', array( $this, 'register_facebook_feed_block' ));
-		add_action('enqueue_block_editor_assets', array( $this, 'enqueue_facebook_feed_block_editor_assets' ));
-		add_action('enqueue_block_editor_assets', array( $this, 'set_script_translations' ));
+	}
+
+	/**
+	 * Inject block UI and feed CSS into the WP 7.0+ iframed editor canvas.
+	 *
+	 * `block_editor_settings_all` exposes a `styles` array that WordPress renders
+	 * inline inside the iframe `<head>`. wp_enqueue_style on the outer admin page
+	 * does not propagate to the iframe for api_version 3 blocks, so we have to
+	 * push the CSS contents through this filter for it to be visible inside the
+	 * iframe (e.g. the license-expired notice rendered by get_feed_html()).
+	 *
+	 * @param array $settings Block editor settings.
+	 * @return array
+	 */
+	public function inject_iframe_styles( $settings ) {
+		// Cache the CSS payload across the request lifecycle. block_editor_settings_all
+		// fires on every block-editor request (post editor, site editor, widget editor)
+		// and the CSS bytes on disk don't change between calls, so re-reading them is
+		// wasteful disk I/O on the hottest path of the editor.
+		// TODO: also scope this by screen so we only inject when the editor could host
+		// this plugin's blocks. Scoping is intentionally skipped for now because
+		// block_editor_settings_all fires in REST contexts where get_current_screen()
+		// is unreliable, and over-scoping would re-break the iframe styling fix.
+		static $cached = null;
+
+		if ( null === $cached ) {
+			$files = array(
+				trailingslashit( CFF_PLUGIN_DIR ) . 'assets/css/cff-style.css',
+				trailingslashit( CFF_PLUGIN_DIR ) . 'assets/css/cff-blocks.css',
+			);
+
+			$cached = array();
+			foreach ( $files as $file ) {
+				if ( ! file_exists( $file ) ) {
+					continue;
+				}
+				$css = file_get_contents( $file );
+				if ( false === $css ) {
+					continue;
+				}
+				$cached[] = array( 'css' => $css );
+			}
+		}
+
+		if ( ! isset( $settings['styles'] ) || ! is_array( $settings['styles'] ) ) {
+			$settings['styles'] = array();
+		}
+
+		foreach ( $cached as $entry ) {
+			$settings['styles'][] = $entry;
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -90,10 +146,31 @@ class CFF_Blocks
 		register_block_type(
 			'cff/cff-feed-block',
 			array(
+				'api_version'     => 3,
 				'attributes'      => $attributes,
 				'render_callback' => array( $this, 'get_feed_html' ),
+				'supports'        => array( 'inserter' => false ),
 			)
 		);
+	}
+
+	/**
+	 * Enqueue feed frontend assets so the legacy block preview renders inside
+	 * the WP 6.7+ iframe block editor. Mirrors SB_Feed_Block::enqueue_block_content_assets().
+	 *
+	 * @since 4.5.0
+	 */
+	public function enqueue_block_content_assets() {
+		if ( ! is_admin() ) {
+			return;
+		}
+		\cff_main()->enqueue_styles_assets();
+		\cff_main()->enqueue_scripts_assets();
+		// Force enqueue inside the iframe editor even when the "load assets only
+		// with shortcode" option is on — the enqueue_*_assets() methods only
+		// register the handles in that case.
+		wp_enqueue_style( 'cff' );
+		wp_enqueue_script( 'cffscripts' );
 	}
 
 	/**
@@ -105,17 +182,11 @@ class CFF_Blocks
 	{
 		$access_token = get_option('cff_access_token');
 
-		\cff_main()->enqueue_styles_assets();
-		\cff_main()->enqueue_scripts_assets();
-
-		// cff_add_my_stylesheet();
-		// cff_scripts_method();
-
 		wp_enqueue_style('cff-blocks-styles');
 		wp_enqueue_script(
 			'cff-feed-block',
 			trailingslashit(CFF_PLUGIN_URL) . 'assets/js/cff-blocks.js',
-			array( 'wp-blocks', 'wp-i18n', 'wp-element' ),
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-block-editor' ),
 			CFFVER,
 			true
 		);
@@ -134,6 +205,16 @@ class CFF_Blocks
 			$shortcodeSettings = 'feed="' . (int)$_GET['cff_wizard'] . '"';
 		}
 
+		// CFF's Helpers\Util does not expose isDebugging()/is_script_debug() helpers
+		// like Instagram Feed does, so fall back to the SCRIPT_DEBUG constant.
+		$is_script_debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+
+		$cff_js_file = $is_script_debug
+			? 'assets/js/cff-scripts.js'
+			: 'assets/js/cff-scripts.min.js';
+
+		$jquery_file = 'js/jquery/jquery' . ( $is_script_debug ? '' : '.min' ) . '.js';
+
 		wp_localize_script(
 			'cff-feed-block',
 			'cff_block_editor',
@@ -143,6 +224,8 @@ class CFF_Blocks
 				'configureLink' => get_admin_url() . '?page=cff-settings',
 				'shortcodeSettings'    => $shortcodeSettings,
 				'i18n'     => $i18n,
+				'iframeScriptUrl'   => trailingslashit( CFF_PLUGIN_URL ) . $cff_js_file,
+				'jqueryUrl'         => includes_url( $jquery_file ),
 			)
 		);
 	}
