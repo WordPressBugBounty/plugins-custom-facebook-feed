@@ -26,6 +26,7 @@ use CustomFacebookFeed\Builder\CFF_Feed_Builder;
 use CustomFacebookFeed\Builder\CFF_Source;
 use CustomFacebookFeed\Admin\Traits\CFF_Settings;
 use CustomFacebookFeed\Helpers\Util;
+use CustomFacebookFeed\UsageTracking\Config as SmashTrackingConfig;
 
 
 class CFF_Global_Settings
@@ -158,7 +159,7 @@ class CFF_Global_Settings
 
 		// Get the values and sanitize
 		$cff_locale 							= sanitize_text_field($feeds['selectedLocale']);
-		$cff_style_settings 					= get_option('cff_style_settings');
+		$cff_style_settings = get_option( 'cff_style_settings', array() );
 		$cff_style_settings[ 'cff_timezone' ] 	= sanitize_text_field($feeds['selectedTimezone']);
 		$cff_style_settings[ 'cff_custom_css' ] = $feeds['customCSS'];
 		$cff_style_settings[ 'cff_custom_js' ] 	= $feeds['customJS'];
@@ -208,21 +209,29 @@ class CFF_Global_Settings
 			}
 		}
 
-		$usage_tracking = get_option('cff_usage_tracking', array( 'last_send' => 0, 'enabled' => CFF_Utils::cff_is_pro_version() ));
-		if (isset($advanced['email_notification_addresses'])) {
-			$usage_tracking['enabled'] = false;
-			if (isset($advanced['usage_tracking'])) {
-				if (! is_array($usage_tracking)) {
-					$usage_tracking = array(
-						'enabled' => true,
-						'last_send' => 0,
-					);
-				} else {
-					$usage_tracking['enabled'] = true;
-				}
+		if ( isset( $advanced['usage_tracking'] ) ) {
+			$tracking_enabled = (bool) $advanced['usage_tracking'];
+			$usage_tracking   = get_option(
+				'cff_usage_tracking',
+				array(
+					'enabled'   => SmashTrackingConfig::DEFAULT_ENABLED,
+					'last_send' => 0,
+				)
+			);
+			$last_send        = is_array( $usage_tracking ) && isset( $usage_tracking['last_send'] ) ? $usage_tracking['last_send'] : 0;
+			update_option(
+				'cff_usage_tracking',
+				array(
+					'enabled'   => $tracking_enabled,
+					'last_send' => $last_send,
+				),
+				false
+			);
+			if ( ! $tracking_enabled ) {
+				wp_clear_scheduled_hook( SmashTrackingConfig::CRON_HOOK );
 			}
-			update_option('cff_usage_tracking', $usage_tracking, false);
 		}
+
 		update_option('cff_ajax', $cff_ajax);
 
 		// Update the cff_style_settings option that contains data for translation and advanced tabs
@@ -1177,7 +1186,7 @@ class CFF_Global_Settings
 				),
 				'usageBox' => array(
 					'title' => __('Usage Tracking', 'custom-facebook-feed'),
-					'helpText' => __('This helps to prevent plugin and theme conflicts by sending a report in the background once per week about your settings and relevant site stats. It does not send sensitive information like access tokens, email addresses, or user info. This will also not affect your site performance. <a href="' . $usage_tracking_url . '" target="_blank">Learn More</a>', 'custom-facebook-feed'),
+					'helpText' => sprintf( __( 'Send a weekly report to Smash Balloon to help improve the product. No sensitive data is collected. You can disable this at any time. %s', 'custom-facebook-feed' ), '<a href="' . $usage_tracking_url . '" target="_blank">' . __( 'Learn More', 'custom-facebook-feed' ) . '</a>' ),
 				),
 				'ajaxBox' => array(
 					'title' => __('AJAX theme loading fix', 'custom-facebook-feed'),
@@ -1511,7 +1520,6 @@ class CFF_Global_Settings
 		$cff_cache_cron_interval = get_option('cff_cache_cron_interval', '12hours');
 		$cff_cache_cron_time = get_option('cff_cache_cron_time', 1);
 		$cff_cache_cron_am_pm = get_option('cff_cache_cron_am_pm', 'am');
-		$usage_tracking = get_option('cff_usage_tracking', array( 'last_send' => 0, 'enabled' => CFF_Utils::cff_is_pro_version() ));
 		$cff_ajax = get_option('cff_ajax');
 		$active_gdpr_plugin = CFF_GDPR_Integrations::gdpr_plugins_active();
 		$cff_cache_time = get_option('cff_cache_time', 1);
@@ -1606,7 +1614,7 @@ class CFF_Global_Settings
 			),
 			'advanced' => array(
 				'cff_disable_resize' => !$cff_style_settings['cff_disable_resize'],
-				'usage_tracking' => $usage_tracking['enabled'],
+				'usage_tracking' => SmashTrackingConfig::is_enabled(),
 				'cff_ajax' => $cff_ajax,
 				'cff_show_credit' => $cff_style_settings['cff_show_credit'],
 				'cff_format_issue' => $cff_style_settings['cff_format_issue'],

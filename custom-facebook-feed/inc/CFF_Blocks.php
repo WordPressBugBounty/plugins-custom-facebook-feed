@@ -53,67 +53,20 @@ class CFF_Blocks
 	{
 		add_action('init', array( $this, 'register_block' ));
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 25 );
+		// Styles enqueued on enqueue_block_assets are copied into the iframed editor
+		// canvas by core (wp_get_iframed_editor_assets), so this reaches the iframe on
+		// WP 7.0+ and the plain editor on older versions. Do NOT push raw CSS into the
+		// block_editor_settings_all `styles` array instead: entries there are treated
+		// as theme editor styles on every WP version, which suppresses core's default
+		// editor typography and drops the post title/content to the browser's serif
+		// fallback on themes that ship no editor styles.
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_content_assets' ) );
-		add_filter( 'block_editor_settings_all', array( $this, 'inject_iframe_styles' ) );
 
 		/*
 		* Add smashballoon category and Facebook Feed Block
 		* @since 4.1.9
 		*/
 		add_filter('block_categories_all', array( $this, 'register_block_category' ), 10, 2);
-	}
-
-	/**
-	 * Inject block UI and feed CSS into the WP 7.0+ iframed editor canvas.
-	 *
-	 * `block_editor_settings_all` exposes a `styles` array that WordPress renders
-	 * inline inside the iframe `<head>`. wp_enqueue_style on the outer admin page
-	 * does not propagate to the iframe for api_version 3 blocks, so we have to
-	 * push the CSS contents through this filter for it to be visible inside the
-	 * iframe (e.g. the license-expired notice rendered by get_feed_html()).
-	 *
-	 * @param array $settings Block editor settings.
-	 * @return array
-	 */
-	public function inject_iframe_styles( $settings ) {
-		// Cache the CSS payload across the request lifecycle. block_editor_settings_all
-		// fires on every block-editor request (post editor, site editor, widget editor)
-		// and the CSS bytes on disk don't change between calls, so re-reading them is
-		// wasteful disk I/O on the hottest path of the editor.
-		// TODO: also scope this by screen so we only inject when the editor could host
-		// this plugin's blocks. Scoping is intentionally skipped for now because
-		// block_editor_settings_all fires in REST contexts where get_current_screen()
-		// is unreliable, and over-scoping would re-break the iframe styling fix.
-		static $cached = null;
-
-		if ( null === $cached ) {
-			$files = array(
-				trailingslashit( CFF_PLUGIN_DIR ) . 'assets/css/cff-style.css',
-				trailingslashit( CFF_PLUGIN_DIR ) . 'assets/css/cff-blocks.css',
-			);
-
-			$cached = array();
-			foreach ( $files as $file ) {
-				if ( ! file_exists( $file ) ) {
-					continue;
-				}
-				$css = file_get_contents( $file );
-				if ( false === $css ) {
-					continue;
-				}
-				$cached[] = array( 'css' => $css );
-			}
-		}
-
-		if ( ! isset( $settings['styles'] ) || ! is_array( $settings['styles'] ) ) {
-			$settings['styles'] = array();
-		}
-
-		foreach ( $cached as $entry ) {
-			$settings['styles'][] = $entry;
-		}
-
-		return $settings;
 	}
 
 	/**
@@ -171,6 +124,16 @@ class CFF_Blocks
 		// register the handles in that case.
 		wp_enqueue_style( 'cff' );
 		wp_enqueue_script( 'cffscripts' );
+		// Block UI rules (placeholder/settings form rendered inside the block) need
+		// to reach the iframed canvas too. Use a dedicated handle instead of the
+		// 'cff-blocks-styles' one registered for the outer editor page — that handle
+		// depends on wp-edit-blocks, which core already provides in the canvas.
+		wp_enqueue_style(
+			'cff-blocks-content',
+			trailingslashit( CFF_PLUGIN_URL ) . 'assets/css/cff-blocks.css',
+			array(),
+			CFFVER
+		);
 	}
 
 	/**

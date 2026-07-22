@@ -972,39 +972,6 @@ jQuery(document).ready(function($) {
 		jQuery('#wpcontent').css('padding', 0);
 	}
 
-	$('.cff-opt-in').on('click', function(event) {
-		event.preventDefault();
-
-		var $btn = jQuery(this);
-		$btn.prop( 'disabled', true ).addClass( 'loading' ).html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
-
-		cffSubmitOptIn(true);
-	}); // clear_comment_cache click
-
-	$('.cff-no-usage-opt-out').on('click', function(event) {
-		event.preventDefault();
-
-		var $btn = jQuery(this);
-		$btn.prop( 'disabled', true ).addClass( 'loading' ).html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
-
-		cffSubmitOptIn(false);
-	}); // clear_comment_cache click
-
-	function cffSubmitOptIn(choice) {
-		$.ajax({
-			url : cffA.ajax_url,
-			type : 'post',
-			data : {
-				action : 'cff_usage_opt_in_or_out',
-				opted_in: choice,
-				cff_nonce: cffA.cff_nonce
-			},
-			success : function(data) {
-				$('.cff-no-usage-opt-out').closest('.cff-usage-tracking-notice').fadeOut();
-			}
-		}); // ajax call
-	}
-
 	//Click event for other plugins in menu
     $('.cff_get_sbr, .cff_get_sbi, .cff_get_cff, .cff_get_ctf, .cff_get_yt, .cff_get_tiktok').parent().on('click', function(e){
         e.preventDefault();

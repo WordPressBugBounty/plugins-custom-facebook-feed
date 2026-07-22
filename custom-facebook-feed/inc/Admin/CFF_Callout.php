@@ -278,18 +278,6 @@ class CFF_Callout
 	}
 
 	/**
-	 * Open Link
-	 *
-	 * @return string
-	 *
-	 * @since X.X
-	 */
-	public static function js_open_link($url, $target = "_blank")
-	{
-		return 'onclick=" window.open(\'' . $url . '\', \'' . $target . '\'); event.preventDefault();" ';
-	}
-
-	/**
 	 * Print the Callout
 	 *
 	 * @since X.X
@@ -315,8 +303,10 @@ class CFF_Callout
 		}
 		$process_percent = $process === 0 ? 0 : intval(100 / (sizeof($plugins_list) / $process));
 
+		// SMASH-1672: use a trusted, explicit admin base instead of letting
+		// add_query_arg() fall back to the attacker-controlled $_SERVER['REQUEST_URI'].
 		$dismiss_callout = wp_nonce_url(
-			add_query_arg(['sb_dismiss' => 'callout']),
+			add_query_arg( array( 'sb_dismiss' => 'callout' ), admin_url( 'index.php' ) ),
 			'sb-callout',
 			'sb_nonce'
 		);
@@ -325,12 +315,12 @@ class CFF_Callout
 		<div class="sb-callout-ctn" data-type="<?php echo $type ?>">
 			<div class="sb-callout-top sb-fs">
 				<div class="sb-callout-top-heading">
-					<svg width="16" height="17" viewBox="0 0 16 17" fill="none">
+					<svg width="16" height="17" viewBox="0 0 16 17" fill="none" aria-hidden="true" focusable="false">
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M7.908 0.5C11.2231 0.5 13.9095 3.82243 13.9095 7.92084C13.9095 11.7725 11.5374 14.9377 8.50226 15.3061L9.23157 16.1975L7.1529 16.3743L7.48441 15.3245C4.36702 15.0556 1.90527 11.8498 1.90527 7.92084C1.90527 3.82243 4.59293 0.5 7.908 0.5ZM9.62864 6.08918L9.3398 3.10897L7.49633 5.42022L4.85195 3.91264L5.62324 6.66616L2.82813 7.56509L5.43923 8.88209L4.40933 11.6475L7.08659 10.4207L8.41253 13.0003L9.2858 10.1197L12.1663 10.6611L10.4565 8.18805L12.6214 6.17515L9.62864 6.08918Z" fill="#FE544F"/>
 					</svg>
 					<strong>
 						<span class="sb-callout-only-visible">
-							<svg width="13" height="14" viewBox="0 0 13 14" fill="none">
+							<svg width="13" height="14" viewBox="0 0 13 14" fill="none" aria-hidden="true" focusable="false">
 								<path d="M6.49984 5.375C6.06886 5.375 5.65553 5.5462 5.35079 5.85095C5.04604 6.1557 4.87484 6.56902 4.87484 7C4.87484 7.43098 5.04604 7.8443 5.35079 8.14905C5.65553 8.4538 6.06886 8.625 6.49984 8.625C6.93081 8.625 7.34414 8.4538 7.64889 8.14905C7.95363 7.8443 8.12484 7.43098 8.12484 7C8.12484 6.56902 7.95363 6.1557 7.64889 5.85095C7.34414 5.5462 6.93081 5.375 6.49984 5.375ZM6.49984 9.70833C5.78154 9.70833 5.09267 9.42299 4.58476 8.91508C4.07685 8.40717 3.7915 7.71829 3.7915 7C3.7915 6.28171 4.07685 5.59283 4.58476 5.08492C5.09267 4.57701 5.78154 4.29167 6.49984 4.29167C7.21813 4.29167 7.90701 4.57701 8.41492 5.08492C8.92283 5.59283 9.20817 6.28171 9.20817 7C9.20817 7.71829 8.92283 8.40717 8.41492 8.91508C7.90701 9.42299 7.21813 9.70833 6.49984 9.70833ZM6.49984 2.9375C3.7915 2.9375 1.47859 4.62208 0.541504 7C1.47859 9.37792 3.7915 11.0625 6.49984 11.0625C9.20817 11.0625 11.5211 9.37792 12.4582 7C11.5211 4.62208 9.20817 2.9375 6.49984 2.9375Z" fill="#0068A0"/>
 							</svg>
 							<?php echo __('Only Visible to you', 'custom-facebook-feed') ?>
@@ -338,7 +328,7 @@ class CFF_Callout
 						<span class="sb-fs"><?php echo __('Smash Balloon Feeds', 'custom-facebook-feed') ?></span>
 					</strong>
 				</div>
-				<span <?php echo self::js_open_link(esc_url($dismiss_callout), '_self') ?> class="sb-callout-top-dismiss"></span>
+				<a href="<?php echo esc_url( $dismiss_callout ); ?>" class="sb-callout-top-dismiss" aria-label="<?php echo esc_attr__( 'Dismiss', 'custom-facebook-feed' ); ?>"></a>
 			</div>
 			<div class="sb-callout-progress sb-fs">
 				<div
@@ -348,7 +338,7 @@ class CFF_Callout
 					<span>
 						<?php echo esc_attr($process_percent); ?>%
 					</span>
-					<svg width="71" height="71" viewBox="0 0 71 71" class="sb-progress-svg">
+					<svg width="71" height="71" viewBox="0 0 71 71" class="sb-progress-svg" aria-hidden="true" focusable="false">
 						<circle class="sb-progress-svg-bg"></circle>
 						<circle class="sb-progress-svg-fg"></circle>
 					</svg>
@@ -366,9 +356,9 @@ class CFF_Callout
 							<?php echo ($key === 'facebook' ? __('Create an', 'custom-facebook-feed') : __('Create a', 'custom-facebook-feed')) . ' ' . ucfirst($key) . ' ' . __('Feed', 'custom-facebook-feed')  ?>
 						</span>
 						<?php if (sizeof($plugins_list) === 1) { ?>
-							<span <?php echo self::js_open_link(esc_url(admin_url('admin.php?page=' . $plugin['page']))) ?> class="sb-callout-item-btn">
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $plugin['page'] ) ); ?>" target="_blank" rel="noopener noreferrer" class="sb-callout-item-btn">
 								<?php echo __('Go to Plugin', 'custom-facebook-feed') ?>
-							</span>
+							</a>
 						<?php } ?>
 					</div>
 				<?php } ?>
@@ -377,12 +367,12 @@ class CFF_Callout
 					$next_p = self::next_plugin($plugins_list);
 					?>
 					<div class="sb-callout-bottom-btns sb-fs">
-						<span  <?php echo self::js_open_link(esc_url(admin_url('admin.php?page=' . $plugins_list[$next_p]['page']))) ?> class="sb-callout-item-btn">
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $plugins_list[ $next_p ]['page'] ) ); ?>" target="_blank" rel="noopener noreferrer" class="sb-callout-item-btn">
 							<?php echo __('Go to', 'custom-facebook-feed') . ' ' . ucfirst($next_p) . ' ' . __('Plugin', 'custom-facebook-feed') ?>
-						</span>
-						<span <?php echo self::js_open_link(esc_url($dismiss_callout), '_self') ?> class="sb-callout-item-btn sb-callout-item-btn-grey">
+						</a>
+						<a href="<?php echo esc_url( $dismiss_callout ); ?>" class="sb-callout-item-btn sb-callout-item-btn-grey">
 							<?php echo __('Skip this step', 'custom-facebook-feed') ?>
-						</span>
+						</a>
 					</div>
 				<?php } ?>
 			</div>

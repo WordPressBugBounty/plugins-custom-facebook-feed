@@ -4,7 +4,7 @@ Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 4.8.1
+Stable tag: 4.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,10 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.9.0 =
+* Fix: Prevented block editor typography from reverting to serif fonts when the Facebook feed block is active.
+* Fix: Plugin security hardening.
+
 = 4.8.1 =
 * New: Added a modern Gutenberg block and Elementor widget for the Facebook feed. Existing feeds using the legacy block continue to render without reconfiguration.
 * New: Added a Help widget to the feed builder for in-app access to documentation and support.

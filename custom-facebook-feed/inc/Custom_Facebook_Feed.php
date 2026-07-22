@@ -18,7 +18,6 @@ use CustomFacebookFeed\SB_Facebook_Data_Manager;
 use CustomFacebookFeed\Admin\CFF_Admin;
 use CustomFacebookFeed\Admin\CFF_New_User;
 use CustomFacebookFeed\Admin\CFF_Notifications;
-use CustomFacebookFeed\Admin\CFF_Tracking;
 use CustomFacebookFeed\Builder\CFF_Feed_Builder;
 use CustomFacebookFeed\Admin\CFF_Global_Settings;
 use CustomFacebookFeed\Admin\CFF_oEmbeds;
@@ -131,18 +130,6 @@ final class Custom_Facebook_Feed
 	 * @var CFF_Oembed
 	 */
 	public $cff_oembed;
-
-	/**
-	 * CFF_Tracking.
-	 *
-	 * Tracking System.
-	 *
-	 * @since 2.19
-	 * @access public
-	 *
-	 * @var CFF_Tracking
-	 */
-	public $cff_tracking;
 
 	/**
 	 * CFF_Shortcode.
@@ -316,6 +303,16 @@ final class Custom_Facebook_Feed
 	 * @var \CustomFacebookFeed\Integrations\Divi\CFF_Divi_Handler
 	 */
 	public $cff_divi_handler;
+
+	/**
+	 * Smash Usage Tracking (extended).
+	 *
+	 * @since 4.8.1
+	 * @access public
+	 *
+	 * @var \CustomFacebookFeed\UsageTracking\SmashUsageTracking
+	 */
+	public $smash_usage_tracking;
 	/**
 	 * Custom_Facebook_Feed Instance.
 	 *
@@ -389,7 +386,7 @@ final class Custom_Facebook_Feed
 	public function init()
 	{
 		// Load Composer Autoload
-		$this->cff_tracking 				= new CFF_Tracking();
+		$this->smash_usage_tracking = new \CustomFacebookFeed\UsageTracking\SmashUsageTracking();
 		$this->cff_oembed 					= new CFF_Oembed();
 		$this->cff_error_reporter			= new CFF_Error_Reporter();
 		$this->cff_admin 					= new CFF_Admin();
@@ -790,10 +787,14 @@ final class Custom_Facebook_Feed
 		if (! wp_next_scheduled('cff_feed_issue_email')) {
 			CFF_Utils::cff_schedule_report_email();
 		}
-		// set usage tracking to false if fresh install.
+		// set usage tracking to false if fresh install. Skip when the Pro plugin is active: it shares
+		// this option and defaults tracking on, so seeding a disabled record here would silently turn it off.
 		$usage_tracking = get_option('cff_usage_tracking', false);
+		$cff_network_active = is_multisite() ? (array) get_site_option( 'active_sitewide_plugins', array() ) : array();
+		$cff_pro_active = in_array( 'custom-facebook-feed-pro/custom-facebook-feed.php', (array) get_option( 'active_plugins', array() ), true )
+			|| isset( $cff_network_active['custom-facebook-feed-pro/custom-facebook-feed.php'] );
 
-		if (! is_array($usage_tracking)) {
+		if ( ! is_array( $usage_tracking ) && ! $cff_pro_active ) {
 			$usage_tracking = array(
 				'enabled' => false,
 				'last_send' => 0
@@ -875,6 +876,7 @@ final class Custom_Facebook_Feed
 		wp_clear_scheduled_hook('cff_notification_update');
 		wp_clear_scheduled_hook('cff_feed_issue_email');
 		wp_clear_scheduled_hook('cff_usage_tracking_cron');
+		wp_clear_scheduled_hook( \CustomFacebookFeed\UsageTracking\Config::CRON_HOOK );
 	}
 
 
@@ -915,7 +917,22 @@ final class Custom_Facebook_Feed
 		delete_option('cff_style_settings');
 
 		delete_option('cff_usage_tracking_config');
-		delete_option('cff_usage_tracking');
+		// Usage-tracking consent, site token and telemetry are shared with the Pro plugin. Only remove
+		// them when Pro is not active, otherwise deleting the free plugin would reset Pro's consent.
+		$cff_network_active = is_multisite() ? (array) get_site_option( 'active_sitewide_plugins', array() ) : array();
+		$cff_pro_active = in_array( 'custom-facebook-feed-pro/custom-facebook-feed.php', (array) get_option( 'active_plugins', array() ), true )
+			|| isset( $cff_network_active['custom-facebook-feed-pro/custom-facebook-feed.php'] );
+		if ( ! $cff_pro_active ) {
+			delete_option( 'cff_usage_tracking' );
+			delete_option( 'cff_smash_usage_tracking' );
+			delete_option( 'cff_smash_usage_tracking_site_token' );
+			delete_option( 'cff_smash_usage_tracking_schedule' );
+			delete_option( 'cff_smash_usage_events' );
+			delete_option( 'cff_smash_usage_active_dates' );
+			delete_option( 'cff_smash_usage_session_durations' );
+		}
+		wp_clear_scheduled_hook( 'cff_usage_tracking_cron' );
+		wp_clear_scheduled_hook( \CustomFacebookFeed\UsageTracking\Config::CRON_HOOK );
 
 		delete_option('cff_statuses');
 		delete_option('cff_rating_notice');

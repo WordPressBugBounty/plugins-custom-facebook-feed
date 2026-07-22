@@ -435,6 +435,7 @@ cffBuilder = new Vue({
 
 		if(cffStorage?.setCurrentStep !== undefined){
 			self.currentOnboardingWizardStep = 1;
+			self.recordUsageEvent( 'setup_wizard_started' );
 			cffStorage.removeItem("setCurrentStep");
 		}
 
@@ -3104,6 +3105,7 @@ cffBuilder = new Vue({
 
 			if( self.currentOnboardingWizardStep <  self.onboardingWizardContent.steps.length ){
 				self.currentOnboardingWizardStep +=1;
+				self.recordUsageEvent( 'setup_wizard_step_completed' );
 			}
 		},
 
@@ -3138,6 +3140,7 @@ cffBuilder = new Vue({
 			} )
 			setTimeout(function(){
 				self.onboardingWizardDone = 'true';
+				self.recordUsageEvent( 'setup_wizard_completed' );
 			}, 100)
 			cffBuilder.$forceUpdate();
 		},
@@ -3235,7 +3238,14 @@ cffBuilder = new Vue({
 				});
 		},
 
+		recordUsageEvent : function( eventName ) {
+			if ( typeof window.cffSmashUsageRecordEvent === 'function' ) {
+				window.cffSmashUsageRecordEvent( eventName );
+			}
+		},
+
 		dismissOnboardingWizard : function(){
+			this.recordUsageEvent( 'setup_wizard_abandoned' );
 			const self = this,
 				dismissWizardData = {
 					action: 'cff_feed_saver_manager_dismiss_wizard'

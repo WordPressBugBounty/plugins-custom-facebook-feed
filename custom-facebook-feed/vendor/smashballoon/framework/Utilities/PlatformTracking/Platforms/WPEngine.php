@@ -16,7 +16,7 @@ class WPEngine implements PlatformInterface
      */
     public function filter_sb_hosting_platform($platform)
     {
-        if (method_exists('FacebookFeed\Vendor\WpeCommon', 'get_wpe_auth_cookie_value') && !empty(\FacebookFeed\Vendor\WpeCommon::get_wpe_auth_cookie_value())) {
+        if (method_exists('WpeCommon', 'get_wpe_auth_cookie_value') && !empty(\WpeCommon::get_wpe_auth_cookie_value())) {
             $platform = 'wpengine';
         }
         return $platform;
