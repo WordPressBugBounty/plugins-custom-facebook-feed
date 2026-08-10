@@ -21,7 +21,10 @@ $cff_link_desc_styles_html  = $this_class->get_style_attribute('shared_desclink'
 $cff_link_caption 			= CFF_Shortcode_Display::get_shared_link_caption($news);
 $cff_link_title_format 		= CFF_Shortcode_Display::get_shared_link_title_format($atts);
 $cff_link_title_styles 		= CFF_Shortcode_Display::get_shared_link_title_styles($atts);
-$cff_link_title_color 		= str_replace('#', '', $atts[ 'linktitlecolor' ]);
+// Constrain to a hex colour at the source (mirrors the textlinkcolor guard in
+// CFF_Shortcode.php) — this value feeds a style="..." attribute below.
+$cff_link_title_color_raw = ltrim( (string) $atts['linktitlecolor'], '#' );
+$cff_link_title_color     = preg_match( '/^[0-9a-fA-F]{3,8}$/', $cff_link_title_color_raw ) ? $cff_link_title_color_raw : '';
 
 
 if ($cff_post_type == 'link' || $cff_soundcloud || $cff_is_video_embed) :
@@ -31,7 +34,7 @@ if ($cff_post_type == 'link' || $cff_soundcloud || $cff_is_video_embed) :
 	<div class="cff-text-link cff-no-image">
 		<?php if (isset($news->name)) : ?>
 			<<?php echo $cff_link_title_format ?> class="cff-link-title" <?php echo $cff_link_title_styles; ?>>
-				<a href="<?php echo esc_url($link) ?>" <?php echo $target . ' ' . $cff_nofollow_referrer; ?> style="color:#<?php echo $cff_link_title_color; ?>;"><?php echo $news->name; ?></a>
+				<a href="<?php echo esc_url( $link ); ?>" <?php echo $target . ' ' . $cff_nofollow_referrer; ?> style="color:#<?php echo esc_attr( $cff_link_title_color ); ?>;"><?php echo esc_html( $news->name ); ?></a><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $target and $cff_nofollow_referrer are internally-built literal attribute strings (target="..." / rel="..."), not data. ?>
 			</<?php echo $cff_link_title_format ?>>
 		<?php endif; ?>
 

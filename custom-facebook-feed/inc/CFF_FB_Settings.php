@@ -488,6 +488,11 @@ class CFF_FB_Settings
 
 		$legacy_settings_with_updated_defaults = wp_parse_args($options, \CustomFacebookFeed\Builder\CFF_Feed_Saver::settings_defaults());
 
+		// Constrain the merge to recognized setting keys only — arbitrary or
+		// unexpected attribute names must never be merged into the settings that feed
+		// markup-shaping sinks.
+		$shortcode_atts = array_intersect_key( (array) $shortcode_atts, $legacy_settings_with_updated_defaults );
+
 		$legacy_settings = wp_parse_args($shortcode_atts, $legacy_settings_with_updated_defaults);
 		$legacy_settings['id'] = ! empty($legacy_settings['account']) ? $legacy_settings['account'] : $legacy_settings['id'];
 

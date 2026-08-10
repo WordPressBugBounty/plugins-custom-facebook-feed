@@ -13,6 +13,7 @@ var oembeds_data = {
     isIntagramActivated: cff_oembeds.instagram.active,
     instagramInstallBtnText: null,
     fboEmbedLoader: false,
+    fboEmbedError: null,
     instaoEmbedLoader: false,
     openInstaInstaller: false,
     loaderSVG: cff_oembeds.loaderSVG,
@@ -83,6 +84,7 @@ var cffoEmbeds = new Vue({
         },
         enableFboEmbed: function() {
             this.fboEmbedLoader = true;
+            this.fboEmbedError = null;
 
             let oembedConnectUrl = this.connectionURL.connect,
             appendURL = this.connectionURL.stateURL;
@@ -106,7 +108,33 @@ var cffoEmbeds = new Vue({
                 }
             }
             document.body.appendChild(form);
-            form.submit();
+
+            // Record that this user started a connect before leaving the site. The connect
+            // service returns no parameters of ours, so this marker is what authorises the
+            // inbound cff_access_token in CFF_oEmbeds::processCffOembedAccessToken().
+            let initData = new FormData();
+            initData.append( 'action', 'cff_oembed_connect_init' );
+            initData.append( 'nonce', this.nonce );
+            fetch(cff_oembeds.ajax_handler, {
+                method: "POST",
+                credentials: 'same-origin',
+                body: initData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if ( ! data || ! data.success ) {
+                    throw new Error( 'connect marker was not set' );
+                }
+                form.submit();
+            })
+            .catch(err => {
+                // Do not submit. Without the marker the token is refused on return, so the
+                // user would complete the whole Facebook flow only to land back here with
+                // nothing enabled and no explanation.
+                console.error( 'CFF: could not record oEmbed connect start', err );
+                this.fboEmbedLoader = false;
+                this.fboEmbedError = this.genericText.connectError;
+            });
         },
         enableInstagramOembed: function() {
             this.instaoEmbedLoader = true;

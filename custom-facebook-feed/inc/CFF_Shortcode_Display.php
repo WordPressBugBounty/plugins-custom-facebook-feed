@@ -384,7 +384,10 @@ class CFF_Shortcode_Display
 	 */
 	public static function get_author_name($news)
 	{
-		return isset($news->from->name) ? str_replace('"', "", $news->from->name) : '';
+		// Entity-encode the Facebook-sourced author display name — it is echoed into
+		// element content with no further escaping at the template sink, so this
+		// getter is the safe boundary.
+		return isset( $news->from->name ) ? str_replace( '"', '', htmlentities( $news->from->name, ENT_QUOTES, 'UTF-8' ) ) : '';
 	}
 
 	public static function get_author_link_atts($news, $target, $cff_nofollow, $cff_author_styles)
@@ -622,7 +625,7 @@ class CFF_Shortcode_Display
 			// Add the button to the post if the text isn't "NO_BUTTON"
 			if ($cff_button_type != 'NO_BUTTON') :
 				?>
-				<p class="cff-cta-link" <?php echo $cff_title_styles ?>><a href="<?php echo esc_url($cff_cta_link) ?>" target="_blank" data-app-link="<?php echo $cff_app_link ?>" style="color: #<?php echo $cff_posttext_link_color ?>;" <?php echo $cff_nofollow_referrer ?> ><?php echo $cff_cta_button_text ?></a></p>
+				<p class="cff-cta-link" <?php echo $cff_title_styles; ?>><a href="<?php echo esc_url( $cff_cta_link ); ?>" target="_blank" data-app-link="<?php echo esc_url( $cff_app_link ); ?>" style="color: #<?php echo esc_attr( $cff_posttext_link_color ); ?>;" <?php echo $cff_nofollow_referrer; ?> ><?php echo esc_html( $cff_cta_button_text ); ?></a></p><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $cff_title_styles and $cff_nofollow_referrer are internally-built attribute strings (style="..." / rel="..."), not data; escaping them would emit the markup literally. ?>
 				<?php
 			endif;
 		}
@@ -652,12 +655,16 @@ class CFF_Shortcode_Display
 
 	public static function get_shared_link_title_format($atts)
 	{
-		return ( empty($atts[ 'linktitleformat' ]) ) ? 'p' : $atts[ 'linktitleformat' ];
+		// Allow-list the tag name; fall back to a safe default.
+		$cff_link_title_tag          = empty( $atts['linktitleformat'] ) ? 'p' : sanitize_key( $atts['linktitleformat'] );
+		$cff_allowed_link_title_tags = array( 'p', 'span', 'div', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a' );
+		return in_array( $cff_link_title_tag, $cff_allowed_link_title_tags, true ) ? $cff_link_title_tag : 'p';
 	}
 
 	public static function get_shared_link_title_styles($atts)
 	{
-		return ( !empty($atts[ 'linktitlesize' ]) && $atts[ 'linktitlesize' ] != 'inherit' ) ? 'style="font-size:' . $atts[ 'linktitlesize' ] . 'px;"' : '';
+		// Cast to (int) before concatenating into the style="..." attribute below.
+		return ( ! empty( $atts['linktitlesize'] ) && 'inherit' !== $atts['linktitlesize'] ) ? 'style="font-size:' . (int) $atts['linktitlesize'] . 'px;"' : '';
 	}
 
 

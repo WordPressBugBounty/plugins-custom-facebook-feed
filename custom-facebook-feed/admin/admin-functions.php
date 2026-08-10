@@ -587,6 +587,10 @@ function cffGetOembedConnectionUrl()
 		$admin_url_state = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 
+	// Mirrors CFF_oEmbeds::get_connection_url() — carries the same nonce so
+	// processCffOembedAccessToken() accepts this round-trip too.
+	$admin_url_state = add_query_arg( 'cff_oembed_nonce', wp_create_nonce( 'cff_oembed_connect' ), $admin_url_state );
+
 	return array(
 		'connect' => CFF_OEMBED_CONNECT_URL,
 		'cff_con' => $nonce,

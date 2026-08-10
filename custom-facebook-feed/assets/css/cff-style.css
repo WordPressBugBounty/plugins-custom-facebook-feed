@@ -374,7 +374,7 @@
 }
 
 #cff .cff-author .cff-story {
-    font-weight: 400;
+    font-weight: 400 !important;
 }
 
 #cff.cff-default-styles .cff-author a {
@@ -410,10 +410,12 @@
     line-height: 1.2;
 }
 
-#cff .cff-author .cff-date {
+#cff .cff-author .cff-date,
+#cff-lightbox-wrapper .cff-author .cff-date {
     color: #9197a3;
+    font-weight: 400;
     font-size: 11px;
-    margin-top: 2px !important;
+    margin-top: 1px !important;
     margin-bottom: 0 !important;
 }
 

@@ -50,6 +50,7 @@ class CFF_oEmbeds
 
 		add_action('admin_menu', [$this, 'register_menu']);
 
+		add_action( 'wp_ajax_cff_oembed_connect_init', array( $this, 'oembed_connect_init' ) );
 		add_action('wp_ajax_disable_facebook_oembed', [$this, 'disable_facebook_oembed']);
 		add_action('wp_ajax_disable_instagram_oembed', [$this, 'disable_instagram_oembed']);
 	}
@@ -74,6 +75,42 @@ class CFF_oEmbeds
 			2
 		);
 		add_action('load-' . $oembeds_manager, [$this,'oembeds_enqueue_admin_scripts']);
+	}
+
+	/**
+	 * Marks an oEmbed connect as started for the current user.
+	 *
+	 * The external connect service redirects back with cff_access_token on a plain page
+	 * load and does not carry any of our query parameters through, so there is no nonce on
+	 * the inbound request to verify. This one-shot, short-lived, per-user marker stands in
+	 * for the OAuth "state" value: only a real click on Connect (an authenticated,
+	 * nonce-checked, same-origin POST) can set it, so a cross-site GET carrying an
+	 * attacker's token has nothing to consume. processCffOembedAccessToken() deletes it on use.
+	 *
+	 * @since 4.9.1
+	 *
+	 * @return void
+	 */
+	public function oembed_connect_init() {
+		// Same gate as the sibling disable_*_oembed handlers: wp_die()s on either a bad
+		// nonce or an insufficient capability, rather than returning a 200 with an error
+		// payload. The caller treats any non-success response as a failed init.
+		\CustomFacebookFeed\Builder\CFF_Feed_Builder::check_privilege( 'nonce' );
+
+		set_transient( self::connect_pending_key(), 1, 15 * MINUTE_IN_SECONDS );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Transient key holding the "connect started" marker for the current user.
+	 *
+	 * @since 4.9.1
+	 *
+	 * @return string
+	 */
+	private static function connect_pending_key() {
+		return 'cff_oembed_connect_pending_' . get_current_user_id();
 	}
 
 	/**
@@ -191,6 +228,7 @@ class CFF_oEmbeds
 				'instagramOEmbeds' => __('Instagram oEmbeds are currently not being handled by Smash Balloon', 'custom-facebook-feed'),
 				'instagramOEmbedsEnabled' => __('Instagram oEmbeds are turned on', 'custom-facebook-feed'),
 				'enable' => __('Enable', 'custom-facebook-feed'),
+				'connectError'           => __( 'Could not start the connection. Please reload this page and try again.', 'custom-facebook-feed' ),
 				'disable' => __('Disable', 'custom-facebook-feed'),
 				'whatAreOembeds' => __('What are oEmbeds?', 'custom-facebook-feed'),
 				'whatElseOembeds' => __('What else can the Custom Facebook Feed plugin do?', 'custom-facebook-feed'),
@@ -278,6 +316,11 @@ class CFF_oEmbeds
 		if ($admin_url_state === '/wp-admin/admin.php?page=cff-oembeds-manager') {
 			$admin_url_state = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 		}
+		// Carry a dedicated nonce on the return URL where the connect service preserves the
+		// state query string. processCffOembedAccessToken() verifies this nonce — or the
+		// cff_con nonce POSTed below — before accepting cff_access_token, and falls back to
+		// the one-shot connect marker when the service returns neither.
+		$admin_url_state = add_query_arg( 'cff_oembed_nonce', wp_create_nonce( 'cff_oembed_connect' ), $admin_url_state );
 		return array(
 			'connect' => CFF_OEMBED_CONNECT_URL,
 			'cff_con' => $nonce,
@@ -333,6 +376,27 @@ class CFF_oEmbeds
 	{
 		global $cff_notices;
 		$return = [];
+
+		// Never accept cff_access_token from an unsolicited request. The connect service
+		// returns none of our parameters, so authorise on the one-shot marker that
+		// oembed_connect_init() sets when this user actually clicks Connect. A nonce is
+		// still honoured first for any return URL that does preserve the query string.
+		$oembed_nonce  = isset( $_GET['cff_oembed_nonce'] ) ? sanitize_key( wp_unslash( $_GET['cff_oembed_nonce'] ) ) : '';
+		$connect_nonce = isset( $_GET['cff_con'] ) ? sanitize_key( wp_unslash( $_GET['cff_con'] ) ) : '';
+
+		$has_valid_nonce = wp_verify_nonce( $oembed_nonce, 'cff_oembed_connect' )
+			|| wp_verify_nonce( $connect_nonce, 'cff_con' );
+
+		if ( ! $has_valid_nonce ) {
+			$pending_key = self::connect_pending_key();
+			if ( ! get_transient( $pending_key ) ) {
+				$return['error'] = 'Invalid Nonce';
+				return $return;
+			}
+			// One shot: a replay of the same URL is rejected.
+			delete_transient( $pending_key );
+		}
+
 		$access_token = $_GET['cff_access_token'];
 
 		$valid_new_access_token = !empty($access_token) && strlen($access_token) > 20 && $saved_access_token_data !== $access_token ?

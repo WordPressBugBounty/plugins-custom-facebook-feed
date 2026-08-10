@@ -441,7 +441,10 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 		}
 
 		// See Less text
-		$cff_posttext_link_color = str_replace('#', '', $this->atts['textlinkcolor']);
+		// Constrain to a hex colour at the source — this value feeds multiple
+		// style="..." attributes below.
+		$cff_posttext_link_color_raw = ltrim( (string) $this->atts['textlinkcolor'], '#' );
+		$cff_posttext_link_color     = preg_match( '/^[0-9a-fA-F]{3,8}$/', $cff_posttext_link_color_raw ) ? $cff_posttext_link_color_raw : '';
 		$cff_title_link = CFF_Utils::check_if_on($this->atts['textlink']);
 
 		// Description Style
@@ -1146,7 +1149,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 			$cff_content .= CFF_Utils::print_template_part('credit', get_defined_vars());
 
 		// End the feed
-			$cff_content .= '<input class="cff-pag-url" type="hidden" data-locatornonce="' . esc_attr(wp_create_nonce('cff-locator-nonce-' . get_the_ID())) . '" data-cff-shortcode="' . $data_att_html . '" data-post-id="' . get_the_ID() . '" data-feed-id="' . $atts['id'] . '">';
+			$cff_content .= '<input class="cff-pag-url" type="hidden" data-locatornonce="' . esc_attr( wp_create_nonce( 'cff-locator-nonce-' . get_the_ID() ) ) . '" data-cff-shortcode="' . $data_att_html . '" data-post-id="' . get_the_ID() . '" data-feed-id="' . esc_attr( $atts['id'] ) . '">';
 			$cff_content .= '</div></div><div class="cff-clear"></div>';
 
 			// Add the Like Box outside

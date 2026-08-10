@@ -33,6 +33,7 @@
 						{{genericText.enable}}
 					</button>
 				</span>
+				<span class="cff-oembed-error" v-if="fboEmbedError">{{fboEmbedError}}</span>
 			</div>
 			<div class="cff-oembed-plugin-box cff-oembed-instagram">
 				<span class="oembed-icon" v-html="images.instaIcon"></span>

@@ -1171,7 +1171,22 @@ jQuery(document).ready(function($) {
     }
 
     document.body.appendChild(form);
-    form.submit();
+
+    // Same one-shot marker the oEmbeds page sets: the connect service returns none of our
+    // parameters, so without it the returned token is refused on return. Only leave the site
+    // once the marker is recorded, or the whole Facebook round-trip is wasted.
+    $.post( cff_admin.ajax_url, {
+      action: 'cff_oembed_connect_init',
+      nonce: cff_admin.nonce
+    } ).done( function( res ) {
+      if ( res && res.success ) {
+        form.submit();
+      } else {
+        console.error( 'CFF: could not record oEmbed connect start', res );
+      }
+    } ).fail( function( err ) {
+      console.error( 'CFF: could not record oEmbed connect start', err );
+    } );
   });
 
   $(document).on('click', '#oembed_api_change_reconnect .cff-notice-dismiss', function(e) {
