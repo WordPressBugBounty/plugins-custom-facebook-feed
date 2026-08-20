@@ -5,13 +5,13 @@
 			<span class="sb-caption sb-lighter">{{selectSourceScreen.description}}</span>
 		</div>
 		<div class="cff-fb-srcslist-ctn cff-fb-fs">
-			<div class="cff-fb-srcs-item cff-fb-srcs-new" @click.prevent.default="activateView('sourcePopup','creationRedirect')">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<div class="cff-fb-srcs-item cff-fb-srcs-new" role="button" tabindex="0" :aria-label="genericText.addNew" @click.prevent.default="activateView('sourcePopup','creationRedirect')" @keydown.enter.prevent.default="activateView('sourcePopup','creationRedirect')" @keydown.space.prevent.default="activateView('sourcePopup','creationRedirect')">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                     <path d="M9.66634 5.66634H5.66634V9.66634H4.33301V5.66634H0.333008V4.33301H4.33301V0.333008H5.66634V4.33301H9.66634V5.66634Z" fill="#0096CC"/>
                 </svg>
                 <span class="sb-small-p sb-bold">{{genericText.addNew}}</span>
 			</div>
-			<div :class="checkSourceForEvents(source) || checkTypeForGroup(source) ? ' cff-fb-onbrd-tltp-parent cff-fb-onbrd-tltp-center-top cff-fb-onbrd-tltp-hover ' : ''" class="cff-fb-srcs-item" v-for="(source, sourceIndex) in sourcesList" :data-lastitem="(sourceIndex - 1) % 3 === 0 ? 'last' : false" @click.prevent.default="selectSource(source)" :data-type="source.account_type" :data-active="isSourceSelectActive(source)" :data-disabled="checkSourceForEvents(source) || checkTypeForGroup(source)">
+			<div :class="checkSourceForEvents(source) || checkTypeForGroup(source) ? ' cff-fb-onbrd-tltp-parent cff-fb-onbrd-tltp-center-top cff-fb-onbrd-tltp-hover ' : ''" class="cff-fb-srcs-item" v-for="(source, sourceIndex) in sourcesList" :data-lastitem="(sourceIndex - 1) % 3 === 0 ? 'last' : false" role="checkbox" tabindex="0" :aria-checked="isSourceSelectActive(source) ? 'true' : 'false'" :aria-label="source.username" :aria-disabled="(checkSourceForEvents(source) || checkTypeForGroup(source)) ? 'true' : 'false'" @click.prevent.default="selectSource(source)" @keydown.enter.prevent.default="selectSource(source)" @keydown.space.prevent.default="selectSource(source)" :data-type="source.account_type" :data-active="isSourceSelectActive(source)" :data-disabled="checkSourceForEvents(source) || checkTypeForGroup(source)">
 				<div class="cff-fb-onbrd-tltp-elem">
 					<p v-if="checkSourceForEvents(source)" class="cff-fb-onbrd-tltp-txt" v-for="eventsToolTipTxt in selectSourceScreen.eventsToolTip" v-html="eventsToolTipTxt.replace(/ /g,' ')"></p>
                     <p v-if="checkTypeForGroup(source)" class="cff-fb-onbrd-tltp-txt" v-for="groupsToolTipTxt in selectSourceScreen.groupsToolTip" v-html="groupsToolTipTxt.replace(/ /g,' ')"></p>
@@ -20,7 +20,7 @@
 					<div class="cff-fb-srcs-item-chkbx-ic"></div>
 				</div>
 				<div class="cff-fb-srcs-item-avatar">
-					<img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="Page Source Avatar">
+					<img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="" aria-hidden="true">
 				</div>
 				<div class="cff-fb-srcs-item-inf">
                     <div class="cff-fb-srcs-item-name sb-small-p sb-bold">

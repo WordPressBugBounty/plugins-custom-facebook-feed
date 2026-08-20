@@ -58,7 +58,9 @@ class CFF_Customview_Control extends CFF_Controls_Base
 	{
 		?>
 		<div :class="['sb-control-feedtype-ctn sb-control-feedtemplate-ctn', 'cff-feedtemplate-' + customizerScreens.printedTemplate.type]" v-if="control.viewId == 'feedtemplate'">
-			<div class="cff-fb-type-el" @click.prevent.default="activateView('feedtemplatesPopup')">
+			<div class="cff-fb-type-el"
+				 aria-hidden="true"
+				 @click.prevent.default="activateView('feedtemplatesPopup')">
 				<div class="cff-fb-type-el-img cff-fb-fs" v-html="svgIcons[customizerScreens.printedTemplate.icon]"></div>
 				<div class="cff-fb-type-el-info cff-fb-fs">
 					<strong class="cff-fb-fs" v-html="customizerScreens.printedTemplate.title"></strong>
@@ -85,7 +87,9 @@ class CFF_Customview_Control extends CFF_Controls_Base
 	{
 		?>
 		<div class="sb-control-feedtype-ctn" v-if="control.viewId == 'feedtype'">
-			<div class="cff-fb-type-el" v-if="customizerFeedTypePrint()"  @click.prevent.default="activateView('feedtypesPopup')">
+			<div class="cff-fb-type-el" v-if="customizerFeedTypePrint()"
+				 aria-hidden="true"
+				 @click.prevent.default="activateView('feedtypesPopup')">
 				<div class="cff-fb-type-el-img cff-fb-fs" v-html="svgIcons[customizerScreens.printedType.icon]"></div>
 				<div class="cff-fb-type-el-info cff-fb-fs">
 					<strong class="cff-fb-fs">{{customizerScreens.printedType.title}}</strong>
@@ -129,18 +133,37 @@ class CFF_Customview_Control extends CFF_Controls_Base
 	public function get_control_sources_output($controlEditingTypeModel)
 	{
 		?>
-		<div class="sb-control-sources-ctn" v-if="control.viewId == 'sources'" :data-multifeed="activeExtensions['multifeed'] ? 'true' : 'false'">
+		<div class="sb-control-sources-ctn" v-if="control.viewId == 'sources'" role="group" :aria-label="genericText.manageSources || 'Manage Sources'" :data-multifeed="activeExtensions['multifeed'] ? 'true' : 'false'">
 			<div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in customizerFeedData.settings.sources" :data-expanded="customizerScreens.sourceExpanded === source.account_id" :data-type="source.account_type">
-				<div class="cff-fb-srcs-item-ins"  @click.prevent.default="activateView('sourcePopup', 'customizer')">
-					<div class="sb-control-src-expand sb-control-src-icon" @click.prevent.default="expandSourceInfo(source.account_id)">
-						<div v-html="svgIcons['cog']"></div>
-						<div class="sb-control-src-expand-chevron"></div>
+				<div class="cff-fb-srcs-item-ins"
+					 role="button"
+					 tabindex="0"
+					 :aria-label="(genericText.editSource || 'Edit source') + ': ' + source.username"
+					 @click.prevent.default="activateView('sourcePopup', 'customizer')"
+					 @keydown.enter.prevent.default="activateView('sourcePopup', 'customizer')"
+					 @keydown.space.prevent.default="activateView('sourcePopup', 'customizer')">
+					<div class="sb-control-src-expand sb-control-src-icon"
+						 role="button"
+						 tabindex="0"
+						 :aria-label="(genericText.expandSource || 'Toggle source details') + ': ' + source.username"
+						 :aria-expanded="customizerScreens.sourceExpanded === source.account_id ? 'true' : 'false'"
+						 @click.stop.prevent="expandSourceInfo(source.account_id)"
+						 @keydown.enter.stop.prevent="expandSourceInfo(source.account_id)"
+						 @keydown.space.stop.prevent="expandSourceInfo(source.account_id)">
+						<div v-html="svgIcons['cog']" aria-hidden="true"></div>
+						<div class="sb-control-src-expand-chevron" aria-hidden="true"></div>
 					</div>
-					<div class="sb-control-src-remove sb-control-src-icon" v-if="activeExtensions['multifeed']" @click.prevent.default="openDialogBox('deleteSourceCustomizer', source)">
-						<div v-html="svgIcons['delete']"></div>
+					<div class="sb-control-src-remove sb-control-src-icon" v-if="activeExtensions['multifeed']"
+						 role="button"
+						 tabindex="0"
+						 :aria-label="(genericText.removeSource || 'Remove source') + ': ' + source.username"
+						 @click.stop.prevent="openDialogBox('deleteSourceCustomizer', source)"
+						 @keydown.enter.stop.prevent="openDialogBox('deleteSourceCustomizer', source)"
+						 @keydown.space.stop.prevent="openDialogBox('deleteSourceCustomizer', source)">
+						<div v-html="svgIcons['delete']" aria-hidden="true"></div>
 					</div>
 					<div class="cff-fb-srcs-item-avatar">
-						<img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="Group Sources Avatar">
+						<img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="" aria-hidden="true">
 					</div>
 					<div class="cff-fb-srcs-item-inf">
 						<div class="cff-fb-srcs-item-name sb-small-p sb-bold"><span v-html="source.username"></span></div>
@@ -154,7 +177,14 @@ class CFF_Customview_Control extends CFF_Controls_Base
 					<div class="cff-fb-srcs-info-item">
 						<strong>{{genericText.id}}</strong>
 						<span>{{source.account_id}}</span>
-						<div class="cff-fb-srcs-info-icon" v-html="svgIcons['copy2']" @click.prevent.default="copyToClipBoard(source.account_id)"></div>
+						<div class="cff-fb-srcs-info-icon"
+							 role="button"
+							 tabindex="0"
+							 :aria-label="(genericText.copyToClipboard || 'Copy to clipboard') + ': ' + source.account_id"
+							 v-html="svgIcons['copy2']"
+							 @click.prevent.default="copyToClipBoard(source.account_id)"
+							 @keydown.enter.prevent.default="copyToClipBoard(source.account_id)"
+							 @keydown.space.prevent.default="copyToClipBoard(source.account_id)"></div>
 					</div>
 				</div>
 			</div>

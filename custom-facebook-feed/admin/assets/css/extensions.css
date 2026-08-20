@@ -101,7 +101,6 @@
     text-decoration: none;
 }
 .sb-social-wall-link a:focus {
-    outline: none;
     box-shadow: none;
 }
 .sb-social-wall-link:last-child {
@@ -150,7 +149,6 @@
     width: 16px;
 }
 .cff-fb-hd-btn:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-fb-hd-btn:hover {
@@ -279,7 +277,6 @@
     background: #E8E8EB;
     border: 1px solid #D0D1D7;
     box-shadow: none;
-    outline: none;
 }
 .sb-action-buttons .cff-btn.sb-btn-install {
     padding: 7px 27px;

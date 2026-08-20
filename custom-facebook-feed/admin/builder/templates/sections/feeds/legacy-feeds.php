@@ -8,7 +8,7 @@
 			<div class="cff-fb-onbrd-tltp-parent" @click.prevent.default="openTooltipBig(this)">
 				<div class="cff-fb-onbrd-infotxt sb-caption sb-lighter">{{allFeedsScreen.legacyFeeds.toolTip}}<div v-html="svgIcons['information']"></div></div>
 				<div class="cff-fb-onbrd-tltp-elem" :data-active="viewsActive.enabledToolTip == this">
-					<div class="cff-fb-popup-cls" @click.prevent.default="closeTooltipBig()">
+					<div class="cff-fb-popup-cls" @click.stop.prevent.default="closeTooltipBig()">
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M11.8346 1.34175L10.6596 0.166748L6.0013 4.82508L1.34297 0.166748L0.167969 1.34175L4.8263 6.00008L0.167969 10.6584L1.34297 11.8334L6.0013 7.17508L10.6596 11.8334L11.8346 10.6584L7.1763 6.00008L11.8346 1.34175Z" fill="#141B38"/>
                         </svg>
@@ -32,7 +32,7 @@
 		</div>
         <div class="cff-legacy-table-wrap" v-bind:class="{ 'sb-onboarding-highlight' : viewsActive.onboardingStep === 3 && allFeedsScreen.onboarding.type === 'multiple' }">
 
-		<table aria-hidden="true" class="cff-fd-legacy-feed-ctn" v-if="viewsActive.legacyFeedsShown || feedsList === null || feedsList.length === 0">
+		<table class="cff-fd-legacy-feed-ctn" v-if="viewsActive.legacyFeedsShown || feedsList === null || feedsList.length === 0">
 			<thead class="cff-fd-lst-thtf cff-fd-lst-thead">
 				<tr>
 					<th>
@@ -67,7 +67,7 @@
                             <span class="cff-fd-lst-shortcode sb-caption sb-lighter">{{legacyFeed.shortcode}}</span>
                             <div class="cff-fd-lst-shortcode-cp cff-fd-lst-btn cff-fb-tltp-parent">
                                 <div class="cff-fb-tltp-elem"><span>{{(genericText.copy +' '+ genericText.shortcode).replace(/ /g,"&nbsp;")}}</span></div>
-                                <div v-html="svgIcons['copy']" @click.prevent.default="copyToClipBoard(legacyFeed.id)"></div>
+                                <div role="button" tabindex="0" :aria-label="genericText.copy + ' ' + genericText.shortcode" v-html="svgIcons['copy']" @click.prevent.default="copyToClipBoard(legacyFeed.id)" @keydown.enter.prevent="copyToClipBoard(legacyFeed.id)" @keydown.space.prevent="copyToClipBoard(legacyFeed.id)"></div>
                             </div>
                         </div>
 					</td>
@@ -78,7 +78,7 @@
                     </td>
 					<td class="cff-fd-lst-actions cff-fd-lst-dimmed cff-fb-onbrd-tltp-parent" data-tltp-pos="right" @click.prevent.default="openTooltipBig()">
 						<div class="cff-fb-onbrd-tltp-elem cff-fb-onbrd-tltp-elem-2" data-active="false">
-							<div class="cff-fb-popup-cls" @click.prevent.default="closeTooltipBig()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<div class="cff-fb-popup-cls" @click.stop.prevent.default="closeTooltipBig()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"/>
                                 </svg>
                             </div>

@@ -572,7 +572,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 		$custom_wrp_class = !empty($cff_feed_height) ? ' cff-wrapper-fixed-height' : '';
 
 		$cff_content .= '<div class="cff-wrapper-ctn ' . $custom_wrp_class . '" ' . $cff_insider_style . '>';
-		$cff_content .= '<div id="cff" ' . $cff_style_class['cff_custom_class'] . ' ' . $cff_style_class['cff_feed_styles'] . ' ' . $cff_style_class['cff_feed_attributes'] . '>';
+		$cff_content .= '<div id="cff" role="region" aria-label="' . esc_attr__('Facebook feed', 'custom-facebook-feed') . '" ' . $cff_style_class['cff_custom_class'] . ' ' . $cff_style_class['cff_feed_styles'] . ' ' . $cff_style_class['cff_feed_attributes'] . '>';
 
 		// Add the page header to the inside of the top of feed
 		if ($cff_show_header && !$cff_header_outside) {
@@ -611,7 +611,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 
 
 		$posts_wrap_box_shadow_class = $cff_box_shadow && $this->atts['feedlayout'] === 'list' ? ' cff-posts-wrap-box-shadow' : '';
-		$cff_content .= '<div class="cff-posts-wrap' . $posts_wrap_box_shadow_class . '">';
+		$cff_content .= '<div class="cff-posts-wrap' . $posts_wrap_box_shadow_class . '" role="list">';
 
 			// ***STARTS POSTS LOOP***
 		if (isset($FBdata->data)) {
@@ -1059,7 +1059,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 
 						// Change the linebreak element if the text issue setting is enabled
 						$cff_format_issue = CFF_Utils::check_if_on($this->atts['textissue']);
-						$cff_linebreak_el = ( $cff_format_issue ) ?  '<br />' : '<img class="cff-linebreak" />';
+						$cff_linebreak_el = ( $cff_format_issue ) ?  '<br />' : '<img class="cff-linebreak" alt="" aria-hidden="true" />';
 
 						// EVENT
 						$cff_event_has_cover_photo = false;

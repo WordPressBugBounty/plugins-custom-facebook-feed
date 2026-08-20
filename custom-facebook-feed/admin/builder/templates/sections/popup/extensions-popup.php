@@ -1,15 +1,15 @@
 <div class="cff-fb-extensions-pp-ctn sb-fs-boss cff-fb-center-boss" v-if="viewsActive.extensionsPopupElement != null && viewsActive.extensionsPopupElement != false">
-	<div class="cff-fb-extensions-popup cff-fb-popup-inside" v-if="viewsActive.extensionsPopupElement != null && viewsActive.extensionsPopupElement != false" :data-getext-view="viewsActive.extensionsPopupElement">
-        <div class="cff-fb-popup-cls" @click.prevent.default="activateView('extensionsPopupElement')">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<div class="cff-fb-extensions-popup cff-fb-popup-inside" v-if="viewsActive.extensionsPopupElement != null && viewsActive.extensionsPopupElement != false" :data-getext-view="viewsActive.extensionsPopupElement" role="dialog" aria-modal="true" aria-labelledby="cff-fb-extensions-popup-heading">
+        <button type="button" class="cff-fb-popup-cls" aria-label="Close dialog" @click.prevent.default="activateView('extensionsPopupElement')" @keydown.enter.prevent="activateView('extensionsPopupElement')" @keydown.space.prevent="activateView('extensionsPopupElement')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                 <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"/>
             </svg>
-        </div>
+        </button>
         <div>
             <div class="cff-fb-extpp-top cff-fb-fs" :class="iscustomizerScreen && customizerScreens.popupBackButton.includes(viewsActive.extensionsPopupElement) ? 'cff-fb-extpp-top-fdtype' : ''">
                 <div class="cff-fb-extpp-info">
                     <div v-if="iscustomizerScreen && customizerScreens.popupBackButton.includes(viewsActive.extensionsPopupElement)" class="cff-fb-slctf-back cff-fb-hd-btn cff-btn-grey" @click.prevent.default="viewsActive.extensionsPopupElement == 'feedTemplates' ? activateView('feedtemplatesPopupCustomizer')  : activateView('feedtypesPopup')"><svg width="7" height="11" viewBox="0 0 7 11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.3415 1.18184L5.1665 0.00683594L0.166504 5.00684L5.1665 10.0068L6.3415 8.83184L2.52484 5.00684L6.3415 1.18184Z" fill="#141B38"></path></svg> <span>Back</span></div>
-                    <div class="cff-fb-extpp-head cff-fb-fs"><h2 v-html="extensionsPopup[viewsActive.extensionsPopupElement].heading"></h2></div>
+                    <div class="cff-fb-extpp-head cff-fb-fs"><h2 id="cff-fb-extensions-popup-heading" v-html="extensionsPopup[viewsActive.extensionsPopupElement].heading"></h2></div>
                     <div class="cff-fb-extpp-desc cff-fb-fs sb-caption" v-html="extensionsPopup[viewsActive.extensionsPopupElement].description"></div>
                     <div class="cff-fb-fs">
                         <div class="cff-fb-extpp-lite-btn" href="" target="_blank" v-if="customizerScreens.popupBackButton.includes(viewsActive.extensionsPopupElement)">

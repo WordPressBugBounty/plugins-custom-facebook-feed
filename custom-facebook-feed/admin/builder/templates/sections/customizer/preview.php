@@ -12,8 +12,8 @@
 	<div class="sb-preview-ctn sb-tr-2">
 		<div class="sb-preview-top-chooser cff-fb-fs">
 			<strong>{{genericText.preview}}</strong>
-			<div class="sb-preview-chooser">
-				<button class="sb-preview-chooser-btn" v-for="device in previewScreens" v-bind:class="'sb-' + device" v-html="svgIcons[device]" @click.prevent.default="switchCustomizerPreviewDevice(device)" :data-active="customizerScreens.previewScreen == device"></button>
+			<div class="sb-preview-chooser" role="group" aria-label="<?php esc_attr_e( 'Preview device', 'custom-facebook-feed' ); ?>">
+				<button class="sb-preview-chooser-btn" v-for="device in previewScreens" v-bind:class="'sb-' + device" v-html="svgIcons[device]" @click.prevent.default="switchCustomizerPreviewDevice(device)" :aria-label="device" :aria-pressed="customizerScreens.previewScreen == device ? 'true' : 'false'" :data-active="customizerScreens.previewScreen == device"></button>
 			</div>
 		</div>
 

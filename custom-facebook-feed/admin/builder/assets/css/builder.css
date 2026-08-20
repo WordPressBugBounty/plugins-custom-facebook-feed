@@ -19,6 +19,39 @@ body{
     background: #2A65DB;
 }
 
+/* SMASH-1378: reset UA button defaults for elements converted from <div>/<a>
+   to <button> during the a11y semantic upgrade. Wrapped in :where() so the
+   reset has specificity (0,0,0) and any per-control rule (e.g.
+   `.sb-control-colorpicker-btn { ... }`) wins automatically. Without this,
+   the browser's default <button> border/background shows on these controls
+   (e.g. the unwanted outer border on the checkbox container). The
+   feedtemplate `button.cff-fb-type-el` reset lower in this file is left as-is. */
+:where(
+    button.sb-control-switcher-ctn,
+    button.sb-control-checkbox-ctn,
+    button.sb-control-checkbox,
+    button.sb-control-checkboxsection-open,
+    button.sb-control-colorpicker-btn,
+    button.sb-control-colorpicker-swatch,
+    button.sb-control-input-info,
+    button.sb-customizer-sidebar-breadcrumb-link,
+    button.sb-customizer-sidebar-tab,
+    button.sb-customizer-sidebar-sec-el,
+    button.cff-fb-popup-cls
+) {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: inherit;
+    line-height: inherit;
+}
+
 /****
 Buttons
  */
@@ -29,7 +62,6 @@ Buttons
     align-items: center;
     border-radius: 2px;
     cursor: pointer;
-    outline: none;
     box-shadow: none;
     border: none;
     -webkit-transition: all .15s ease-in-out;
@@ -212,6 +244,15 @@ Buttons
     margin: 0 0 4px 0;
     letter-spacing: 0;
 }
+/* SMASH-1378 a11y: feed-creation step headings receive programmatic focus on
+   step change for screen-reader context only (tabindex=-1, not in the tab
+   order), so suppress the visible focus ring on the heading itself. The
+   !important is required to beat FB's global *:focus-visible ring. */
+#cff-builder-app .cff-fb-create-ctn h4:focus,
+#cff-builder-app .cff-fb-create-ctn h4:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
 
 #cff-builder-app .sb-small-p,
 #cff-builder-app .sb-standard-p{
@@ -360,7 +401,6 @@ Social Links
 .cff-builder-app a, .cff-builder-app a:focus{
     text-decoration: none;
     /*color: inherit;*/
-    outline: none;
 }
 .cff-fb-btn{
     display: flex;
@@ -375,7 +415,6 @@ Social Links
     border-radius: 2px;
     cursor: pointer;
     color: #fff;
-    outline: none;
     box-shadow: none;
     border: none;;
 }
@@ -398,7 +437,6 @@ Social Links
     z-index: 1;
 }
 .sb-btn:focus{
-    outline: none;
 }
 #wpcontent,
 .facebook-feed_page_cff-feed-builder #wpcontent{
@@ -559,7 +597,6 @@ body.jetpack-masterbar .sbi-csz-header-insider {
     border-radius: 0px;
     border: 0px;
     background: #CCE7FF;
-    outline: none;
     font-size: 18px;
     font-weight: 700;
     display: none;
@@ -568,7 +605,6 @@ body.jetpack-masterbar .sbi-csz-header-insider {
     display: block;
 }
 .cff-csz-hd-name input[type="text"]:focus{
-    outline: none!important;
     border: 0px!important;
     box-shadow: none!important;
 }
@@ -581,11 +617,9 @@ body.jetpack-masterbar .sbi-csz-header-insider {
     margin: 0 10px;
     background: #E8E8EB;
     border: 1px solid #E8E8EB;
-    outline: none;
 }
 .cff-csz-name-ed-btn:focus,
 .cff-csz-name-ed-btn:hover{
-    outline: none;
     background-color: #fff;
 }
 .cff-csz-name-ed-btn svg{
@@ -938,6 +972,17 @@ Welcome Screen Empty State
 .cff-fb-type-el.cff-feed-template-showcase_carousel .cff-fb-type-el-img,
 .cff-fb-type-el.cff-feed-template-simple_carousel .cff-fb-type-el-img {
     background-color: #fdf3ef;
+}
+/* a11y (SMASH-1378): cff-fb-type-el template/feed-type selectors are now
+   <button> elements (were click-only divs, unreachable by keyboard). Reset
+   UA button chrome so the card visuals stay pixel-identical. WCAG 2.1.1 / 4.1.2 */
+button.cff-fb-type-el{
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
 }
 .cff-fb-type-el{
     display: flex;
@@ -1417,7 +1462,6 @@ Source Screen
 }
 .cff-fb-embed-input-ctn input:focus, .cff-fb-embed-input-ctn .cff-fb-hd-btn:focus{
     box-shadow: none!important;
-    outline: none!important
 }
 .cff-fb-embed-input-ctn .cff-fb-hd-btn{
     width: 23%;
@@ -2611,6 +2655,19 @@ body.folded .sb-customizer-sidebar{
     align-items: center;
     margin-bottom: 24px;
 }
+/* a11y: native <button> reset so role="tab" elements match prior divs (SMASH-1379) */
+button.sb-customizer-sidebar-tab {
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+}
 .sb-customizer-sidebar-tab{
     width: 50%;
     height: 56px;
@@ -2627,6 +2684,18 @@ body.folded .sb-customizer-sidebar{
 .sb-customizer-sidebar-tab:hover {
     background: #fff!important;
     color: #141B38!important;
+}
+/* a11y: native <button> reset so section-row buttons match prior divs (SMASH-1379) */
+button.sb-customizer-sidebar-sec-el {
+    width: 100%;
+    background: transparent;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    font: inherit;
+    text-align: left;
+    appearance: none;
+    -webkit-appearance: none;
 }
 .sb-customizer-sidebar-sec-el{
     height: 52px;
@@ -2705,7 +2774,20 @@ body.folded .sb-customizer-sidebar{
     transform: translateX(5px) translateY(0px);
 }
 
-.sb-customizer-sidebar-breadcrumb a, .sb-customizer-sidebar-breadcrumb span{
+/* a11y: native <button> reset for breadcrumb back-links. Anchors default to
+   text-align:start / vertical-align:baseline; restore those so the button
+   aligns with sibling breadcrumbs (SMASH-1379). */
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link {
+    background: transparent;
+    border: 0;
+    font: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: left;
+    vertical-align: baseline;
+}
+.sb-customizer-sidebar-breadcrumb a, .sb-customizer-sidebar-breadcrumb span,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link{
     display: inline-block;
     position: relative;
     cursor: pointer;
@@ -3363,7 +3445,6 @@ Controls Style
     float: left;
     border: 0;
     background: unset;
-    outline: none;
 }
 
 .sb-preview-chooser-btn svg{
@@ -3448,6 +3529,19 @@ Controls Style
     border-bottom: 2px solid #8C8F9A;
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
+}
+/* SMASH-1378: restore checkboxsection row layout after the div→button a11y conversion.
+   The chevron now lives inside .sb-control-checkboxsection-open and the row's
+   `> div { z-index:3 }` no longer matches the <button> children, so (a) the chevron
+   stopped sitting far-right and (b) the hover overlay (z-index:1) covered the
+   label+chevron on hover. Make the open-button a flex row (chevron pushed right)
+   and raise it above the hover overlay. */
+.sb-control-checkboxsection-open {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 3;
 }
 
 /*Disabled Controls*/
@@ -4278,6 +4372,14 @@ width: calc(100% - 20px);
 /*
     Onboarding Wizard
 */
+/* SMASH-1378: wizard step <h1> is focused programmatically (tabindex=-1) on each
+   step change for SR context only — not user-tabbable, so suppress its ring. */
+.sb-onboarding-wizard-ctn .sb-onboarding-wizard-step-heading:focus,
+.sb-onboarding-wizard-ctn .sb-onboarding-wizard-step-heading:focus-visible,
+.cff-fb-fs .sb-onboarding-wizard-step-heading:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
 .sb-onboarding-wizard-ctn {
     width: calc(100% + 160px);
     position: absolute;
@@ -4528,7 +4630,8 @@ width: calc(100% - 20px);
     column-gap: 15px;
 }
 
-.sb-onboarding-wizard-step-welcome h3 {
+.sb-onboarding-wizard-step-welcome h3,
+.sb-onboarding-wizard-step-welcome h1.sb-onboarding-wizard-step-heading {
     font-size: 24px !important;
     font-weight: 600 !important;
     line-height: 29px !important;
@@ -4579,14 +4682,16 @@ width: calc(100% - 20px);
     color: #696D80;
 }
 
-.sb-onboarding-wizard-step-top h4 {
+.sb-onboarding-wizard-step-top h4,
+.sb-onboarding-wizard-step-top h1.sb-onboarding-wizard-step-heading {
     font-size: 18px !important;
     font-weight: 600 !important;
     line-height: 25px !important;
     color: #000;
 }
 
-.sb-onboarding-wizard-step-top[data-large="true"] h4 {
+.sb-onboarding-wizard-step-top[data-large="true"] h4,
+.sb-onboarding-wizard-step-top[data-large="true"] h1.sb-onboarding-wizard-step-heading {
     font-size: 20px !important;
 }
 
@@ -4708,7 +4813,15 @@ width: calc(100% - 20px);
     float: right;
 }
 
-.sb-onboarding-wizard-elem-toggle>div {
+/* SMASH-1378 a11y: the onboarding feature toggle was converted from <div> to
+ * <button role="switch"> for keyboard operability. The selectors below match
+ * both so the switch keeps its pill styling. A bare <button> inherits UA chrome
+ * a <div> never had (appearance:auto, a UA font, text-align:center, system
+ * color), so we zero all of it out for pixel parity. The role/aria-checked
+ * semantics live in the markup; the visible focus ring is added via
+ * :focus-visible below (box-shadow, so it never shifts layout). */
+.sb-onboarding-wizard-elem-toggle>div,
+.sb-onboarding-wizard-elem-toggle>button {
     width: 36px;
     height: 16px;
     padding: 2px;
@@ -4716,19 +4829,36 @@ width: calc(100% - 20px);
     background-color: #9295A6;
     position: relative;
     cursor: pointer;
+    border: 0;
+    box-sizing: content-box;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    outline: none;
+}
+
+.sb-onboarding-wizard-elem-toggle>button:focus-visible {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0096CC;
 }
 
 
-.sb-onboarding-wizard-elem-toggle>div[data-color="green"][data-active="true"] {
+.sb-onboarding-wizard-elem-toggle>div[data-color="green"][data-active="true"],
+.sb-onboarding-wizard-elem-toggle>button[data-color="green"][data-active="true"] {
     background-color: #59AB46;
 }
 
-.sb-onboarding-wizard-elem-toggle>div[data-uncheck="true"] {
+.sb-onboarding-wizard-elem-toggle>div[data-uncheck="true"],
+.sb-onboarding-wizard-elem-toggle>button[data-uncheck="true"] {
     opacity: .5;
     cursor: auto;
 }
 
-.sb-onboarding-wizard-elem-toggle>div:before {
+.sb-onboarding-wizard-elem-toggle>div:before,
+.sb-onboarding-wizard-elem-toggle>button:before {
     content: '';
     position: absolute;
     width: 16px;
@@ -4742,11 +4872,13 @@ width: calc(100% - 20px);
     transition: all .2s ease-in-out;
 }
 
-.sb-onboarding-wizard-elem-toggle>div[data-active="true"]:before {
+.sb-onboarding-wizard-elem-toggle>div[data-active="true"]:before,
+.sb-onboarding-wizard-elem-toggle>button[data-active="true"]:before {
     left: 22px;
 }
 
-.sb-onboarding-wizard-elem-toggle>div[data-color="blue"][data-active="true"] {
+.sb-onboarding-wizard-elem-toggle>div[data-color="blue"][data-active="true"],
+.sb-onboarding-wizard-elem-toggle>button[data-color="blue"][data-active="true"] {
     background-color: #0096CC;
 }
 
@@ -5141,6 +5273,19 @@ width: calc(100% - 20px);
     border-bottom-right-radius: 4px;
     cursor: pointer;
     z-index: 99;
+    /* SMASH-1378 a11y: converted from <div> to native <button> for keyboard
+       operability; zero out UA button chrome (border/appearance/font/top
+       radius) so it stays pixel-identical to the original div. */
+    border: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+}
+.sb-onboarding-wizard-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
 }
 
 .facebook-feed_page_cff-setup .cff-header-notice {

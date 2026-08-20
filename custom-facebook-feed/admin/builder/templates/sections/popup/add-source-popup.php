@@ -1,23 +1,37 @@
 <script type="text/x-template" id="sb-add-source-component">
     <div class="cff-fb-source-ctn sb-fs-boss cff-fb-center-boss" v-show="viewsActive.sourcePopup">
         <!--START Source Popup on the Customizer-->
-        <div class="cff-fb-source-popup cff-fb-popup-inside cff-fb-source-pp-customizer" v-if="viewsActive.sourcePopupType == 'customizer'" :data-multifeed="$parent.activeExtensions['multifeed'] ? 'active' : 'inactive'">
-            <div class="cff-fb-popup-cls" @click.prevent.default="$parent.closeSourceCustomizer()">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="cff-fb-source-popup cff-fb-popup-inside cff-fb-source-pp-customizer" v-if="viewsActive.sourcePopupType == 'customizer'" :data-multifeed="$parent.activeExtensions['multifeed'] ? 'active' : 'inactive'" role="dialog" aria-modal="true" aria-labelledby="cff-fb-source-pp-customizer-heading">
+            <button type="button" class="cff-fb-popup-cls" aria-label="Close dialog" @click.prevent.default="$parent.closeSourceCustomizer()" @keydown.enter.prevent="$parent.closeSourceCustomizer()" @keydown.space.prevent="$parent.closeSourceCustomizer()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                     <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"/>
                 </svg>
-            </div>
+            </button>
             <div class="cff-fb-source-top cff-fb-fs">
-                <h3>{{selectSourceScreen.updateHeading}}</h3>
+                <h3 id="cff-fb-source-pp-customizer-heading">{{selectSourceScreen.updateHeading}}</h3>
                 <div class="cff-fb-srcs-desc">{{selectSourceScreen.updateDescription}}</div>
                 <div class="cff-fb-srcslist-ctn cff-fb-fs">
-                    <div class="cff-fb-srcs-item cff-fb-srcs-new" @click.prevent.default="$parent.activateView('sourcePopupType', 'creationRedirect')">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="cff-fb-srcs-item cff-fb-srcs-new"
+                         role="button"
+                         tabindex="0"
+                         :aria-label="genericText.addNew"
+                         @click.prevent.default="$parent.activateView('sourcePopupType', 'creationRedirect')"
+                         @keydown.enter.prevent.default="$parent.activateView('sourcePopupType', 'creationRedirect')"
+                         @keydown.space.prevent.default="$parent.activateView('sourcePopupType', 'creationRedirect')">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                             <path d="M9.66634 5.66634H5.66634V9.66634H4.33301V5.66634H0.333008V4.33301H4.33301V0.333008H5.66634V4.33301H9.66634V5.66634Z" fill="#0096CC"/>
                         </svg>
                         <span class="sb-small-p sb-bold">{{genericText.addNew}}</span>
                     </div>
-                    <div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in sourcesList" @click.prevent.default="$parent.selectSourceCustomizer(source)" :data-type="source.account_type"
+                    <div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in sourcesList"
+                         role="checkbox"
+                         tabindex="0"
+                         :aria-checked="$parent.isSourceActiveCustomizer(source) ? 'true' : 'false'"
+                         :aria-label="source.username"
+                         @click.prevent.default="$parent.selectSourceCustomizer(source)"
+                         @keydown.enter.prevent.default="$parent.selectSourceCustomizer(source)"
+                         @keydown.space.prevent.default="$parent.selectSourceCustomizer(source)"
+                         :data-type="source.account_type"
                          :data-active="$parent.isSourceActiveCustomizer(source)"
                          :data-test="(Array.isArray($parent.customizerFeedData.settings.sources.map) || $parent.customizerFeedData.settings.sources instanceof Object ) && $parent.customizerFeedData.settings.sources.map(s => s.account_id).includes(source.account_id)"
                     >
@@ -25,7 +39,7 @@
                             <div class="cff-fb-srcs-item-chkbx-ic"></div>
                         </div>
                         <div class="cff-fb-srcs-item-avatar">
-                            <img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'">
+                            <img alt="" aria-hidden="true" :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'">
                         </div>
                         <div class="cff-fb-srcs-item-inf">
 
@@ -95,34 +109,34 @@
         </div>
         <!--END Source Popup on the Customizer-->
 
-        <div class="cff-fb-source-popup cff-fb-popup-inside" :data-step="viewsActive.sourcePopupScreen" v-if="viewsActive.sourcePopupType != 'customizer'">
-            <div class="cff-fb-popup-cls" @click.prevent.default="$parent.activateView('sourcePopup')" v-if="viewsActive.sourcePopupScreen != 'redirect_1'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="cff-fb-source-popup cff-fb-popup-inside" :data-step="viewsActive.sourcePopupScreen" v-if="viewsActive.sourcePopupType != 'customizer'" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e('Add source', 'custom-facebook-feed'); ?>">
+            <button type="button" class="cff-fb-popup-cls" aria-label="Close dialog" @click.prevent.default="$parent.activateView('sourcePopup')" @keydown.enter.prevent="$parent.activateView('sourcePopup')" @keydown.space.prevent="$parent.activateView('sourcePopup')" v-if="viewsActive.sourcePopupScreen != 'redirect_1'">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                     <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"/>
                 </svg>
-            </div>
+            </button>
             <!-- Step One Select Source -->
             <div class="cff-fb-source-step1 cff-fb-fs" v-if="viewsActive.sourcePopupScreen == 'step_18'">
                 <div class="cff-fb-source-top cff-fb-fs">
                     <div class=" cff-fb-fs">
-                        <div class="cff-fb-src-back-top" @click.prevent.default="$parent.activateView('sourcePopup', 'updateCustomizer')">
-                            <svg width="6" height="9" viewBox="0 0 6 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <div class="cff-fb-src-back-top" role="button" tabindex="0" :aria-label="selectSourceScreen.mainHeading" @click.prevent.default="$parent.activateView('sourcePopup', 'updateCustomizer')" @keydown.enter.prevent.default="$parent.activateView('sourcePopup', 'updateCustomizer')" @keydown.space.prevent.default="$parent.activateView('sourcePopup', 'updateCustomizer')">
+                            <svg width="6" height="9" viewBox="0 0 6 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                                 <path d="M5.27398 1.44L4.33398 0.5L0.333984 4.5L4.33398 8.5L5.27398 7.56L2.22065 4.5L5.27398 1.44Z" fill="#434960"/>
                             </svg>
                             {{selectSourceScreen.mainHeading}}
                         </div>
                     </div>
-                    <h3>{{selectSourceScreen.modal.addNew}}</h3>
+                    <h3 id="cff-fb-source-popup-heading">{{selectSourceScreen.modal.addNew}}</h3>
                     <div class="cff-fb-stp1-elm cff-fb-fs">
                         <div class="cff-fb-stp1-elm-ic">1</div>
                         <div class="cff-fb-stp1-elm-txt">
                             <div class="cff-fb-stp1-elm-head sb-small-p sb-bold sb-dark-text">{{selectSourceScreen.modal.selectSourceType}}</div>
                         </div>
-                        <div class="cff-fb-stp1-elm-act cff-fb-stp-src-ctn">
-                            <div class="cff-fb-stp-src-type sb-small-p sb-dark-text" :data-active="addNewSource.typeSelected == 'page'" @click.prevent.default="addNewSource.typeSelected = 'page'">
+                        <div class="cff-fb-stp1-elm-act cff-fb-stp-src-ctn" role="radiogroup" :aria-label="selectSourceScreen.modal.selectSourceType">
+                            <div class="cff-fb-stp-src-type sb-small-p sb-dark-text" role="radio" :tabindex="addNewSource.typeSelected == 'page' ? '0' : '-1'" :aria-checked="addNewSource.typeSelected == 'page' ? 'true' : 'false'" :aria-label="selectSourceScreen.page" :data-active="addNewSource.typeSelected == 'page'" @click.prevent.default="addNewSource.typeSelected = 'page'" @keydown.enter.prevent.default="addNewSource.typeSelected = 'page'" @keydown.space.prevent.default="addNewSource.typeSelected = 'page'">
                                 <div class="cff-fb-chbx-round"></div>{{selectSourceScreen.page}}
                             </div>
-                            <div class="cff-fb-stp-src-type sb-small-p sb-dark-text" :data-disabled="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? true : false" :data-active="addNewSource.typeSelected == 'group'" @click.prevent.default="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? addNewSource.typeSelected = 'page' : addNewSource.typeSelected = 'group'">
+                            <div class="cff-fb-stp-src-type sb-small-p sb-dark-text" role="radio" :tabindex="addNewSource.typeSelected == 'group' ? '0' : '-1'" :aria-checked="addNewSource.typeSelected == 'group' ? 'true' : 'false'" :aria-label="selectSourceScreen.group" :aria-disabled="(typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos') ? 'true' : 'false'" :data-disabled="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? true : false" :data-active="addNewSource.typeSelected == 'group'" @click.prevent.default="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? addNewSource.typeSelected = 'page' : addNewSource.typeSelected = 'group'" @keydown.enter.prevent.default="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? addNewSource.typeSelected = 'page' : addNewSource.typeSelected = 'group'" @keydown.space.prevent.default="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos' ? addNewSource.typeSelected = 'page' : addNewSource.typeSelected = 'group'">
                                 <div class="cff-fb-chbx-round"></div>{{selectSourceScreen.group}}
 
                                 <div class="cff-fb-onbrd-tltp-elem cff-no-groups-tooltip sb-tr-2" v-if="typeof window.cffSelectedFeed !== 'undefined' && window.cffSelectedFeed === 'photos'">
@@ -234,7 +248,7 @@
                         <h3>{{addNewSource.typeSelected === 'page' ? selectSourceScreen.modal.selectPage : selectSourceScreen.modal.selectGroup}}</h3>
                         <div class="cff-fb-source-account-info cff-fb-fs">
                             <span class="sb-small-p sb-bold">{{selectSourceScreen.modal.showing}} <strong>{{selectSourceScreen.modal.facebook}} {{addNewSource.typeSelected === 'page' ? selectSourceScreen.modal.pages : selectSourceScreen.modal.groups}}</strong> {{selectSourceScreen.modal.connectedTo}}</span>
-                            <img :src="$parent.hasOwnNestedProperty(newSourceData,'user.picture.data.url') ? newSourceData.user.picture.data.url : ''"> <strong v-if="$parent.hasOwnNestedProperty(newSourceData,'user.name')" v-html="newSourceData.user.name"></strong>
+                            <img alt="" aria-hidden="true" :src="$parent.hasOwnNestedProperty(newSourceData,'user.picture.data.url') ? newSourceData.user.picture.data.url : ''"> <strong v-if="$parent.hasOwnNestedProperty(newSourceData,'user.name')" v-html="newSourceData.user.name"></strong>
                             <button class="cff-fb-hd-btn cff-fb-src-change sb-btn-grey" @click="processFBConnect()">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M0.5 12.3749V15.4999H3.625L12.8417 6.2832L9.71667 3.1582L0.5 12.3749ZM15.8417 3.2832L12.7167 0.158203L10.6083 2.27487L13.7333 5.39987L15.8417 3.2832Z" fill="#141B38"/>
@@ -243,12 +257,12 @@
                             </button>
                         </div>
                         <div class="cff-fb-source-list cff-fb-fs">
-                            <div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in returnedApiSourcesList" @click.prevent.default="selectSourcesToConnect(source)" :data-active="selectedSourcesToConnect.includes(source.account_id)" >
+                            <div class="cff-fb-srcs-item" v-for="(source, sourceIndex) in returnedApiSourcesList" role="checkbox" tabindex="0" :aria-checked="selectedSourcesToConnect.includes(source.account_id) ? 'true' : 'false'" :aria-label="source.username" @click.prevent.default="selectSourcesToConnect(source)" @keydown.enter.prevent.default="selectSourcesToConnect(source)" @keydown.space.prevent.default="selectSourcesToConnect(source)" :data-active="selectedSourcesToConnect.includes(source.account_id)" >
                                 <div class="cff-fb-srcs-item-chkbx">
                                     <div class="cff-fb-srcs-item-chkbx-ic"></div>
                                 </div>
                                 <div class="cff-fb-srcs-item-avatar">
-                                    <img :src="returnGroupPageAvatar(source)">
+                                    <img alt="" aria-hidden="true" :src="returnGroupPageAvatar(source)">
                                 </div>
                                 <div class="cff-fb-srcs-item-inf" v-bind:class="{ 'sb-has-details' : source.account_type === 'group' }">
                                     <div class="cff-fb-srcs-item-name"><span class="sb-small-p sb-bold" v-html="source.username"></span></div>
@@ -298,11 +312,11 @@
                     <div class="cff-fb-fs">
                         <div class="cff-fb-source-inp-label cff-fb-fs"><span class="sb-caption sb-caption-lighter">{{selectSourceScreen.modal.sourceType}}</span></div>
                         <div class="cff-fb-source-mnl-type cff-fb-fs">
-                            <div class="cff-fb-stp1-elm-act cff-fb-stp-src-ctn">
-                                <div class="cff-fb-stp-src-type" :data-active="addNewSource.typeSelected == 'page'" @click.prevent.default="addNewSource.typeSelected = 'page'">
+                            <div class="cff-fb-stp1-elm-act cff-fb-stp-src-ctn" role="radiogroup" :aria-label="selectSourceScreen.modal.sourceType">
+                                <div class="cff-fb-stp-src-type" role="radio" :tabindex="addNewSource.typeSelected == 'page' ? '0' : '-1'" :aria-checked="addNewSource.typeSelected == 'page' ? 'true' : 'false'" :aria-label="selectSourceScreen.page" :data-active="addNewSource.typeSelected == 'page'" @click.prevent.default="addNewSource.typeSelected = 'page'" @keydown.enter.prevent.default="addNewSource.typeSelected = 'page'" @keydown.space.prevent.default="addNewSource.typeSelected = 'page'">
                                     <div class="cff-fb-chbx-round"></div><span class="sb-small-p sb-dark-text">{{selectSourceScreen.page}}</span>
                                 </div>
-                                <div class="cff-fb-stp-src-type" :data-active="addNewSource.typeSelected == 'group'" @click.prevent.default="addNewSource.typeSelected = 'group'">
+                                <div class="cff-fb-stp-src-type" role="radio" :tabindex="addNewSource.typeSelected == 'group' ? '0' : '-1'" :aria-checked="addNewSource.typeSelected == 'group' ? 'true' : 'false'" :aria-label="selectSourceScreen.group" :data-active="addNewSource.typeSelected == 'group'" @click.prevent.default="addNewSource.typeSelected = 'group'" @keydown.enter.prevent.default="addNewSource.typeSelected = 'group'" @keydown.space.prevent.default="addNewSource.typeSelected = 'group'">
                                     <div class="cff-fb-chbx-round"></div><span class="sb-small-p sb-dark-text">{{selectSourceScreen.group}}</span>
                                 </div>
                             </div>
@@ -327,8 +341,8 @@
             <div class="cff-fb-source-step4 cff-fb-fs" v-if="viewsActive.sourcePopupScreen == 'step_4'">
                 <div class="cff-fb-source-top cff-fb-fs">
                     <div class="cff-fb-fs">
-                        <div class="cff-fb-src-back-top" @click.prevent.default="$parent.switchScreen('sourcePopupScreen','step_2')">
-                            <svg width="6" height="9" viewBox="0 0 6 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <div class="cff-fb-src-back-top" role="button" tabindex="0" :aria-label="selectSourceScreen.modal.selectGroup" @click.prevent.default="$parent.switchScreen('sourcePopupScreen','step_2')" @keydown.enter.prevent.default="$parent.switchScreen('sourcePopupScreen','step_2')" @keydown.space.prevent.default="$parent.switchScreen('sourcePopupScreen','step_2')">
+                            <svg width="6" height="9" viewBox="0 0 6 9" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                                 <path d="M5.27398 1.44L4.33398 0.5L0.333984 4.5L4.33398 8.5L5.27398 7.56L2.22065 4.5L5.27398 1.44Z" fill="#434960"/>
                             </svg>
                             {{selectSourceScreen.modal.selectGroup}}

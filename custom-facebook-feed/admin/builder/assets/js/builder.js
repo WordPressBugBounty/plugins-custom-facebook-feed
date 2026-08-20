@@ -363,6 +363,7 @@ cffBuilder = new Vue({
 		//Onboarding Wizard
 		onboardingWizardContent : cff_builder.onboardingWizardContent,
 		currentOnboardingWizardStep : 0,
+		stepAnnouncement : '',
 		onboardingWizardStepContent : {},
 		currentOnboardingWizardActiveSettings : {},
 		onboardingSuccessMessages : cff_builder.onboardingWizardContent.successMessages,
@@ -546,8 +547,32 @@ cffBuilder = new Vue({
 		 * @since 4.0
 		 */
 		switchScreen: function(screenType, screenName){
+			let self = this;
 			this.viewsActive[screenType] = screenName;
 			cffBuilder.$forceUpdate();
+			// SMASH-1378 a11y (WCAG 2.4.3): step transitions swap the visible
+			// section via v-if, but focus stayed on the now-hidden Next button
+			// and fell through to the next focusable in the DOM (the floating
+			// Help Widget button). Move focus into the newly shown step's
+			// heading so keyboard/SR users keep their place in the flow. Mirrors
+			// the IG builder step-heading-focus pattern used elsewhere in 1378.
+			self.$nextTick(function () {
+				let createCtn = document.querySelector('.cff-fb-create-ctn');
+				if (!createCtn) return;
+				// The visible step is the section container that is NOT hidden
+				// by its v-if (Vue removes hidden v-if nodes from the DOM).
+				let heading = createCtn.querySelector(
+					'.cff-fb-types-ctn h4, .cff-fb-slctsrc-ctn h4, .cff-fb-sec-heading h4'
+				);
+				if (!heading) return;
+				if (!heading.hasAttribute('tabindex')) {
+					heading.setAttribute('tabindex', '-1');
+				}
+				heading.focus();
+				if (typeof heading.scrollIntoView === 'function') {
+					heading.scrollIntoView({ block: 'nearest' });
+				}
+			});
 		},
 
 		/**
@@ -1145,7 +1170,6 @@ cffBuilder = new Vue({
 		closeTooltipBig : function(){
 			var self = this;
 			self.processDomList('.cff-fb-onbrd-tltp-elem', [['data-active', 'false']]);
-			window.event.stopPropagation();
 			cffBuilder.$forceUpdate();
 		},
 
@@ -1389,16 +1413,59 @@ cffBuilder = new Vue({
 		 * @since 4.0
 		 */
  		showColorPickerPospup : function(controlId){
-			this.customizerScreens.activeColorPicker = controlId;
+			let self = this;
+			self.customizerScreens.activeColorPicker = controlId;
+			// SMASH-1378 a11y: move focus into the picker dialog when it
+			// opens so keyboard users can immediately interact with it.
+			self.$nextTick(function () {
+				let popup = document.getElementById('sb-colorpicker-popup-' + controlId);
+				if (!popup) return;
+				// Prefer the first focusable input inside the sketch-picker
+				// (hex/RGB/A inputs). Fall back to the picker dialog itself.
+				let focusable = popup.querySelector('input, [tabindex]:not([tabindex="-1"]), button');
+				if (focusable && focusable !== popup) {
+					focusable.focus();
+				} else {
+					popup.focus();
+				}
+			});
  		},
 
  		/**
 		 * Hide Color Picker
 		 *
+		 * When a controlId is passed (keyboard dismissal via Esc), focus is
+		 * returned to the swatch button so tab order stays predictable. The
+		 * mouse-driven clickaway path calls this without an argument, which
+		 * skips the refocus so we don't steal focus from wherever the user
+		 * just clicked.
+		 *
 		 * @since 4.0
 		 */
- 		hideColorPickerPospup : function(){
-			this.customizerScreens.activeColorPicker = null;
+ 		hideColorPickerPospup : function(controlId){
+			let self = this;
+			self.customizerScreens.activeColorPicker = null;
+			if (typeof controlId === 'string' && controlId) {
+				// SMASH-1378 a11y: explicit keyboard dismissal — return
+				// focus to the originating swatch button.
+				self.$nextTick(function () {
+					let swatch = document.getElementById('sb-colorpicker-swatch-' + controlId);
+					if (swatch) swatch.focus();
+				});
+			}
+ 		},
+
+ 		/**
+		 * Toggle Color Picker (open if closed, close if open)
+		 *
+		 * @since SMASH-1378
+		 */
+ 		toggleColorPickerPospup : function(controlId){
+			if (this.customizerScreens.activeColorPicker === controlId) {
+				this.hideColorPickerPospup(controlId);
+			} else {
+				this.showColorPickerPospup(controlId);
+			}
  		},
 
 		switchCustomizerPreviewDevice : function(previewScreen){
@@ -1412,6 +1479,35 @@ cffBuilder = new Vue({
 			},200)
 			cffBuilder.$forceUpdate();
 		},
+		/**
+		 * Roving-tabindex arrow-key navigation for the customizer sidebar
+		 * tablist (Customize / Settings). Ported from instagram-feed-pro.
+		 *
+		 * @since 4.0
+		 */
+		handleCustomizerTabKeydown: function (event, direction) {
+			let self = this,
+				tabIds = Object.keys(self.customizerSidebarBuilder || {}),
+				currentIdx = tabIds.indexOf(self.customizerScreens.activeTab),
+				nextIdx = currentIdx;
+			if (tabIds.length === 0 || currentIdx === -1) return;
+			if (direction === 'right') {
+				nextIdx = (currentIdx + 1) % tabIds.length;
+			} else if (direction === 'left') {
+				nextIdx = (currentIdx - 1 + tabIds.length) % tabIds.length;
+			} else if (direction === 'home') {
+				nextIdx = 0;
+			} else if (direction === 'end') {
+				nextIdx = tabIds.length - 1;
+			}
+			if (nextIdx === currentIdx) return;
+			self.switchCustomizerTab(tabIds[nextIdx]);
+			self.$nextTick(function () {
+				let nextBtn = document.getElementById('sb-customizer-tab-' + tabIds[nextIdx]);
+				if (nextBtn) nextBtn.focus();
+			});
+		},
+
 		switchCustomizerTab : function(tabId){
 			var self = this,
 				domBody = document.getElementsByTagName("body")[0];
@@ -1481,6 +1577,86 @@ cffBuilder = new Vue({
 			}
 
 			self.customizerControlAjaxAction('feedFlyPreview');
+		},
+
+		/**
+		 * Roving tabindex + arrow-key navigation for radiogroup-pattern
+		 * controls (toggleset, togglebutton). Walks the rendered DOM so
+		 * we honor v-show / aria-disabled visibility, moves focus to the
+		 * target option, and auto-activates per the WAI-ARIA radio pattern.
+		 *
+		 * @param {KeyboardEvent} event   Keyboard event from the current radio.
+		 * @param {Object}        control Control definition (id, options, ajaxAction).
+		 * @param {String}        action  'prev' | 'next' | 'first' | 'last'.
+		 * @since 4.0
+		 */
+		onTogglesetArrowKey: function (event, control, action) {
+			let self = this;
+			let currentEl = event.currentTarget;
+			if (!currentEl) {
+				return;
+			}
+			let group = currentEl.closest('[role="radiogroup"]');
+			if (!group) {
+				return;
+			}
+			// Only options that are currently rendered (v-show keeps the
+			// node but sets display:none) and not aria-disabled.
+			let radios = Array.prototype.filter.call(
+				group.querySelectorAll('[role="radio"]'),
+				function (el) {
+					if (el.getAttribute('aria-disabled') === 'true') {
+						return false;
+					}
+					// v-show toggles inline `display: none`.
+					return el.style.display !== 'none';
+				}
+			);
+			if (radios.length === 0) {
+				return;
+			}
+			let currentIndex = radios.indexOf(currentEl);
+			if (currentIndex === -1) {
+				currentIndex = 0;
+			}
+			let targetIndex;
+			switch (action) {
+				case 'prev':
+					targetIndex = (currentIndex - 1 + radios.length) % radios.length;
+					break;
+				case 'next':
+					targetIndex = (currentIndex + 1) % radios.length;
+					break;
+				case 'first':
+					targetIndex = 0;
+					break;
+				case 'last':
+					targetIndex = radios.length - 1;
+					break;
+				default:
+					return;
+			}
+			let targetEl = radios[targetIndex];
+			if (!targetEl) {
+				return;
+			}
+			let targetValue = targetEl.getAttribute('data-toggle-value');
+			if (targetValue === null) {
+				// Fall back to mapping by visible position in control.options.
+				let visibleOptions = (control.options || []).filter(function (opt) {
+					return opt.condition === undefined || self.checkControlCondition(opt.condition);
+				});
+				if (visibleOptions[targetIndex]) {
+					targetValue = visibleOptions[targetIndex].value;
+				}
+			}
+			targetEl.focus();
+			if (targetValue !== null && targetValue !== undefined) {
+				// Per ARIA radio pattern: arrow keys auto-activate.
+				let opt = (control.options || []).find(function (o) { return String(o.value) === String(targetValue); }) || {};
+				let doProcess = opt.checkExtension !== undefined ? self.checkExtensionActive(opt.checkExtension) : true;
+				self.changeSettingValue(control.id, opt.value !== undefined ? opt.value : targetValue, doProcess);
+			}
 		},
 
 		changeSettingValue : function(settingID, value, doProcess = true, ajaxAction = false) {
@@ -1645,7 +1821,6 @@ cffBuilder = new Vue({
 		expandSourceInfo : function(sourceId){
 			var self = this;
 			self.customizerScreens.sourceExpanded = (self.customizerScreens.sourceExpanded === sourceId) ? null : sourceId;
-			window.event.stopPropagation()
 		},
 
 		resetColor: function(controlId){
@@ -2987,7 +3162,6 @@ cffBuilder = new Vue({
 				heading : heading,
 				description : description
 			};
-			window.event.stopPropagation();
 		},
 
 
@@ -3106,6 +3280,11 @@ cffBuilder = new Vue({
 			if( self.currentOnboardingWizardStep <  self.onboardingWizardContent.steps.length ){
 				self.currentOnboardingWizardStep +=1;
 				self.recordUsageEvent( 'setup_wizard_step_completed' );
+				self.announceWizardStep();
+				self.$nextTick(function () {
+					const heading = document.querySelector('.sb-onboarding-wizard-step-ctn:not([style*="display: none"]) .sb-onboarding-wizard-step-heading, .sb-onboarding-wizard-step-ctn:not([style*="display: none"]) h3, .sb-onboarding-wizard-step-ctn:not([style*="display: none"]) h4');
+					if (heading) { heading.focus(); }
+				});
 			}
 		},
 
@@ -3154,7 +3333,34 @@ cffBuilder = new Vue({
 			const self = this;
 			if( self.currentOnboardingWizardStep >  0 ){
 				self.currentOnboardingWizardStep -=1;
+				self.announceWizardStep();
+				self.$nextTick(function () {
+					const heading = document.querySelector('.sb-onboarding-wizard-step-ctn:not([style*="display: none"]) .sb-onboarding-wizard-step-heading, .sb-onboarding-wizard-step-ctn:not([style*="display: none"]) h3, .sb-onboarding-wizard-step-ctn:not([style*="display: none"]) h4');
+					if (heading) { heading.focus(); }
+				});
 			}
+		},
+
+		/**
+		 * Update the sr-only wizard step announcement ("Step N of M: Label").
+		 * Ported from instagram-feed (announceWizardStep).
+		 *
+		 * @since 4.0
+		 */
+		announceWizardStep : function(){
+			const self = this;
+			const steps = self.onboardingWizardContent && self.onboardingWizardContent.steps ? self.onboardingWizardContent.steps : [];
+			const total = Math.max(steps.length - 1, 0);
+			const current = self.currentOnboardingWizardStep;
+			if (current < 1 || total < 1) {
+				self.stepAnnouncement = '';
+				return;
+			}
+			const step = steps[current] || {};
+			const label = step.label || step.title || step.heading || '';
+			const stepWord = (self.genericText && self.genericText.wizardStep) ? self.genericText.wizardStep : 'Step';
+			const ofWord = (self.genericText && self.genericText.wizardStepOf) ? self.genericText.wizardStepOf : 'of';
+			self.stepAnnouncement = stepWord + ' ' + current + ' ' + ofWord + ' ' + total + (label ? ': ' + label : '');
 		},
 
 		/**

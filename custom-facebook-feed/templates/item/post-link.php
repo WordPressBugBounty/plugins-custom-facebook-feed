@@ -29,19 +29,19 @@ if ($cff_show_facebook_link || $cff_show_facebook_share) :
 	?>
 	<div class="cff-post-links">
 		<?php if ($cff_show_facebook_link) : ?>
-			<a class="cff-viewpost-facebook" href="<?php echo esc_url($link) ?>" title="<?php echo esc_attr($link_text) ?>" <?php echo $target . '' . $cff_nofollow . ' ' . $cff_link_styles; ?>><?php echo esc_html($link_text); ?></a>
+			<a class="cff-viewpost-facebook" href="<?php echo esc_url($link) ?>" title="<?php echo esc_attr($link_text) ?>" <?php echo $target . '' . $cff_nofollow . ' ' . $cff_link_styles; ?>><?php echo esc_html($link_text); ?><?php if (strpos((string) $target, '_blank') !== false) : ?><span class="cff-screenreader"> <?php echo esc_html__('(opens in a new tab)', 'custom-facebook-feed'); ?></span><?php endif; ?></a>
 		<?php endif; ?>
 		<?php if ($cff_show_facebook_share) : ?>
 			<div class="cff-share-container">
 				<?php if ($cff_show_facebook_link) : ?>
 					<span class="cff-dot" <?php echo $cff_link_styles ?>>&middot;</span>
 				<?php endif; ?>
-				<a class="cff-share-link" href="<?php echo esc_url($social_share_links['facebook']['share_link']); ?>" title="<?php echo esc_attr($cff_facebook_share_text) ?>" <?php echo $cff_link_styles ?>><?php echo esc_html($cff_facebook_share_text); ?></a>
+				<a class="cff-share-link" href="<?php echo esc_url($social_share_links['facebook']['share_link']); ?>" title="<?php echo esc_attr($cff_facebook_share_text) ?>" aria-expanded="false" aria-haspopup="true" <?php echo $cff_link_styles ?>><?php echo esc_html($cff_facebook_share_text); ?></a>
 				<p class="cff-share-tooltip">
 					<?php foreach ($social_share_links as $social_key => $social) : ?>
 						<a href="<?php echo esc_url($social['share_link']) ?>" target="_blank" rel="noopener noreferrer" class="cff-<?php echo $social_key ?>-icon">
 							<span class="fa fab fa-<?php echo $social['icon'] ?>" aria-hidden="true"></span>
-							<span class="cff-screenreader"><?php echo esc_html($social['text']); ?></span>
+							<span class="cff-screenreader"><?php echo esc_html($social['text']) . ' ' . esc_html__('(opens in a new tab)', 'custom-facebook-feed'); ?></span>
 						</a>
 					<?php endforeach; ?>
 				</p>

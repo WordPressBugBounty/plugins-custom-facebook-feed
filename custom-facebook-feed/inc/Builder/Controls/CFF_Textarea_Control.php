@@ -42,7 +42,7 @@ class CFF_Textarea_Control extends CFF_Controls_Base
 	{
 		?>
 		<div class="sb-control-textarea-ctn cff-fb-fs">
-			<textarea class="sb-control-input-textrea cff-fb-fs" v-model="<?php echo $controlEditingTypeModel ?>[control.id]" :placeholder="control.placeholder ? control.placeholder : ''" @focusout.prevent.default="changeSettingValue(false,false,false, control.ajaxAction ? control.ajaxAction : false)"></textarea>
+			<textarea class="sb-control-input-textrea cff-fb-fs" v-model="<?php echo $controlEditingTypeModel ?>[control.id]" :aria-label="control.heading || control.label || 'Text'" :placeholder="control.placeholder ? control.placeholder : ''" @focusout.prevent.default="changeSettingValue(false,false,false, control.ajaxAction ? control.ajaxAction : false)"></textarea>
 		</div>
 		<?php
 	}

@@ -43,18 +43,33 @@ class CFF_Checkboxsection_Control extends CFF_Controls_Base
 		?>
 		<div class="sb-control-checkboxsection-header" v-if="control.header">
 			<div class="sb-control-checkboxsection-name">
-				<div v-html="svgIcons['preview']"></div>
+				<span aria-hidden="true" v-html="svgIcons['preview']"></span>
 				<strong class="">{{genericText.name}}</strong>
 			</div>
 			<strong>{{genericText.edit}}</strong>
 		</div>
-		<div class="sb-control-checkbox-ctn cff-fb-fs" @click.prevent.default="switchNestedSection(control.section.id, control.section)">
-			<div class="sb-control-checkbox-hover"></div>
-			<div class="sb-control-checkbox" @click.stop.prevent.default="changeCheckboxSectionValue(control.id, control.value)" :data-active="checkboxSectionValueExists(control.id, control.value)"></div>
-			<div class="cff-fb-fs" :data-active="checkboxSectionValueExists(control.id, control.value)">
+		<div class="sb-control-checkbox-ctn cff-fb-fs" role="group" :aria-label="control.label">
+			<span class="sb-control-checkbox-hover" aria-hidden="true"></span>
+			<button type="button"
+					class="sb-control-checkbox"
+					role="checkbox"
+					:aria-checked="checkboxSectionValueExists(control.id, control.value) ? 'true' : 'false'"
+					:aria-label="control.label"
+					@click.stop.prevent="changeCheckboxSectionValue(control.id, control.value)"
+					@keydown.enter.stop.prevent="changeCheckboxSectionValue(control.id, control.value)"
+					@keydown.space.stop.prevent="changeCheckboxSectionValue(control.id, control.value)"
+					:data-active="checkboxSectionValueExists(control.id, control.value)"></button>
+			<button type="button"
+					class="sb-control-checkboxsection-open cff-fb-fs"
+					:aria-controls="control.section && control.section.id ? control.section.id : null"
+					:aria-label="control.label"
+					@click.prevent="switchNestedSection(control.section.id, control.section)"
+					@keydown.enter.prevent="switchNestedSection(control.section.id, control.section)"
+					@keydown.space.prevent="switchNestedSection(control.section.id, control.section)"
+					:data-active="checkboxSectionValueExists(control.id, control.value)">
 				<strong class="sb-control-label">{{control.label}}</strong>
-			</div>
-			<div class="sb-control-checkboxsection-btn"></div>
+				<span class="sb-control-checkboxsection-btn" aria-hidden="true"></span>
+			</button>
 		</div>
 		<?php
 	}

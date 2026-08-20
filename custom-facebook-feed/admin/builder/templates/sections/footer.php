@@ -30,7 +30,7 @@
 	include_once CFF_BUILDER_DIR . 'templates/sections/popup/onboarding-customizer-popup.php';
 	include_once CFF_BUILDER_DIR . 'templates/sections/popup/install-plugin-popup.php';
 ?>
-<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type">
+<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type" role="status" aria-live="polite" aria-atomic="true">
 	<div class="sb-notification-icon" v-html="svgIcons[notificationElement.type+'Notification']"></div>
 	<span class="sb-notification-text" v-html="notificationElement.text"></span>
 </div>

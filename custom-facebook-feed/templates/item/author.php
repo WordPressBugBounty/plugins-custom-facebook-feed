@@ -33,19 +33,20 @@ if (isset($cff_from_id)) :
 	<div class="cff-author-text">
 		<?php if ($cff_show_date && $cff_date_position !== 'above' && $cff_date_position !== 'below') : ?>
 			<div class="cff-page-name cff-author-date" <?php echo $cff_author_styles ?>>
-				<<?php echo $cff_author_link_el . $cff_author_link_atts ?>><?php echo $cff_author_name ?></<?php echo $cff_author_link_el ?>>
+				<strong role="heading" aria-level="3"><<?php echo $cff_author_link_el . $cff_author_link_atts ?>><?php echo $cff_author_name ?></<?php echo $cff_author_link_el ?>></strong>
 				<span class="cff-story"> <?php echo $post_text_story ?></span>
 			</div>
 			<?php echo $cff_date ?>
 		<?php else : ?>
 			<span class="cff-page-name" <?php echo $cff_author_styles ?>>
-				<<?php echo $cff_author_link_el . $cff_author_link_atts ?>><?php echo $cff_author_name ?></<?php echo $cff_author_link_el ?>>
+				<strong role="heading" aria-level="3"><<?php echo $cff_author_link_el . $cff_author_link_atts ?>><?php echo $cff_author_name ?></<?php echo $cff_author_link_el ?>></strong>
 				<span class="cff-story"> <?php echo $post_text_story ?></span>
 			</span>
 		<?php endif; ?>
 	</div>
 	<div class="cff-author-img <?php echo $cff_author_img_class; ?>" data-avatar="<?php echo esc_url($cff_author_src) ?>">
-		<<?php echo $cff_author_link_el . $cff_author_link_atts ?>><img src="<?php echo esc_url($cff_author_img_src) ?>" title="<?php echo esc_attr($cff_author_name) ?>" alt="<?php echo esc_attr($cff_author_name) ?>" width=40 height=40 onerror="this.style.display='none'"></<?php echo $cff_author_link_el ?>>
+		<?php // a11y(1.1.1): the avatar is this link's only content — hiding it on error would leave a nameless link, so no onerror fallback ?>
+		<<?php echo $cff_author_link_el . $cff_author_link_atts ?>><img src="<?php echo esc_url($cff_author_img_src) ?>" title="<?php echo esc_attr($cff_author_name) ?>" alt="<?php echo esc_attr($cff_author_name) ?>" width=40 height=40></<?php echo $cff_author_link_el ?>>
 	</div>
 </div>
 <?php else : ?>

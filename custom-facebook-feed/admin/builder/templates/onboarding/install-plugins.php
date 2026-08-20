@@ -1,13 +1,13 @@
 <div class="sb-onboarding-wizard-step-wrapper sb-onboarding-wizard-step-installp sb-fs">
 
 	<div class="sb-onboarding-wizard-step-top sb-fs" data-large="true">
-		<h4 v-html="onboardingWizardStepContent['install-plugins'].heading"></h4>
+		<h1 tabindex="-1" class="sb-onboarding-wizard-step-heading" v-html="onboardingWizardStepContent['install-plugins'].heading"></h1>
 		<span v-html="onboardingWizardStepContent['install-plugins'].description"></span>
 	</div>
 
 	<div class="sb-onboarding-wizard-elements-list sb-fs">
 
-		<div class="sb-onboarding-wizard-elem sb-fs" v-for="plugin in onboardingWizardStepContent['install-plugins']?.pluginsList">
+		<div class="sb-onboarding-wizard-elem sb-fs" v-for="(plugin, idx) in onboardingWizardStepContent['install-plugins']?.pluginsList">
 			<div class="sb-onboarding-wizard-elem-info">
 				<div class="sb-onboarding-wizard-elem-icon" v-if="plugin?.icon !== undefined">
 					<img :src="plugin?.icon" :alt="plugin?.heading"/>
@@ -20,12 +20,17 @@
 							<e v-html="plugin?.installs_number"></e>
 						</span>
 					</strong>
-					<span v-if="plugin?.description !== undefined" v-html="plugin?.description"></span>
+					<span v-if="plugin?.description !== undefined" :id="'plugin-desc-' + idx" v-html="plugin?.description"></span>
 				</div>
 
 			</div>
 			<div class="sb-onboarding-wizard-elem-toggle">
-				<div  :data-color="plugin?.color" :data-active="switcherOnboardingWizardCheckActive(plugin)" :data-uncheck="plugin?.uncheck"  @click.prevent.default="switcherOnboardingWizardClick(plugin)"></div>
+				<button type="button" role="switch"
+						:aria-checked="switcherOnboardingWizardCheckActive(plugin) ? 'true' : 'false'"
+						:aria-label="plugin?.heading"
+						:aria-describedby="plugin?.description !== undefined ? 'plugin-desc-' + idx : null"
+						:data-color="plugin?.color" :data-active="switcherOnboardingWizardCheckActive(plugin)" :data-uncheck="plugin?.uncheck"
+						@click.prevent.default="switcherOnboardingWizardClick(plugin)"></button>
 			</div>
 		</div>
 

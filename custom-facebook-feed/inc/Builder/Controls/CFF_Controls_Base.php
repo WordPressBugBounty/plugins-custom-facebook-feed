@@ -110,8 +110,13 @@ abstract class CFF_Controls_Base
 		>
 
 		<div class="sb-control-elem-overlay"
+			:role="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? 'button' : null"
+			:tabindex="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? 0 : null"
+			:aria-label="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? (control.heading + ' (' + genericText.learnMore + ')') : null"
 			v-show="control.condition != undefined || control.checkExtension != undefined || control.checkExtensionDimmed != undefined  ? !checkControlCondition(control.condition, control.checkExtension, control.checkExtensionDimmed) : false"
 			@click.prevent.default="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? viewsActive.extensionsPopupElement = control.checkExtensionPopup : false"
+			@keydown.enter.prevent.default="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? viewsActive.extensionsPopupElement = control.checkExtensionPopup : false"
+			@keydown.space.prevent.default="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? viewsActive.extensionsPopupElement = control.checkExtensionPopup : false"
 			:class="control.checkExtensionPopup != undefined && !checkExtensionActive(control.checkExtensionPopup) ? 'sb-cursor-pointer' : ''"
 		>
 		</div>
@@ -119,7 +124,14 @@ abstract class CFF_Controls_Base
 		<div class="sb-control-elem-label" v-if="(control.heading == undefined && control.description == undefined) ? false : true &&  control.type != 'customview'">
 			<div class="sb-control-elem-label-title cff-fb-fs">
 				<div v-if="control.icon != undefined" class="sb-control-elem-icon" v-html="svgIcons[control.icon]"></div>
-				<div class="sb-control-elem-heading sb-small-p sb-dark-text" :data-underline="control.underline" :class="control.enableViewAction != undefined && control.enableViewAction != false ? 'sb-cursor-pointer' : ''" @click="control.enableViewAction != undefined && control.enableViewAction != false ? switchNestedSection(control.enableViewAction, null ) : false">
+				<div class="sb-control-elem-heading sb-small-p sb-dark-text" :data-underline="control.underline"
+					 :role="control.enableViewAction != undefined && control.enableViewAction != false ? 'button' : (control.type == 'heading' ? 'heading' : null)"
+					 :aria-level="control.enableViewAction != undefined && control.enableViewAction != false ? null : (control.type == 'heading' ? 3 : null)"
+					 :tabindex="control.enableViewAction != undefined && control.enableViewAction != false ? 0 : null"
+					 :class="control.enableViewAction != undefined && control.enableViewAction != false ? 'sb-cursor-pointer' : ''"
+					 @click.prevent.default="control.enableViewAction != undefined && control.enableViewAction != false ? switchNestedSection(control.enableViewAction, null ) : false"
+					 @keydown.enter.prevent.default="control.enableViewAction != undefined && control.enableViewAction != false ? switchNestedSection(control.enableViewAction, null ) : false"
+					 @keydown.space.prevent.default="control.enableViewAction != undefined && control.enableViewAction != false ? switchNestedSection(control.enableViewAction, null ) : false">
 					<span v-html="control.heading"></span>
 					<span v-if="control.proLabel != undefined && control.proLabel" class="sb-breadcrumb-pro-label">PRO</span>
 				</div>
@@ -128,10 +140,11 @@ abstract class CFF_Controls_Base
 				</div>
 			</div>
 			<div class="sb-control-elem-description">
-				<span v-html="control.description"></span> <a v-if="control.checkExtensionPopupLeranMore != undefined" @click.prevent.default="viewsActive.extensionsPopupElement = control.checkExtensionPopupLeranMore">{{genericText.learnMore}}</a>
+				<span v-html="control.description"></span> <a href="#" v-if="control.checkExtensionPopupLeranMore != undefined" @click.prevent.default="viewsActive.extensionsPopupElement = control.checkExtensionPopupLeranMore">{{genericText.learnMore}}</a>
 			</div>
 		</div>
-		<div class="sb-control-elem-output">
+		<div class="sb-control-elem-output"
+			:inert="(control.condition != undefined || control.checkExtension != undefined || control.checkExtensionDimmed != undefined ? !checkControlCondition(control.condition, control.checkExtension, control.checkExtensionDimmed) : false) ? true : null">
 			<?php $this->get_control_output($controlEditingTypeModel); ?>
 		</div>
 	</div>

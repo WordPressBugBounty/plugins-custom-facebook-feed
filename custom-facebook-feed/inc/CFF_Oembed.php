@@ -492,7 +492,7 @@ class CFF_Oembed
 			),
 			'icon' => array(
 				'src'  => CFF_PLUGIN_URL . 'admin/assets/img/cff-exclamation.svg',
-				'wrap' => '<span class="sb-notice-icon sb-error-icon"><img {src}></span>',
+				'wrap' => '<span class="sb-notice-icon sb-error-icon"><img {src} alt=""></span>',
 			),
 			'styles' => array(
 				'display' => 'flex',

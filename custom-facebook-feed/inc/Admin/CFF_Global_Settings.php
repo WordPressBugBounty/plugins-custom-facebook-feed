@@ -1012,10 +1012,12 @@ class CFF_Global_Settings
 			'feedsTab'			=> array(
 				'localizationBox' => array(
 					'title'	=> __('Localization', 'custom-facebook-feed'),
+					'localeLabel' => __('Localization language', 'custom-facebook-feed'),
 					'tooltip' => '<p>This controls the language of any predefined text strings provided by Facebook. For example, the descriptive text that accompanies some timeline posts (eg: Smash Balloon created an event) and the text in the \'Like Box\' widget. To find out how to translate the other text in the plugin see <a href="https://smashballoon.com/cff-how-does-the-plugin-handle-text-and-language-translation/?utm_campaign=facebook-free&utm_source=settings&utm_medium=docs">this FAQ</a>.</p>'
 				),
 				'timezoneBox' => array(
-					'title'	=> __('Timezone', 'custom-facebook-feed')
+					'title'	=> __('Timezone', 'custom-facebook-feed'),
+					'timezoneLabel' => __('Timezone', 'custom-facebook-feed')
 				),
 				'cachingBox' => array(
 					'title'	=> __('Caching', 'custom-facebook-feed'),
@@ -1035,10 +1037,16 @@ class CFF_Global_Settings
 					'am'		=> __('AM', 'custom-facebook-feed'),
 					'pm'		=> __('PM', 'custom-facebook-feed'),
 					'clearCache' => __('Clear All Caches', 'custom-facebook-feed'),
-					'promoText' => __('Update feeds asynchronously in the background with Facebook Feed Pro', 'custom-facebook-feed')
+					'promoText' => __('Update feeds asynchronously in the background with Facebook Feed Pro', 'custom-facebook-feed'),
+					'cachingTypeLabel' => __('Caching method', 'custom-facebook-feed'),
+					'intervalLabel' => __('Caching update interval', 'custom-facebook-feed'),
+					'cronHourLabel' => __('Caching update hour', 'custom-facebook-feed'),
+					'cronAmPmLabel' => __('Caching update AM or PM', 'custom-facebook-feed'),
+					'cacheTimeUnitLabel' => __('Cache time unit', 'custom-facebook-feed')
 				),
 				'gdprBox' => array(
 					'title'	=> __('GDPR', 'custom-facebook-feed'),
+					'gdprLabel'	=> __('GDPR image and video loading', 'custom-facebook-feed'),
 					'automatic'	=> __('Automatic', 'custom-facebook-feed'),
 					'yes'	=> __('Yes', 'custom-facebook-feed'),
 					'no'	=> __('No', 'custom-facebook-feed'),
@@ -1207,8 +1215,10 @@ class CFF_Global_Settings
 					'title' => __('Feed Issue Email Reports', 'custom-facebook-feed'),
 					'helpText' => __('If the feed is down due to a critical issue, we will switch to a cached version and notify you based on these settings. <a href="' . $feed_issue_email_url . '" target="_blank">View Documentation</a>', 'custom-facebook-feed'),
 					'sendReport' => __('Send a report every', 'custom-facebook-feed'),
+					'sendReportLabel' => __('Send report on which day', 'custom-facebook-feed'),
 					'to' => __('to', 'custom-facebook-feed'),
 					'placeholder' => __('Enter one or more email addresses separated by comma', 'custom-facebook-feed'),
+					'emailLabel' => __('Report recipient email addresses', 'custom-facebook-feed'),
 					'weekDays' => array(
 						array(
 							'val' => 'monday',
@@ -1256,15 +1266,15 @@ class CFF_Global_Settings
 			'selectSourceScreen' => CFF_Feed_Builder::select_source_screen_text(),
 
 			'nextCheck'	=> $this->get_cron_next_check(),
-			'loaderSVG' => '<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve"><path fill="#fff" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"/></path></svg>',
-			'checkmarkSVG' => '<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>',
-			'uploadSVG' => '<svg class="btn-icon" width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+			'loaderSVG' => '<svg aria-hidden="true" focusable="false" version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve"><path fill="#fff" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"/></path></svg>',
+			'checkmarkSVG' => '<svg aria-hidden="true" focusable="false" class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>',
+			'uploadSVG' => '<svg aria-hidden="true" focusable="false" class="btn-icon" width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M0.166748 14.6667H11.8334V13H0.166748V14.6667ZM0.166748 6.33333H3.50008V11.3333H8.50008V6.33333H11.8334L6.00008 0.5L0.166748 6.33333Z" fill="#141B38"/></svg>',
-			'exportSVG' => '<svg class="btn-icon" width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+			'exportSVG' => '<svg aria-hidden="true" focusable="false" class="btn-icon" width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M0.166748 14.6667H11.8334V13H0.166748V14.6667ZM11.8334 5.5H8.50008V0.5H3.50008V5.5H0.166748L6.00008 11.3333L11.8334 5.5Z" fill="#141B38"/></svg>',
-			'reloadSVG' => '<svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+			'reloadSVG' => '<svg aria-hidden="true" focusable="false" width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M15.8335 3.66667L12.5002 7H15.0002C15.0002 8.32608 14.4734 9.59785 13.5357 10.5355C12.598 11.4732 11.3262 12 10.0002 12C9.16683 12 8.3585 11.7917 7.66683 11.4167L6.45016 12.6333C7.51107 13.3085 8.74261 13.667 10.0002 13.6667C11.7683 13.6667 13.464 12.9643 14.7142 11.714C15.9644 10.4638 16.6668 8.76811 16.6668 7H19.1668L15.8335 3.66667ZM5.00016 7C5.00016 5.67392 5.52695 4.40215 6.46463 3.46447C7.40231 2.52678 8.67408 2 10.0002 2C10.8335 2 11.6418 2.20833 12.3335 2.58333L13.5502 1.36667C12.4893 0.691461 11.2577 0.332984 10.0002 0.333334C8.23205 0.333334 6.53636 1.03571 5.28612 2.28596C4.03587 3.5362 3.3335 5.23189 3.3335 7H0.833496L4.16683 10.3333L7.50016 7" fill="#141B38"/></svg>',
-			'tooltipHelpSvg' => '<svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.1665 8H10.8332V6.33333H9.1665V8ZM9.99984 17.1667C6.32484 17.1667 3.33317 14.175 3.33317 10.5C3.33317 6.825 6.32484 3.83333 9.99984 3.83333C13.6748 3.83333 16.6665 6.825 16.6665 10.5C16.6665 14.175 13.6748 17.1667 9.99984 17.1667ZM9.99984 2.16666C8.90549 2.16666 7.82186 2.38221 6.81081 2.801C5.79976 3.21979 4.8811 3.83362 4.10728 4.60744C2.54448 6.17024 1.6665 8.28986 1.6665 10.5C1.6665 12.7101 2.54448 14.8298 4.10728 16.3926C4.8811 17.1664 5.79976 17.7802 6.81081 18.199C7.82186 18.6178 8.90549 18.8333 9.99984 18.8333C12.21 18.8333 14.3296 17.9554 15.8924 16.3926C17.4552 14.8298 18.3332 12.7101 18.3332 10.5C18.3332 9.40565 18.1176 8.32202 17.6988 7.31097C17.28 6.29992 16.6662 5.38126 15.8924 4.60744C15.1186 3.83362 14.1999 3.21979 13.1889 2.801C12.1778 2.38221 11.0942 2.16666 9.99984 2.16666ZM9.1665 14.6667H10.8332V9.66666H9.1665V14.6667Z" fill="#434960"/></svg>',
+			'tooltipHelpSvg' => '<svg aria-hidden="true" focusable="false" width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.1665 8H10.8332V6.33333H9.1665V8ZM9.99984 17.1667C6.32484 17.1667 3.33317 14.175 3.33317 10.5C3.33317 6.825 6.32484 3.83333 9.99984 3.83333C13.6748 3.83333 16.6665 6.825 16.6665 10.5C16.6665 14.175 13.6748 17.1667 9.99984 17.1667ZM9.99984 2.16666C8.90549 2.16666 7.82186 2.38221 6.81081 2.801C5.79976 3.21979 4.8811 3.83362 4.10728 4.60744C2.54448 6.17024 1.6665 8.28986 1.6665 10.5C1.6665 12.7101 2.54448 14.8298 4.10728 16.3926C4.8811 17.1664 5.79976 17.7802 6.81081 18.199C7.82186 18.6178 8.90549 18.8333 9.99984 18.8333C12.21 18.8333 14.3296 17.9554 15.8924 16.3926C17.4552 14.8298 18.3332 12.7101 18.3332 10.5C18.3332 9.40565 18.1176 8.32202 17.6988 7.31097C17.28 6.29992 16.6662 5.38126 15.8924 4.60744C15.1186 3.83362 14.1999 3.21979 13.1889 2.801C12.1778 2.38221 11.0942 2.16666 9.99984 2.16666ZM9.1665 14.6667H10.8332V9.66666H9.1665V14.6667Z" fill="#434960"/></svg>',
 			'svgIcons' => CFF_Feed_Builder::builder_svg_icons()
 		);
 

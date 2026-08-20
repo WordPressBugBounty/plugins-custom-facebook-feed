@@ -12,6 +12,10 @@ if (! defined('ABSPATH')) {
 <div id="cff-support" class="cff-support">
 	<?php
 		CustomFacebookFeed\CFF_View::render('sections.header');
+	?>
+	<main>
+	<?php
 		CustomFacebookFeed\CFF_View::render('support.content');
 	?>
+	</main>
 </div>

@@ -1,14 +1,14 @@
 <div class="cff-fb-source-ctn sb-fs-boss cff-fb-center-boss" v-if="viewsActive.tempLoginAboutPopup !== false">
-	<div class="cff-fb-source-popup cff-fb-tempuser-popup cff-fb-popup-inside cff-narrower-modal">
-		<div class="cff-fb-popup-cls" @click.prevent.default="activateView('tempLoginAboutPopup')">
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<div class="cff-fb-source-popup cff-fb-tempuser-popup cff-fb-popup-inside cff-narrower-modal" role="dialog" aria-modal="true" aria-labelledby="cff-fb-temp-login-about-heading">
+		<button type="button" class="cff-fb-popup-cls" aria-label="Close dialog" @click.prevent.default="activateView('tempLoginAboutPopup')" @keydown.enter.prevent="activateView('tempLoginAboutPopup')" @keydown.space.prevent="activateView('tempLoginAboutPopup')">
+			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
 				<path
 					d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
 					fill="#141B38" />
 			</svg>
-		</div>
+		</button>
 		<div class="cff-fb-fs">
-			<h3>
+			<h3 id="cff-fb-temp-login-about-heading">
 				<?php echo __('Temporary Login Links', 'custom-facebook-feed') ?>
 			</h3>
 

@@ -117,11 +117,24 @@ class CFF_Feed_Builder
 		$sb_other_plugins = self::install_plugins_popup();
 		$plugin = $sb_other_plugins[ $plugin ];
 
-		// Build the content for modals
-		$output = '<div class="cff-fb-source-popup cff-fb-popup-inside cff-install-plugin-modal">
-		<div class="cff-fb-popup-cls"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+		// Build the content for modals.
+		// SMASH-1378 A11Y: the modal is declared as role="dialog" + aria-modal so
+		// the shared popup-focus-trap.js (enqueued on CFF admin pages) moves focus
+		// inside on open, traps Tab, and closes on Esc. The close control is a real
+		// focusable, labelled button so keyboard users can dismiss it; its existing
+		// .cff-fb-popup-cls class keeps the jQuery click-to-close handler wired.
+		$close_label = esc_attr__('Close dialog', 'custom-facebook-feed');
+		$dialog_label = esc_attr(
+			sprintf(
+				/* translators: %s: name of the plugin being offered for install */
+				__('Install %s', 'custom-facebook-feed'),
+				$plugin['name']
+			)
+		);
+		$output = '<div class="cff-fb-source-popup cff-fb-popup-inside cff-install-plugin-modal" role="dialog" aria-modal="true" aria-label="' . $dialog_label . '">
+		<button type="button" class="cff-fb-popup-cls" aria-label="' . $close_label . '"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
 		<path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"></path>
-		</svg></div>
+		</svg></button>
 		<div class="cff-install-plugin-body cff-fb-fs">
 		<div class="cff-install-plugin-header">
 		<div class="sb-plugin-image">' . $plugin['svgIcon'] . '</div>
@@ -868,10 +881,24 @@ class CFF_Feed_Builder
 	 */
 	public static function global_enqueue_ressources_scripts($is_settings = false)
 	{
+		// Register cff-tokens-local here as well as in admin/enqueu-script.php.
+		// global_enqueue_ressources_scripts() is hooked into the builder/settings
+		// page lifecycle, which can fire BEFORE the admin_enqueue_scripts callback
+		// in admin/enqueu-script.php on some page loads, so the dependency below
+		// would otherwise reference an unregistered handle and trigger
+		// "WP_Styles::add was called incorrectly" in WP 6.9.1+.
+		// wp_register_style() is idempotent — re-registering an existing handle
+		// is a no-op.
+		wp_register_style(
+			'cff-tokens-local',
+			CFF_PLUGIN_URL . 'assets/tokens/cff-tokens-local.css',
+			array(),
+			CFFVER
+		);
 		wp_enqueue_style(
 			'feed-global-style',
 			CFF_PLUGIN_URL . 'admin/builder/assets/css/global.css',
-			false,
+			array('cff-tokens-local'),
 			CFFVER
 		);
 
@@ -918,6 +945,17 @@ class CFF_Feed_Builder
 			'install-plugin-popup',
 			CFF_PLUGIN_URL . 'admin/builder/assets/js/install-plugin-popup.js',
 			null,
+			CFFVER,
+			true
+		);
+
+		// SMASH-1378 A11Y-004: focus trap for popups declared as role="dialog".
+		// Ported from instagram-feed-pro (canonical pattern). Wave 2 dialog-role
+		// additions will be picked up automatically by the MutationObserver.
+		wp_enqueue_script(
+			'cff-popup-focus-trap',
+			CFF_PLUGIN_URL . 'admin/builder/assets/js/popup-focus-trap.js',
+			array(),
 			CFFVER,
 			true
 		);
@@ -990,6 +1028,15 @@ class CFF_Feed_Builder
 			'setup' => __('Setup', 'custom-facebook-feed'),
 			'addNew' => __('Add New', 'custom-facebook-feed'),
 			'addSource' => __('Add Source', 'custom-facebook-feed'),
+			'sourceSettings' => __('Source settings', 'custom-facebook-feed'),
+			'collapse' => __('Collapse', 'custom-facebook-feed'),
+			'viewSourceInstances' => __('View where this source is used', 'custom-facebook-feed'),
+			'editEventSource' => __('Edit event source', 'custom-facebook-feed'),
+			'copyAccountId' => __('Copy account ID', 'custom-facebook-feed'),
+			'editIcalUrl' => __('Edit iCal URL', 'custom-facebook-feed'),
+			'copyAccessToken' => __('Copy access token', 'custom-facebook-feed'),
+			'deleteSource' => __('Delete', 'custom-facebook-feed'),
+			'manageSources' => __('Manage Sources', 'custom-facebook-feed'),
 			'previous' => __('Previous', 'custom-facebook-feed'),
 			'next' => __('Next', 'custom-facebook-feed'),
 			'finish' => __('Finish', 'custom-facebook-feed'),
@@ -1012,6 +1059,7 @@ class CFF_Feed_Builder
 			'edit' => __('Edit', 'custom-facebook-feed'),
 			'duplicate' => __('Duplicate', 'custom-facebook-feed'),
 			'delete' => __('Delete', 'custom-facebook-feed'),
+			'selectFeed' => __('Select feed', 'custom-facebook-feed'),
 			'shortcode' => __('Shortcode', 'custom-facebook-feed'),
 			'clickViewInstances' => __('Click to view Instances', 'custom-facebook-feed'),
 			'usedIn' => __('Used in', 'custom-facebook-feed'),
@@ -1037,8 +1085,11 @@ class CFF_Feed_Builder
 			'confirm' => __('Confirm', 'custom-facebook-feed'),
 			'cancel' => __('Cancel', 'custom-facebook-feed'),
 			'clearFeedCache' => __('Clear Feed Cache', 'custom-facebook-feed'),
+			'customizerTabs' => __('Customizer Tabs', 'custom-facebook-feed'),
 			'saveSettings' => __('Save Changes', 'custom-facebook-feed'),
 			'feedName' => __('Feed Name', 'custom-facebook-feed'),
+			'editFeedName' => __('Edit feed name', 'custom-facebook-feed'),
+			'saveFeedName' => __('Save feed name', 'custom-facebook-feed'),
 			'shortcodeText' => __('Shortcode', 'custom-facebook-feed'),
 			'general' => __('General', 'custom-facebook-feed'),
 			'feeds' => __('Feeds', 'custom-facebook-feed'),
@@ -1054,6 +1105,8 @@ class CFF_Feed_Builder
 			'reconnect' => __('Reconnect', 'custom-facebook-feed'),
 			'feed' => __('feed', 'custom-facebook-feed'),
 			'sourceNotUsedYet' => __('Source is not used yet', 'custom-facebook-feed'),
+			'wizardStep' => __('Step', 'custom-facebook-feed'),
+			'wizardStepOf' => __('of', 'custom-facebook-feed'),
 			'exitSetup'             			=> __('Exit Setup', 'instagram-feed'),
 			'issue' => __('Issue', 'custom-facebook-feed'),
 			'issueFound' => __('Issue Found', 'custom-facebook-feed'),
@@ -2536,6 +2589,14 @@ class CFF_Feed_Builder
 			'albumsIconFree' => '<svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg"> <g clip-path="url(#albumsFreeclip0)"> <rect x="9.92969" y="6.29321" width="21" height="21" transform="rotate(4 9.92969 6.29321)" fill="#B6DDAD"/> <rect x="18.4531" y="16.0992" width="14.4375" height="14.4375" transform="rotate(4 18.4531 16.0992)" fill="#96CE89"/> </g> <g clip-path="url(#albumsFreeclip1)"> <rect x="2.36523" y="2" width="21" height="21" fill="#F6966B"/> <circle cx="-1.79102" cy="17.0938" r="17.7188" fill="#F9BBA0"/> </g> <defs> <clipPath id="albumsFreeclip0"> <rect x="9.92969" y="6.29321" width="21" height="21" rx="0.4375" transform="rotate(4 9.92969 6.29321)" fill="white"/> </clipPath> <clipPath id="albumsFreeclip1"> <rect x="2.36523" y="2" width="21" height="21" rx="0.4375" fill="white"/> </clipPath> </defs> </svg>',
 			'eventsIconFree' => '<svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect x="3.75" y="3" width="26.1602" height="26.1602" rx="2" fill="#43A6DB"/> <path d="M11.7852 21.9999L16.25 18.9999L20.7852 21.9999V11.1523C20.7852 10.5305 20.2591 10.0044 19.6373 10.0044L12.8978 9.99994C12.2522 9.99994 11.75 10.526 11.75 11.1478L11.7852 21.9999Z" fill="white"/> </svg>',
 		];
+
+		// Mark every factory-emitted SVG as decorative so assistive tech ignores the glyph.
+		foreach ( $builder_svg_icons as $key => $svg ) {
+			if ( is_string( $svg ) && false !== strpos( $svg, '<svg' ) && false === strpos( $svg, 'aria-hidden' ) ) {
+				$builder_svg_icons[ $key ] = preg_replace( '/<svg\b/', '<svg aria-hidden="true" focusable="false"', $svg, 1 );
+			}
+		}
+
 		return $builder_svg_icons;
 	}
 

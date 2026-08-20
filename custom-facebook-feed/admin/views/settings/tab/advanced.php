@@ -1,4 +1,4 @@
-<div v-if="selected === 'app-4'">
+<div v-if="selected === 'app-4'" id="cff-panel-advanced" role="tabpanel" aria-labelledby="cff-settings-tab-advanced" tabindex="0">
     <div class="sb-tab-box sb-optimize-box sb-reset-box-style clearfix">
         <div class="tab-label">
             <h3>{{advancedTab.optimizeBox.title}}</h3>
@@ -143,13 +143,13 @@
                     <span class="help-text">
                         {{advancedTab.feedIssueBox.sendReport}}
                     </span>
-                    <select id="cff-send-report" class="cff-select size-sm mr-3" v-model="model.advanced.email_notification">
+                    <select id="cff-send-report" class="cff-select size-sm mr-3" :aria-label="advancedTab.feedIssueBox.sendReportLabel" v-model="model.advanced.email_notification">
                         <option v-for="(name, key) in advancedTab.feedIssueBox.weekDays" :value="name.val">{{name.label}}</option>
                     </select>
                     <span class="help-text">
                         {{advancedTab.feedIssueBox.to}}
                     </span>
-                    <input type="text" name="report-emails" id="report-emails" class="cff-form-field" :placeholder="advancedTab.feedIssueBox.placeholder" v-model="model.advanced.email_notification_addresses">
+                    <input type="text" name="report-emails" id="report-emails" class="cff-form-field" :aria-label="advancedTab.feedIssueBox.emailLabel" :placeholder="advancedTab.feedIssueBox.placeholder" v-model="model.advanced.email_notification_addresses">
                 </div>
                 <div class="help-text">
                     <span v-html="advancedTab.feedIssueBox.helpText"></span>

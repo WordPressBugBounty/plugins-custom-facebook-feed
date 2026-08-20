@@ -177,7 +177,6 @@
     text-decoration: none;
 }
 .sb-social-wall-link a:focus {
-    outline: none;
     box-shadow: none;
 }
 .sb-social-wall-link:last-child {
@@ -226,7 +225,6 @@
     width: 16px;
 }
 .cff-fb-hd-btn:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-fb-hd-btn:hover {
@@ -283,7 +281,6 @@
 .cff-section-header .cff-search-doc .cff-search-doc-field .sb-btn-input {
     height: 100%;
     border: none;
-    outline: none;
     background-color: transparent;
     margin-left: 25px;
     color: #141B38;
@@ -295,7 +292,6 @@
 }
 .cff-section-header .cff-search-doc .cff-search-doc-field:focus,
 .cff-section-header .cff-search-doc .cff-search-doc-field .sb-btn-input:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-section-header .cff-search-doc .cff-search-doc-field .sb-btn-icon {
@@ -497,7 +493,6 @@
 .cff-support-contact-block .sb-cb-btn:active {
     background: #BC120E;
     border-color: #BC120E;
-    outline: none;
     box-shadow: none;
 }
 .cff-support-contact-block .sb-cb-btn span {
@@ -587,7 +582,6 @@
     border-bottom: 1px solid #E8E8EB;
 }
 .cff-system-info-section .cff-system-info .system_info:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-system-info-section .cff-system-info .system_info a {

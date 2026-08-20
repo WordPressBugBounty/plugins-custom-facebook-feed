@@ -95,7 +95,6 @@
     padding: 8px;
 }
 .sb-form-field .cff-form-field:focus {
-    outline: none;
     box-shadow: none;
 }
 .sb-form-field .field-icon {
@@ -120,6 +119,14 @@
     position: absolute;
     white-space: nowrap;
     width: 1px;
+}
+/* SMASH-1378 a11y (WCAG 2.4.7): the checkbox input is visually hidden
+   (clip:rect) so its native focus ring is invisible. Redirect the ring to the
+   visible pill track so keyboard focus is perceivable. Mirrors the IG settings
+   toggle treatment. */
+.cff-checkbox input[type=checkbox]:focus-visible + .toggle-track {
+    outline: 2px solid var(--sb-focus-ring, #2271b1);
+    outline-offset: 2px;
 }
 .toggle-track {
     width: 36px;
@@ -203,7 +210,6 @@
     color: #8C8F9A;
 }
 .sb-form-field .cff-textarea:focus {
-    outline: none;
     box-shadow: none;
     border-color: #9c9ca0;
 }
@@ -495,6 +501,23 @@
     left: 0px;
     z-index: -1;
 }
+/* a11y: reset UA button defaults so <button class="tab"> renders as a tab strip,
+   not a row of boxed buttons (SMASH-1379). NOTE: do NOT use `font: inherit` here —
+   the `.sb-tabs-container .sb-tabs .tab` rule sets explicit font-size/font-weight,
+   but `button.tab` has higher specificity than `.tab`, so `font: inherit` would win
+   and shrink labels. Let the `.tab` rule define typography. */
+.sb-tabs-container .sb-tabs button.tab {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    color: inherit;
+    text-align: left;
+    box-shadow: none;
+    border-radius: 0;
+}
+
 .sb-tabs-container .sb-tabs .tab {
     position: relative;
     padding: 9px 25px 15px 25px;
@@ -1102,7 +1125,6 @@
 }
 .cff-table tbody .cff-input:focus {
     border: 1px solid #97989c;
-    outline: none;
     box-shadow: none;
 }
 @media (max-width: 767px) {
@@ -1537,7 +1559,6 @@ Sources Instance Popup
 }
 .cff-fb-inst-tbl-ctn a, .cff-fb-inst-tbl-ctn a:focus {
     text-decoration: none;
-    outline: none;
 }
 .cff-fd-lst-actions .cff-fd-lst-btn, .cff-fb-inst-tbl-ctn .cff-fd-lst-btn {
     box-sizing: border-box;

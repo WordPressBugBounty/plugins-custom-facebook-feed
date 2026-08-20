@@ -1,13 +1,13 @@
 <script type="text/x-template" id="cff-post-author-component">
 	<div class="cff-post-item-info-ctn cff-fb-fs" v-if="customizerFeedData.settings.feedtype != 'events'">
 		<div class="cff-post-item-avatar" v-if="customizerFeedData.settings.include.includes('author')">
-			<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.picture.data.url')" href="" target="_blank">
-				<img :src="singlePost.from.picture.data.url">
+			<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.picture.data.url')" :href="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.id') ? 'https://www.facebook.com/'+singlePost.from.id : '#'" target="_blank" :aria-label="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.name') ? singlePost.from.name : 'View author'">
+				<img alt="" aria-hidden="true" :src="singlePost.from.picture.data.url">
 			</a>
 		</div>
 		<div class="cff-post-item-info" v-if="customizerFeedData.settings.include.includes('author')">
 			<div class="cff-post-item-info-top">
-				<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.name')" class="cff-post-item-author-name" href="" target="_blank" v-html="singlePost.from.name"></a>
+				<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.name')" class="cff-post-item-author-name" :href="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.id') ? 'https://www.facebook.com/'+singlePost.from.id : '#'" target="_blank" v-html="singlePost.from.name"></a>
 				<span class="cff-post-item-story" v-html="$parent.$parent.printStory(singlePost)"></span>
 				<span class="cff-rating" v-if="customizerFeedData.settings.feedtype == 'reviews' && singlePost.rating != undefined">
 					<span class="cff-star" v-for="singleRating in singlePost.rating" :key="singleRating">★</span>
@@ -29,17 +29,17 @@
 	<div class="cff-post-item-media-ctn cff-fb-fs" v-if="postmedia">
 		<div class="cff-post-item-iframe-ctn" :data-source="postmedia.site" v-if="checkIframePostDisplay(postmedia)">
 			<div class="cff-post-item-iframe">
-				<iframe :src="postmedia.url" height="200" frameborder="0" type="text/html" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+				<iframe :src="postmedia.url" height="200" frameborder="0" type="text/html" title="<?php esc_attr_e('Video preview', 'custom-facebook-feed'); ?>" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 			</div>
 			<cff-post-overlay-component :parent="$parent.$parent" v-if="postmedia.site == 'video'" :single-post="singlePost" :customizer-feed-data="customizerFeedData"></cff-post-overlay-component>
 		</div>
 		<div class="cff-post-item-video-ctn" v-if="postmedia.type == 'video' && customizerFeedData.settings.include.includes('media')">
-			<iframe :src="'https://www.facebook.com/v2.3/plugins/video.php?href='+postmedia.args.unshimmedUrl" height="200" type="text/html"></iframe>
+			<iframe :src="'https://www.facebook.com/v2.3/plugins/video.php?href='+postmedia.args.unshimmedUrl" height="200" type="text/html" title="<?php esc_attr_e('Video preview', 'custom-facebook-feed'); ?>"></iframe>
 			<cff-post-overlay-component :parent="$parent.$parent" :single-post="singlePost" :customizer-feed-data="customizerFeedData"></cff-post-overlay-component>
 		</div>
 		<div class="cff-post-item-link-ctn" v-if="postmedia.type == 'link' && customizerFeedData.settings.include.includes('sharedlinks')" :data-linkbox="customizerFeedData.settings.disablelinkbox">
-			<a href="" v-if="customizerFeedData.settings.include.includes('media')">
-				<img :src="postmedia.args.poster">
+			<a href="" v-if="customizerFeedData.settings.include.includes('media')" :aria-label="postmedia.args.title">
+				<img alt="" :src="postmedia.args.poster">
 			</a>
 			<div class="cff-post-item-link-info cff-fb-fs">
 				<a class="cff-post-item-link-a" :href="postmedia.args.unshimmedUrl" target="_blank" v-html="postmedia.args.title"></a>
@@ -57,9 +57,9 @@
 	<div class="cff-post-item-media-wrap cff-fb-fs" v-if="$parent.$parent.checkProcessPostImage(singlePost)">
 		<div class="cff-post-item-media-album">
 			<cff-post-overlay-component :parent="$parent.$parent" :single-post="singlePost" :customizer-feed-data="customizerFeedData"></cff-post-overlay-component>
-			<a href="#">
+			<a href="#" aria-label="View post">
 				<div class="cff-post-item-album-poster">
-					<img class="cff-post-item-full-img" :src="$parent.$parent.processPostImageSrc(singlePost)">
+					<img alt="" class="cff-post-item-full-img" :src="$parent.$parent.processPostImageSrc(singlePost)">
 				</div>
 				<div class="cff-post-item-album-thumbs" v-if="customizerFeedData.settings.feedtype != 'events' && singlePost.attachments.data[0].subattachments" :data-length="singlePost.attachments.data[0].subattachments.data.slice(1, 4).length">
 					<span class="cff-post-item-album-thumb" v-for="(subAttachment, subAttachmentIndex) in singlePost.attachments.data[0].subattachments.data.slice(1, 4)" :style="'background-image:url('+subAttachment.media.image.src+');'">
@@ -114,11 +114,11 @@
 				</a>
 			</div>
 			<div class="cff-post-item-action-link" v-if="customizerFeedData.settings.include.includes('link')">
-				<a class="cff-post-item-action-txt" v-if="$parent.$parent.valueIsEnabled(customizerFeedData.settings.showfacebooklink)" :href="'https://www.facebook.com/'+singlePost.id" target="_blank">{{customizerFeedData.settings.facebooklinktext}}</a>
+				<a class="cff-post-item-action-txt" v-if="$parent.$parent.valueIsEnabled(customizerFeedData.settings.showfacebooklink)" :href="'https://www.facebook.com/'+singlePost.id" target="_blank" :aria-label="customizerFeedData.settings.facebooklinktext || 'View on Facebook'">{{customizerFeedData.settings.facebooklinktext}}</a>
 				<span class="cff-post-item-action-txt cff-post-item-dot" v-if="$parent.$parent.valueIsEnabled(customizerFeedData.settings.showfacebooklink) && $parent.$parent.valueIsEnabled(customizerFeedData.settings.showsharelink)">&middot;</span>
 				<span class="cff-post-item-share-link" v-if="$parent.$parent.valueIsEnabled(customizerFeedData.settings.showsharelink)">
 					<div class="cff-post-item-share-tooltip" v-show="$parent.$parent.showedSocialShareTooltip == singlePost.id">
-						<a v-for="(socialLink, socialName) in $parent.$parent.socialShareLink" :href="socialLink + 'https://www.facebook.com/'+singlePost.id" :class="'cff-bghv-'+socialName" v-html="$parent.$parent.svgIcons[socialName +'Share']" target="_blank"></a>
+						<a v-for="(socialLink, socialName) in $parent.$parent.socialShareLink" :href="socialLink + 'https://www.facebook.com/'+singlePost.id" :class="'cff-bghv-'+socialName" :aria-label="'Share on ' + socialName" v-html="$parent.$parent.svgIcons[socialName +'Share']" target="_blank"></a>
 					</div>
 					<span class="cff-post-item-action-txt" @click.prevent.default="$parent.$parent.toggleSocialShareTooltip(singlePost.id)">{{customizerFeedData.settings.sharelinktext}}</span>
 				</span>

@@ -25,10 +25,15 @@ if ($cff_header_type == "text") : // Start Text Header
 	$cff_icon_style 		= $this_class->get_style_attribute('header_icon');
 	$cff_header_classes 	= CFF_Shortcode_Display::get_header_txt_classes($cff_header_outside);
 	?>
-	<h3 class="cff-header <?php echo esc_attr($cff_header_classes) ?>" <?php echo $cff_header_styles ?>>
+	<?php
+	// a11y(1.3.1): heading level is page-context dependent; let themes slot the
+	// feed header into their own document outline.
+	$cff_header_heading_tag = tag_escape(apply_filters('cff_header_heading_tag', 'h3'));
+	?>
+	<<?php echo $cff_header_heading_tag; ?> class="cff-header <?php echo esc_attr($cff_header_classes) ?>" <?php echo $cff_header_styles ?>>
 		<span class="fa fab fa-<?php echo esc_attr($atts['headericon'])  ?>" <?php echo $cff_icon_style ?> aria-hidden="true"></span>
 		<span class="header-text"><?php echo wp_kses_post(stripslashes($atts['headertext'])); ?></span>
-	</h3>
+	</<?php echo $cff_header_heading_tag; ?>>
 	<?php
 // End Text Header
 elseif ($cff_header_type == "visual" && $cff_show_header) : // Start Visual Header
@@ -84,7 +89,7 @@ elseif ($cff_header_type == "visual" && $cff_show_header) : // Start Visual Head
 			<div class="cff-likes-box">
 				<div class="cff-square-logo"><?php echo $square_logo; ?></div>
 				<div class="cff-likes-count">
-					<?php echo number_format($likes_count, 0); ?>
+					<span class="cff-screenreader"><?php echo esc_html__('Page likes:', 'custom-facebook-feed'); ?> </span><?php echo number_format($likes_count, 0); ?>
 				</div>
 			</div>
 			<?php endif; ?>
@@ -93,17 +98,18 @@ elseif ($cff_header_type == "visual" && $cff_show_header) : // Start Visual Head
 		<div class="cff-header-inner-wrap">
 			<?php if ($cff_header_name && $avatar !== '') : ?>
 				<div class="cff-header-img">
-					<a href="<?php echo esc_url($link); ?>" target="_blank" rel="nofollow noopener" title="<?php echo esc_attr($name); ?>"><img src="<?php echo esc_url($avatar_img_src); ?>" alt="<?php echo esc_attr($name); ?>" data-avatar="<?php echo esc_url($avatar); ?>"></a>
+					<a href="<?php echo esc_url($link); ?>" target="_blank" rel="nofollow noopener" title="<?php echo esc_attr($name); ?>"><img src="<?php echo esc_url($avatar_img_src); ?>" alt="<?php echo esc_attr($name); ?>" data-avatar="<?php echo esc_url($avatar); ?>"><span class="cff-screenreader"><?php echo esc_html__('(opens in a new tab)', 'custom-facebook-feed'); ?></span></a>
 				</div>
 			<?php endif; ?>
 			<div class="cff-header-text" <?php echo $header_style_attribute; ?>>
 
 			<?php if ($cff_header_name) : ?>
-				<a href="<?php echo esc_url($link); ?>" target="_blank" rel="nofollow noopener" title="<?php echo esc_attr($name); ?>" class="cff-header-name"><h3 <?php echo $header_font_size; ?>><?php echo esc_html($name); ?></h3></a>
+				<?php $cff_header_heading_tag = tag_escape(apply_filters('cff_header_heading_tag', 'h3')); ?>
+				<a href="<?php echo esc_url($link); ?>" target="_blank" rel="nofollow noopener" title="<?php echo esc_attr($name); ?>" class="cff-header-name"><<?php echo $cff_header_heading_tag; ?> <?php echo $header_font_size; ?>><?php echo esc_html($name); ?></<?php echo $cff_header_heading_tag; ?>><span class="cff-screenreader"><?php echo esc_html__('(opens in a new tab)', 'custom-facebook-feed'); ?></span></a>
 			<?php endif; ?>
 			<?php if ($cff_header_bio && !$cff_header_cover) : ?>
 				<div class="cff-bio-info">
-					<span class="cff-posts-count"><?php echo $square_logo . number_format($likes_count, 0); ?></span>
+					<span class="cff-posts-count"><?php echo $square_logo; ?><span class="cff-screenreader"><?php echo esc_html__('Page likes:', 'custom-facebook-feed'); ?> </span><?php echo number_format($likes_count, 0); ?></span>
 				</div>
 			<?php endif; ?>
 			<?php if ($should_show_bio) : ?>

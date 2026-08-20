@@ -1,6 +1,6 @@
 <div class="cff-oembed-modal" v-if="openInstaInstaller">
-    <div class="cff-modal-content">
-        <button type="button" class="cancel-btn cff-btn" v-html="modal.timesIcon" @click="closeModal"></button>
+    <div class="cff-modal-content" role="dialog" aria-modal="true" :aria-label="modal.title">
+        <button type="button" class="cancel-btn cff-btn" v-html="modal.timesIcon" @click="closeModal" aria-label="<?php echo esc_attr__('Close', 'custom-facebook-feed'); ?>"></button>
         <div class="modal-icon">
             <img :src="modal.instaIcon" :alt="modal.title">
         </div>

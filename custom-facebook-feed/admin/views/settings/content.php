@@ -19,7 +19,7 @@
 	<div class="sb-tabs-container" id="sb-tabs-container">
 		<form action="">
 			<div class="sb-tabs">
-				<div class="left-buttons">
+				<div class="left-buttons" role="tablist" aria-label="<?php esc_attr_e( 'Settings', 'custom-facebook-feed' ); ?>">
 					<tab v-bind:section="section" v-bind:index="index" v-for="(section, index) in sections" v-bind:class="{ active : section === currentTab }" v-bind:data-index="index+1" key="index"></tab>
 				</div>
 				<div class="right-buttons">
@@ -61,7 +61,7 @@
 	include_once CFF_BUILDER_DIR . 'templates/sections/popup/confirm-dialog-popup.php';
 	include_once CFF_BUILDER_DIR . 'templates/sections/popup/source-instances.php';
 ?>
-<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type">
+<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type" role="status" aria-live="polite" aria-atomic="true">
 	<div class="sb-notification-icon" v-html="svgIcons[notificationElement.type+'Notification']"></div>
 	<span class="sb-notification-text" v-html="notificationElement.text"></span>
 </div>

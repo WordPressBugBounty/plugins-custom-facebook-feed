@@ -1,4 +1,4 @@
-<div v-if="selected === 'app-1'">
+<div v-if="selected === 'app-1'" id="cff-panel-general" role="tabpanel" aria-labelledby="cff-settings-tab-general" tabindex="0">
     <div class="sb-tab-box sb-license-box clearfix">
         <div class="tab-label">
             <h3>{{generalTab.licenseBox.title}}</h3>
@@ -21,7 +21,7 @@
                 <div v-else class="d-flex">
                     <div class="field-left-content">
                         <div class="sb-form-field">
-                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
+                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
                         </div>
                         <div class="form-info d-flex justify-between">
 
@@ -71,7 +71,7 @@
                 <div v-else class="d-flex">
                     <div class="field-left-content">
                         <div class="sb-form-field">
-                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
+                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
                         </div>
                         <div class="form-info d-flex justify-between">
 
@@ -105,7 +105,7 @@
                 <div class="d-flex">
                     <div class="field-left-content">
                         <div class="sb-form-field">
-                            <input type="password" name="license-key" id="license-key" class="cff-form-field" value="******************************" v-model="licenseKey">
+                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" value="******************************" v-model="licenseKey">
                             <span class="field-icon fa fa-check-circle"></span>
                         </div>
                         <div class="form-info d-flex justify-between">
@@ -150,7 +150,7 @@
                 <div class="d-flex">
                     <div class="field-left-content">
                         <div class="sb-form-field">
-                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
+                            <input type="password" name="license-key" id="license-key" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="licenseKey">
                             <span class="field-icon field-icon-error fa fa-times-circle" v-if="licenseErrorMsg !== null"></span>
                         </div>
                         <div class="mb-6" v-if="licenseErrorMsg !== null">
@@ -189,7 +189,7 @@
                 <div class="d-flex" v-if="extension.licenseStatus !== false && extension.licenseStatus == 'valid'">
                     <div class="field-left-content">
                         <div class="sb-form-field">
-                            <input type="password" class="cff-form-field" value="show pass" v-model="extension.licenseKey">
+                            <input type="password" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" value="show pass" v-model="extension.licenseKey">
                             <span v-if="extension.licenseStatus == 'valid'" class="field-icon fa fa-check-circle"></span>
                         </div>
                         <div class="form-info d-flex justify-between">
@@ -216,7 +216,7 @@
                 <div class="d-flex" v-else>
                     <div class="field-left-content">
                         <div class="sb-form-field" :class="{'sb-field-error': extensionFieldHasError && pressedBtnName === extension.name}">
-                            <input type="password" class="cff-form-field" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="extensionsLicenseKey[extension.name]">
+                            <input type="password" class="cff-form-field" :aria-label="generalTab.licenseBox.inactiveFieldPlaceholder" :placeholder="generalTab.licenseBox.inactiveFieldPlaceholder" v-model="extensionsLicenseKey[extension.name]">
                         </div>
                         <div class="form-info d-flex justify-between">
                             <span class="cff-manage-license">
@@ -249,8 +249,8 @@
                 <span class="help-text">
                     {{generalTab.manageSource.description}}
                 </span>
-                <div class="sb-sources-list">
-                    <div class="sb-srcs-item sb-srcs-new" @click.prevent.default="activateView('sourcePopup','creationRedirect')">
+                <div class="sb-sources-list" role="group" :aria-label="generalTab.manageSource.title">
+                    <div class="sb-srcs-item sb-srcs-new" role="button" tabindex="0" :aria-label="genericText.addSource" @click.prevent.default="activateView('sourcePopup','creationRedirect')" @keydown.enter.prevent.default="activateView('sourcePopup','creationRedirect')" @keydown.space.prevent.default="activateView('sourcePopup','creationRedirect')">
                         <span class="add-new-icon">
                             <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M14.25 8H8.25V14H6.25V8H0.25V6H6.25V0H8.25V6H14.25V8Z" fill="#0068A0"/>
@@ -261,7 +261,7 @@
                     <div class="sb-srcs-item" v-for="(source, sourceIndex) in sourcesList" :class="{expanded: expandedFeedID == sourceIndex + 1, 'sb-account-has-error' : source.error !== ''}">
                         <div class="cff-fb-srcs-item-ins">
                             <div class="sb-srcs-item-avatar">
-                                <img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="Group Source Avatar">
+                                <img :src="typeof source.avatar_url !== 'undefined' && source.account_type === 'group' ? source.avatar_url : 'https://graph.facebook.com/'+source.account_id+'/picture'" alt="" aria-hidden="true">
                             </div>
                             <div class="sb-srcs-item-inf">
                                 <div class="sb-srcs-item-name">
@@ -285,7 +285,7 @@
                                 </div>
                                 <div class="sb-srcs-item-used">
                                     <span v-html="printUsedInText(source.used_in)"></span>
-                                    <div v-if="source.used_in > 0" class="sb-control-elem-tltp"><div class="sb-control-elem-tltp-icon" v-html="svgIcons['info']" @click.prevent.default="viewSourceInstances(source)"></div></div>
+                                    <div v-if="source.used_in > 0" class="sb-control-elem-tltp"><div class="sb-control-elem-tltp-icon" role="button" tabindex="0" :aria-label="(genericText.viewSourceInstances || 'View where this source is used') + ': ' + source.username" v-html="svgIcons['info']" @click.prevent.default="viewSourceInstances(source)" @keydown.enter.prevent.default="viewSourceInstances(source)" @keydown.space.prevent.default="viewSourceInstances(source)"></div></div>
                                     <div v-if="source.error !== '' || source.error_encryption" class="sb-source-error-wrap">
                                         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M6.50008 0.666664C3.28008 0.666664 0.666748 3.28 0.666748 6.5C0.666748 9.72 3.28008 12.3333 6.50008 12.3333C9.72008 12.3333 12.3334 9.72 12.3334 6.5C12.3334 3.28 9.72008 0.666664 6.50008 0.666664ZM7.08342 9.41667H5.91675V8.25H7.08342V9.41667ZM7.08342 7.08333H5.91675V3.58333H7.08342V7.08333Z" fill="#D72C2C"/>
@@ -303,16 +303,16 @@
                                 </div>
                             </div>
                             <div class="sb-srcs-item-actions">
-                                <div class="sb-srcs-item-actions-btn sb-srcs-item-delete" @click.prevent.default="openDialogBox('deleteSource', source)" v-html="svgIcons['delete']"></div>
-                                <div class="sb-srcs-item-actions-btn sb-srcs-item-cog" v-if="expandedFeedID != sourceIndex + 1" v-html="svgIcons['cog']" @click="displayFeedSettings(source, sourceIndex)"></div>
-                                <div class="sb-srcs-item-actions-btn sb-srcs-item-angle-up" v-if="expandedFeedID == sourceIndex + 1" v-html="svgIcons['angleUp']" @click="hideFeedSettings()"></div>
+                                <div class="sb-srcs-item-actions-btn sb-srcs-item-delete" role="button" tabindex="0" :aria-label="(genericText.deleteSource || 'Delete') + ': ' + source.username" @click.stop.prevent.default="openDialogBox('deleteSource', source)" @keydown.enter.prevent.default="openDialogBox('deleteSource', source)" @keydown.space.prevent.default="openDialogBox('deleteSource', source)" v-html="svgIcons['delete']"></div>
+                                <div class="sb-srcs-item-actions-btn sb-srcs-item-cog" v-if="expandedFeedID != sourceIndex + 1" role="button" tabindex="0" :aria-label="(genericText.sourceSettings || 'Source settings') + ': ' + source.username" v-html="svgIcons['cog']" @click="displayFeedSettings(source, sourceIndex)" @keydown.enter.prevent.default="displayFeedSettings(source, sourceIndex)" @keydown.space.prevent.default="displayFeedSettings(source, sourceIndex)"></div>
+                                <div class="sb-srcs-item-actions-btn sb-srcs-item-angle-up" v-if="expandedFeedID == sourceIndex + 1" role="button" tabindex="0" :aria-label="(genericText.collapse || 'Collapse') + ': ' + source.username" v-html="svgIcons['angleUp']" @click="hideFeedSettings()" @keydown.enter.prevent.default="hideFeedSettings()" @keydown.space.prevent.default="hideFeedSettings()"></div>
                             </div>
                         </div>
                         <div class="cff-fb-srcs-info cff-fb-fs" v-if="expandedFeedID == sourceIndex + 1">
                             <div class="cff-fb-srcs-info-item">
                                 <strong>{{genericText.id}}</strong>
                                 <span>{{source.account_id}}</span>
-                                <div class="cff-fb-srcs-info-icon" v-html="svgIcons['copy2']" @click.prevent.default="copyToClipBoard(source.account_id)"></div>
+                                <div class="cff-fb-srcs-info-icon" role="button" tabindex="0" :aria-label="(genericText.copyAccountId || 'Copy account ID') + ': ' + source.username" v-html="svgIcons['copy2']" @click.prevent.default="copyToClipBoard(source.account_id)" @keydown.enter.prevent.default="copyToClipBoard(source.account_id)" @keydown.space.prevent.default="copyToClipBoard(source.account_id)"></div>
                             </div>
                         </div>
                     </div>
@@ -331,7 +331,7 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <label for="preserve-settings" class="cff-checkbox">
-                    <input type="checkbox" name="preserve-settings" id="preserve-settings" v-model="model.general.preserveSettings">
+                    <input type="checkbox" name="preserve-settings" id="preserve-settings" v-model="model.general.preserveSettings" :aria-label="generalTab.preserveBox.title">
                     <span class="toggle-track">
                         <div class="toggle-indicator"></div>
                     </span>
@@ -355,7 +355,7 @@
                         {{generalTab.importBox.button}}
                     </button>
                     <div class="input-hidden">
-                        <input id="import_file" type="file" value="import_file" ref="file" v-on:change="uploadFile">
+                        <input id="import_file" type="file" value="import_file" ref="file" tabindex="-1" aria-hidden="true" v-on:change="uploadFile">
                     </div>
                 </div>
                 <span class="help-text">
@@ -372,7 +372,7 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <div class="d-flex mb-15">
-                    <select name="" id="cff-feeds-list" class="cff-select" v-model="exportFeed" ref="export_feed">
+                    <select name="" id="cff-feeds-list" class="cff-select" v-model="exportFeed" ref="export_feed" :aria-label="generalTab.exportBox.title">
                         <option value="none" selected disabled>Select Feed</option>
                         <option v-for="feed in feeds" :value="feed.id">{{ feed.name }}</option>
                     </select>

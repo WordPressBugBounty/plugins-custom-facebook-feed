@@ -13,6 +13,10 @@ if (!defined('ABSPATH')) {
 <div id="cff-about" class="cff-about">
 	<?php
 		CustomFacebookFeed\CFF_View::render('sections.header');
+	?>
+	<main>
+	<?php
 		CustomFacebookFeed\CFF_View::render('about.content');
 	?>
+	</main>
 </div>

@@ -3,8 +3,8 @@ Contributors: smashballoon, craig-at-smash-balloon, am, smub
 Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
-Tested up to: 7.0
-Stable tag: 4.10.0
+Tested up to: 7.1
+Stable tag: 4.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,10 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.12.0 =
+* Tweak: Confirmed compatibility with WordPress 7.1.
+* Tweak: The feed builder and the Facebook feed are now far more accessible to keyboard and screen reader users, meeting WCAG 2.1 AA. Controls throughout the builder, onboarding and settings screens can be reached and operated by keyboard and announce their purpose; the feed and its posts describe their structure to screen readers; dialogs keep focus where it belongs and close with Escape; notices are announced as they appear; links that open a new tab say so; and decorative icons and images are hidden from screen readers.
+
 = 4.10.0 =
 * Tweak: Renamed the plugin on the WordPress Plugins screen to "Smash Balloon Facebook Feed" to match the product name used elsewhere.
 * Fix: Corrected the post author date styling inside the lightbox so it matches the feed.

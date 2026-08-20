@@ -131,7 +131,6 @@
     text-decoration: none;
 }
 .sb-social-wall-link a:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-fb-hd-logo{
@@ -177,7 +176,6 @@
     width: 16px;
 }
 .cff-fb-hd-btn:focus {
-    outline: none;
     box-shadow: none;
 }
 .cff-fb-hd-btn:hover {
@@ -269,7 +267,6 @@
 }
 .cff-oembed-btn .cff-btn:focus,
 .cff-oembed-btn .cff-btn:active {
-    outline: none;
     box-shadow: none;
 }
 .cff-oembed-btn button.disable-oembed {

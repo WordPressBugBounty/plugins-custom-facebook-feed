@@ -15,7 +15,7 @@ $name = isset($news->from->name) ? $news->from->name : false;
 $post_item_attr = $this_class->get_item_attributes($cff_post_type, $cff_album, $cff_post_bg_color_check, $cff_post_style, $cff_box_shadow, $name, $cff_post_id);
 
 ?>
-<div <?php echo $post_item_attr['id'] ?> <?php echo $post_item_attr['class'] ?> <?php echo $post_item_attr['style'] ?>>
+<div role="listitem" <?php echo $post_item_attr['id'] ?> <?php echo $post_item_attr['class'] ?> <?php echo $post_item_attr['style'] ?>>
 	<?php
 	if ($cff_show_author) {
 		echo $cff_author;

@@ -1,4 +1,4 @@
-<div v-if="selected === 'app-2'">
+<div v-if="selected === 'app-2'" id="cff-panel-feeds" role="tabpanel" aria-labelledby="cff-settings-tab-feeds" tabindex="0">
     <div class="sb-tab-box sb-localization-box sb-reset-box-style clearfix">
         <div class="tab-label">
             <h3>
@@ -9,7 +9,7 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <div class="d-flex">
-                    <select name="" id="cff-locales" class="cff-select size-md" v-model="model.feeds.selectedLocale">
+                    <select name="" id="cff-locales" class="cff-select size-md" :aria-label="feedsTab.localizationBox.localeLabel" v-model="model.feeds.selectedLocale">
                         <option v-for="(name, key) in locales" :value="key">{{name}}</option>
                     </select>
                 </div>
@@ -23,7 +23,7 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <div class="d-flex">
-                    <select name="" id="cff-timezones" class="cff-select size-md" v-model="model.feeds.selectedTimezone">
+                    <select name="" id="cff-timezones" class="cff-select size-md" :aria-label="feedsTab.timezoneBox.timezoneLabel" v-model="model.feeds.selectedTimezone">
                         <option v-for="(name, key) in timezones" :value="key">{{name}}</option>
                     </select>
                 </div>
@@ -37,21 +37,21 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <div class="mb-10 caching-form-fields-group">
-                    <select id="cff-caching-options" class="cff-select size-sm mr-3" v-model="model.feeds.cachingType" v-if="licenseType == 'pro'">
+                    <select id="cff-caching-options" class="cff-select size-sm mr-3" :aria-label="feedsTab.cachingBox.cachingTypeLabel" v-model="model.feeds.cachingType" v-if="licenseType == 'pro'">
                         <option value="background">{{feedsTab.cachingBox.inTheBackground}}</option>
                     </select>
-                    <select id="cff-caching-intervals" class="cff-select size-sm mr-3" v-model="model.feeds.cronInterval" v-if="licenseType == 'pro'">
+                    <select id="cff-caching-intervals" class="cff-select size-sm mr-3" :aria-label="feedsTab.cachingBox.intervalLabel" v-model="model.feeds.cronInterval" v-if="licenseType == 'pro'">
                         <option v-for="(name, key) in feedsTab.cachingBox.inTheBackgroundOptions" :value="key">{{name}}</option>
                     </select>
-                    <select id="cff-caching-cron-time" class="cff-select size-xs mr-3" v-model="model.feeds.cronTime" v-if="model.feeds.cachingType === 'background' && model.feeds.cronInterval !== '30mins' && model.feeds.cronInterval !== '1hour' && licenseType == 'pro'" :disabled="licenseType == 'free'">
+                    <select id="cff-caching-cron-time" class="cff-select size-xs mr-3" :aria-label="feedsTab.cachingBox.cronHourLabel" v-model="model.feeds.cronTime" v-if="model.feeds.cachingType === 'background' && model.feeds.cronInterval !== '30mins' && model.feeds.cronInterval !== '1hour' && licenseType == 'pro'" :disabled="licenseType == 'free'">
                         <option v-for="index in 12" :value="index">{{index}}:00</option>
                     </select>
-                    <select id="cff-caching-cron-am-pm" class="cff-select size-xs mr-3" v-model="model.feeds.cronAmPm" v-if="model.feeds.cachingType === 'background' && model.feeds.cronInterval !== '30mins' && model.feeds.cronInterval !== '1hour' && licenseType == 'pro'" :disabled="licenseType == 'free'">
+                    <select id="cff-caching-cron-am-pm" class="cff-select size-xs mr-3" :aria-label="feedsTab.cachingBox.cronAmPmLabel" v-model="model.feeds.cronAmPm" v-if="model.feeds.cachingType === 'background' && model.feeds.cronInterval !== '30mins' && model.feeds.cronInterval !== '1hour' && licenseType == 'pro'" :disabled="licenseType == 'free'">
                         <option value="am">{{feedsTab.cachingBox.am}}</option>
                         <option value="pm">{{feedsTab.cachingBox.pm}}</option>
                     </select>
                     <input type="number" min="0" max="9999" class="cff-input-sm" v-model="model.feeds.cacheTime" v-if="licenseType == 'free'">
-                    <select id="cff_cache_time_unit" class="cff-select size-sm mr-3" v-model="model.feeds.cacheTimeUnit" v-if="licenseType == 'free'">
+                    <select id="cff_cache_time_unit" class="cff-select size-sm mr-3" :aria-label="feedsTab.cachingBox.cacheTimeUnitLabel" v-model="model.feeds.cacheTimeUnit" v-if="licenseType == 'free'">
                         <option v-for="(name, key) in feedsTab.cachingBox.timeUnits" :value="key">{{name}}</option>
                     </select>
                     <button type="button" class="cff-btn sb-btn-lg cff-caching-btn" @click="clearCache" >
@@ -84,7 +84,7 @@
         <div class="cff-tab-form-field">
             <div class="sb-form-field">
                 <div class="d-flex mb-10">
-                    <select id="cff-gdpr-options" class="cff-select size-md" v-model="model.feeds.gdpr" @change="gdprOptions">
+                    <select id="cff-gdpr-options" class="cff-select size-md" :aria-label="feedsTab.gdprBox.gdprLabel" v-model="model.feeds.gdpr" @change="gdprOptions">
                         <option value="auto">{{feedsTab.gdprBox.automatic}}</option>
                         <option value="yes">{{feedsTab.gdprBox.yes}}</option>
                         <option value="no">{{feedsTab.gdprBox.no}}</option>

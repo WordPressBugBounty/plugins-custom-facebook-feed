@@ -1,7 +1,7 @@
 <div class="cff-fd-lst-bigctn cff-fb-fs" v-if="feedsList != null && feedsList.length > 0">
 
 	<div class="cff-fd-lst-bulk-ctn cff-fb-fs">
-		<select class="cff-fd-lst-bulk-select cff-fb-select sb-caption" v-model="selectedBulkAction">
+		<select class="cff-fd-lst-bulk-select cff-fb-select sb-caption" v-model="selectedBulkAction" aria-label="<?php esc_attr_e( 'Bulk actions', 'custom-facebook-feed' ); ?>">
 			<option value="false">{{allFeedsScreen.bulkActions}}</option>
 			<option value="delete">{{genericText.delete}}</option>
 		</select>
@@ -18,11 +18,18 @@
 		</div>
 	</div>
     <div class="cff-table-wrap" v-bind:class="{ 'sb-onboarding-highlight' : viewsActive.onboardingStep === 2 && allFeedsScreen.onboarding.type === 'single' }">
-	<table aria-hidden="true">
+	<table>
 		<thead class="cff-fd-lst-thtf cff-fd-lst-thead">
 			<tr>
 				<th>
-					<div class="cff-fd-lst-chkbx" @click.prevent.default="selectAllFeedCheckBox()" :data-active="checkAllFeedsActive()"></div>
+					<div class="cff-fd-lst-chkbx" role="checkbox"
+						 tabindex="0"
+						 :aria-checked="checkAllFeedsActive() ? 'true' : 'false'"
+						 aria-label="<?php esc_attr_e('Select all feeds', 'custom-facebook-feed'); ?>"
+						 @click.prevent.default="selectAllFeedCheckBox()"
+						 @keydown.enter.prevent.default="selectAllFeedCheckBox()"
+						 @keydown.space.prevent.default="selectAllFeedCheckBox()"
+						 :data-active="checkAllFeedsActive()"></div>
 				</th>
 				<th>
 					<span class="sb-caption sb-lighter">{{allFeedsScreen.columns.nameText}}</span>
@@ -41,7 +48,14 @@
 		<tbody  class="cff-fd-lst-tbody">
 			<tr v-for="(feed, feedIndex) in feedsList">
 				<td>
-					<div class="cff-fd-lst-chkbx" @click.prevent.default="selectFeedCheckBox(feed.id)" :data-active="feedsSelected.includes(feed.id)"></div>
+					<div class="cff-fd-lst-chkbx" role="checkbox"
+						 tabindex="0"
+						 :aria-checked="feedsSelected.includes(feed.id) ? 'true' : 'false'"
+						 :aria-label="genericText.selectFeed + ' ' + feed.feed_name"
+						 @click.prevent.default="selectFeedCheckBox(feed.id)"
+						 @keydown.enter.prevent.default="selectFeedCheckBox(feed.id)"
+						 @keydown.space.prevent.default="selectFeedCheckBox(feed.id)"
+						 :data-active="feedsSelected.includes(feed.id)"></div>
 				</td>
 				<td>
 					<a :href="builderUrl+'&feed_id='+feed.id" class="cff-fd-lst-name sb-small-p sb-bold">{{feed.feed_name}}</a>
@@ -63,15 +77,15 @@
                 </td>
 				<td class="cff-fd-lst-actions">
                     <div class="sb-flex-center">
-                        <a class="cff-fd-lst-btn cff-fb-tltp-parent":href="builderUrl+'&feed_id='+feed.id">
+                        <a class="cff-fd-lst-btn cff-fb-tltp-parent" :aria-label="`${genericText.edit} ${feed.feed_name || feed.id}`" :href="builderUrl+'&feed_id='+feed.id">
                             <div class="cff-fb-tltp-elem"><span>{{genericText.edit.replace(/ /g,"&nbsp;")}}</span></div>
                             <div v-html="svgIcons['edit']"></div>
                         </a>
-                        <button class="cff-fd-lst-btn cff-fb-tltp-parent" @click.prevent.default="feedActionDuplicate(feed)">
+                        <button class="cff-fd-lst-btn cff-fb-tltp-parent" :aria-label="`${genericText.duplicate} ${feed.feed_name || feed.id}`" @click.prevent.default="feedActionDuplicate(feed)">
                             <div class="cff-fb-tltp-elem"><span>{{genericText.duplicate.replace(/ /g,"&nbsp;")}}</span></div>
                             <div v-html="svgIcons['duplicate']"></div>
                         </button>
-                        <button class="cff-fd-lst-btn cff-fd-lst-btn-delete cff-fb-tltp-parent" @click.prevent.default="openDialogBox('deleteSingleFeed', feed)">
+                        <button class="cff-fd-lst-btn cff-fd-lst-btn-delete cff-fb-tltp-parent" :aria-label="`${genericText.delete} ${feed.feed_name || feed.id}`" @click.stop.prevent.default="openDialogBox('deleteSingleFeed', feed)">
                             <div class="cff-fb-tltp-elem"><span>{{genericText.delete.replace(/ /g,"&nbsp;")}}</span></div>
                             <div v-html="svgIcons['delete']"></div>
                         </button>
@@ -83,7 +97,14 @@
 		<tfoot class="cff-fd-lst-thtf cff-fd-lst-tfoot">
 			<tr>
 				<td>
-					<div class="cff-fd-lst-chkbx" @click.prevent.default="selectAllFeedCheckBox()" :data-active="checkAllFeedsActive()"></div>
+					<div class="cff-fd-lst-chkbx" role="checkbox"
+						 tabindex="0"
+						 :aria-checked="checkAllFeedsActive() ? 'true' : 'false'"
+						 aria-label="<?php esc_attr_e('Select all feeds', 'custom-facebook-feed'); ?>"
+						 @click.prevent.default="selectAllFeedCheckBox()"
+						 @keydown.enter.prevent.default="selectAllFeedCheckBox()"
+						 @keydown.space.prevent.default="selectAllFeedCheckBox()"
+						 :data-active="checkAllFeedsActive()"></div>
 				</td>
 				<td>
 					<span>{{allFeedsScreen.columns.nameText}}</span>

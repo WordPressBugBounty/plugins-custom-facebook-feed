@@ -50,7 +50,7 @@ if (empty($FBdata->data) || isset($FBdata->cached_error) || $cff_ppca_check_erro
 			<?php if ($cff_ppca_error) : ?>
 				<b>PPCA Error:</b> <?php echo esc_html__('Due to Facebook API changes it is no longer possible to display a feed from a Facebook Page you are not an admin of. The Facebook feed below is not using a valid Access Token for this Facebook page and so has stopped updating.', 'custom-facebook-feed'); ?>
 			<?php else : ?>
-				<a class="cff_notice_dismiss" href="<?php echo esc_url(add_query_arg('cff_ppca_check_notice_dismiss', '0')); ?>"><span class="fa fa-times-circle" aria-hidden="true"></span></a>
+				<a class="cff_notice_dismiss" href="<?php echo esc_url(add_query_arg('cff_ppca_check_notice_dismiss', '0')); ?>" aria-label="<?php echo esc_attr__('Dismiss this notice', 'custom-facebook-feed'); ?>"><span class="fa fa-times-circle" aria-hidden="true"></span></a>
 				<b class="cff-warning-notice">PPCA Error:</b> <?php echo esc_html__('Due to Facebook API changes on September 4, 2020, it will no longer be possible to display a feed from a Facebook Page you are not an admin of. The Facebook feed below is not using a valid Access Token for this Facebook page and so will stop updating after this date.', 'custom-facebook-feed'); ?>
 			<?php endif; ?>
 			<?php if (current_user_can($cap)) : ?>

@@ -22,6 +22,7 @@ if ($cff_show_credit) :
 	<a href="https://smashballoon.com/custom-facebook-feed/?utm_campaign=facebook-free&utm_source=frontend&utm_medium=credit" target="_blank" style="color: #<?php echo esc_attr($cff_posttext_link_color); ?>" title="<?php echo esc_attr('Smash Balloon Custom Facebook Feed WordPress Plugin') ?>">
 		<img src="<?php echo CFF_PLUGIN_URL ?>/assets/img/smashballoon-tiny.png" alt="<?php echo esc_attr('Smash Balloon Custom Facebook Feed WordPress Plugin') ?>" />
 		The Custom Facebook Feed plugin
+		<span class="cff-screenreader"><?php echo esc_html__('(opens in a new tab)', 'custom-facebook-feed'); ?></span>
 	</a>
 </p>
 	<?php

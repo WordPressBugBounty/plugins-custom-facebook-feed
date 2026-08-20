@@ -1,15 +1,15 @@
 <div class="sb-fs-boss cff-fb-center-boss" v-if="viewsActive.instanceFeedActive != null && (checkObjectArrayElement(feedsList, viewsActive.instanceFeedActive, 'id') || checkObjectArrayElement(legacyFeedsList, viewsActive.instanceFeedActive, 'feed_id'))">
-	<div class="cff-fb-popup-inside cff-fb-popup-feedinst">
-		<div class="cff-fb-popup-cls" @click.prevent.default="switchScreen('instanceFeedActive', null)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<div class="cff-fb-popup-inside cff-fb-popup-feedinst" role="dialog" aria-modal="true" aria-labelledby="cff-fb-feed-instances-heading">
+		<button type="button" class="cff-fb-popup-cls" aria-label="Close dialog" @click.prevent.default="switchScreen('instanceFeedActive', null)" @keydown.enter.prevent="switchScreen('instanceFeedActive', null)" @keydown.space.prevent="switchScreen('instanceFeedActive', null)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                 <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#141B38"/>
             </svg>
-        </div>
+        </button>
 		<div class="cff-fb-source-top cff-fb-fs">
-			<h3>{{viewsActive.instanceFeedActive.feed_name}}</h3>
+			<h3 id="cff-fb-feed-instances-heading">{{viewsActive.instanceFeedActive.feed_name}}</h3>
 			<div class="cff-fb-fdinst-type sb-small">TimeLine</div>
 		</div>
 		<div class="cff-fb-inst-tbl-ctn cff-fb-fs">
-			<table aria-hidden="true">
+			<table>
 				<thead class="cff-fd-lst-thtf cff-fd-lst-thead">
 					<tr>
 						<th>
@@ -34,7 +34,7 @@
                                     <span class="cff-fd-lst-shortcode sb-caption sb-lighter">{{instance.shortcode}}</span>
                                     <div class="cff-fd-lst-shortcode-cp cff-fd-lst-btn cff-fb-tltp-parent">
                                         <div class="cff-fb-tltp-elem"><span>{{(genericText.copy +' '+ genericText.shortcode).replace(/ /g,"&nbsp;")}}</span></div>
-                                        <div v-html="svgIcons['copy']" @click.prevent.default="copyToClipBoard(instance.shortcode)"></div>
+                                        <div role="button" tabindex="0" :aria-label="genericText.copy + ' ' + genericText.shortcode" v-html="svgIcons['copy']" @click.prevent.default="copyToClipBoard(instance.shortcode)" @keydown.enter.prevent="copyToClipBoard(instance.shortcode)" @keydown.space.prevent="copyToClipBoard(instance.shortcode)"></div>
                                     </div>
                                 </div>
 							</div>

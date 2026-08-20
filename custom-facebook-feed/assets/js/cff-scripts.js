@@ -193,14 +193,14 @@ if(!cff_js_exists){
 
 			//Remove any <br> tags from the end of the short_text
 			short_text = short_text.replace(/(<br>\s*)+$/,'');
-			short_text = short_text.replace(/(<img class="cff-linebreak">\s*)+$/,'');
+			short_text = short_text.replace(/(<img class="cff-linebreak"[^>]*>\s*)+$/,'');
 
 			//Cut the text based on limits set
 			$post_text.html( short_text );
 
 
 			//Click function
-			$self.find('.cff-expand').on('click', function(e){
+			$self.find('.cff-expand .cff-readmore, .cff-expand a').on('click', function(e){
 				e.preventDefault();
 				var $expand = jQuery(this),
 					$more = $expand.find('.cff-more'),
@@ -210,11 +210,13 @@ if(!cff_js_exists){
 					expanded = true;
 					$more.hide();
 					$less.show();
+					$expand.attr('aria-expanded', 'true');
 				} else {
 					$post_text.html( short_text );
 					expanded = false;
 					$more.show();
 					$less.hide();
+					$expand.attr('aria-expanded', 'false');
 				}
 				cffLinkHashtags();
 				//Add target to links in text when expanded
@@ -280,17 +282,28 @@ if(!cff_js_exists){
 			});
 
 			//Share tooltip function
-			$self.find('.cff-share-link').on('click', function(e){
+			var $cffShareLink = $self.find('.cff-share-link');
+
+			//The share link is a disclosure toggle; expose its state to AT
+			$cffShareLink.attr('aria-expanded', 'false');
+
+			function cffHideShareTooltip( $cffShareTooltip ){
+				$cffShareTooltip.hide().find('a').removeClass('cff-show');
+				$cffShareLink.attr('aria-expanded', 'false');
+			}
+
+			$cffShareLink.on('click', function(e){
 
 				e.preventDefault();
 				var $cffShareTooltip = $self.find('.cff-share-tooltip')
 
 				//Hide tooltip
 				if( $cffShareTooltip.is(':visible') ){
-					$cffShareTooltip.hide().find('a').removeClass('cff-show');
+					cffHideShareTooltip( $cffShareTooltip );
 				} else {
 					//Show tooltip
 					$cffShareTooltip.show();
+					$cffShareLink.attr('aria-expanded', 'true');
 
 					var time = 0;
 					$cffShareTooltip.find('a').each(function() {
@@ -300,6 +313,16 @@ if(!cff_js_exists){
 						}, time);
 						time += 20;
 					});
+				}
+			});
+
+			//Escape dismisses an open share tooltip and returns focus to the toggle
+			$self.on('keydown', function(e){
+				if( e.key !== 'Escape' && e.key !== 'Esc' && e.which !== 27 ) return;
+				var $cffShareTooltip = $self.find('.cff-share-tooltip');
+				if( $cffShareTooltip.is(':visible') ){
+					cffHideShareTooltip( $cffShareTooltip );
+					$cffShareLink.trigger('focus');
 				}
 			});
 

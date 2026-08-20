@@ -46,7 +46,7 @@ class CFF_Coloroverride_Control extends CFF_Controls_Base
 				<div class="sb-control-coloroverride-txt" v-html="<?php echo $controlEditingTypeModel ?>[control.id]"></div>
 				<div class="sb-control-coloroverride-swatch" :style="'background:'+<?php echo $controlEditingTypeModel ?>[control.id]"></div>
 			</div>
-			<div class="sb-control-colorpicker-btn" @click.prevent.default="resetColorOverride(control.id)">{{genericText.reset}}</div>
+			<button type="button" class="sb-control-colorpicker-btn" @click.prevent.default="resetColorOverride(control.id)">{{genericText.reset}}</button>
 		</div>
 		<?php
 	}

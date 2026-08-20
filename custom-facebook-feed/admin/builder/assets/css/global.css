@@ -14,6 +14,94 @@
 	* Tooltip
 
 */
+
+/* SMASH-1378 — Global :focus-visible ring for FB Free admin surfaces.
+   Cascade-port of the IG Pro canonical pattern (see
+   instagram-feed-pro/admin/builder/assets/css/global.css). Scopes the
+   ring to body classes WordPress generates from FB Free submenu slugs
+   (cff-top / cff-feed-builder / cff-settings / cff-about-us / cff-support /
+   cff-oembeds-manager) plus the per-container selectors used by builder /
+   popup / settings markup, so the indicator is consistent across every
+   FB Free admin surface.
+
+   `:focus-visible` ensures the ring only appears when focus is
+   keyboard-driven; mouse clicks remain unaffected.
+
+   Visual treatment uses `box-shadow` rather than `outline` so the ring
+   respects each element's `border-radius` and hugs rounded buttons
+   cleanly on all browsers. `outline: 2px solid transparent` is retained
+   so Windows High Contrast Mode (which suppresses box-shadow but honors
+   outline) still shows a visible ring. `outline-offset: 0` eliminates
+   the gap that previously read as a "double border".
+
+   --sb-focus-ring (#007ca8) is provided by
+   assets/tokens/cff-tokens-local.css, enqueued as a dependency of the
+   feed-global-style handle. */
+body[class*="_page_cff-top"] *:focus-visible,
+body[class*="_page_cff-feed-builder"] *:focus-visible,
+body[class*="_page_cff-settings"] *:focus-visible,
+body[class*="_page_cff-about-us"] *:focus-visible,
+body[class*="_page_cff-support"] *:focus-visible,
+body[class*="_page_cff-oembeds-manager"] *:focus-visible,
+.cff-fb-fs *:focus-visible,
+.cff-fb-popup-inside *:focus-visible,
+.sb-form-field *:focus-visible,
+[id^="cff-builder"] *:focus-visible,
+[id^="cff-settings"] *:focus-visible {
+	/* !important needed because pre-existing `outline: none !important` /
+	   `outline: unset !important` rules in builder.css would otherwise
+	   suppress the focus ring for keyboard users. */
+	outline: 2px solid transparent !important;
+	outline-offset: 0 !important;
+	box-shadow: 0 0 0 2px var(--sb-focus-ring) !important;
+}
+
+/* SMASH-1378 — Global reduced-motion guard for FB Free admin surfaces.
+   WCAG 2.3.3 (Animation from Interactions). Neutralizes the raw
+   transition/animation rules across admin/builder/assets/css/ +
+   admin/assets/css/ that currently ship without a
+   `prefers-reduced-motion: reduce` wrap.
+
+   Scope is body-class matched so we only override motion on FB Free
+   admin pages — never on WP core admin chrome or frontend. Same body-
+   class set as the focus-ring rule above for consistency.
+
+   Approach: blanket scaffold. The `.sb-tr-*` utility classes plus
+   loader/source-redirect keyframes are the dominant motion sources
+   today; per-rule token refactoring (replacing `.1s ease-in-out` with
+   `var(--sb-duration-100)`) is deferred to Wave 1+ where each touched
+   rule gets visual-regression coverage. This block is the safety net so
+   keyboard / motion-sensitive users get correct behavior immediately.
+
+   `animation-duration: 0.01ms !important` (not 0ms) preserves
+   animation-end events that JS may depend on (e.g. loader spinner
+   onanimationiteration callbacks). */
+@media (prefers-reduced-motion: reduce) {
+	body[class*="_page_cff-top"] *,
+	body[class*="_page_cff-feed-builder"] *,
+	body[class*="_page_cff-settings"] *,
+	body[class*="_page_cff-about-us"] *,
+	body[class*="_page_cff-support"] *,
+	body[class*="_page_cff-oembeds-manager"] *,
+	body[class*="_page_cff-top"] *::before,
+	body[class*="_page_cff-feed-builder"] *::before,
+	body[class*="_page_cff-settings"] *::before,
+	body[class*="_page_cff-about-us"] *::before,
+	body[class*="_page_cff-support"] *::before,
+	body[class*="_page_cff-oembeds-manager"] *::before,
+	body[class*="_page_cff-top"] *::after,
+	body[class*="_page_cff-feed-builder"] *::after,
+	body[class*="_page_cff-settings"] *::after,
+	body[class*="_page_cff-about-us"] *::after,
+	body[class*="_page_cff-support"] *::after,
+	body[class*="_page_cff-oembeds-manager"] *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
 #cff-settings{
     visibility: hidden;
     opacity: 0;
@@ -386,7 +474,6 @@
 	border-radius: 2px;
 	cursor: pointer;
 	color: #fff;
-	outline: none;
 	box-shadow: none;
 	border: none;;
 }
@@ -405,6 +492,17 @@
 /*
 	Add new Source Popup
 */
+/* a11y: cff-fb-popup-cls is now a <button>; reset UA styles to preserve visuals (SMASH-1379) */
+button.cff-fb-popup-cls {
+	background: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	appearance: none;
+	-webkit-appearance: none;
+}
 .cff-fb-popup-cls{
 	height: 14px;
 	width: 14px;
@@ -633,7 +731,6 @@
 }
 .cff-fb-source-inp,.cff-fb-wh-inp{
 	border-radius: 0px !important;
-	outline: none ;
 	margin-top: 5px;
 	border: 1px solid #D0D1D7 !important;
 	margin-bottom: 20px;
@@ -1229,7 +1326,6 @@
 	margin: 0 10px;
 	background: #E8E8EB;
 	border: 1px solid #E8E8EB;
-	outline: none;
 	border-radius: 2px;
 }
 .cff-csz-name-ed-btn svg {
@@ -1242,7 +1338,6 @@
 }
 
 .cff-csz-name-ed-btn:focus, .cff-csz-name-ed-btn:hover {
-	outline: none;
 	background-color: #d9d9dc;
 	border-color: #d9d9dc;
 }
@@ -1258,7 +1353,6 @@
 	border: 0;
 	background: unset;
 	margin: 0 1px;
-	outline: none;
 }
 
 .sb-customizer-sidebar {
@@ -1274,7 +1368,8 @@
 	padding-bottom: 50px;
 }
 
-.sb-customizer-sidebar-breadcrumb a, .sb-customizer-sidebar-breadcrumb span {
+.sb-customizer-sidebar-breadcrumb a, .sb-customizer-sidebar-breadcrumb span,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link {
 	display: inline-block;
 	position: relative;
 	cursor: pointer;
@@ -1288,11 +1383,15 @@
 	font-weight: 700;
 }
 .sb-customizer-sidebar-breadcrumb a:hover,
-.sb-customizer-sidebar-breadcrumb a:focus{
+.sb-customizer-sidebar-breadcrumb a:focus,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link:hover,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link:focus{
 	color: #000;
 }
 .sb-customizer-sidebar-breadcrumb a:hover path,
-.sb-customizer-sidebar-breadcrumb a:focus path{
+.sb-customizer-sidebar-breadcrumb a:focus path,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link:hover path,
+.sb-customizer-sidebar-breadcrumb button.sb-customizer-sidebar-breadcrumb-link:focus path{
 	fill: #000;
 }
 .sb-control-elem-ctn {
@@ -1976,7 +2075,6 @@
 }
 .cff-fb-source-inp,.cff-fb-wh-inp{
     border-radius: 0px !important;
-    outline: none ;
     margin-top: 2px;
     border: 1px solid #D0D1D7 !important;
     margin-bottom: 20px;
@@ -2617,7 +2715,6 @@
 	border-right: none;
 }
 .sb-social-wall-link a:focus {
-    outline: none;
     box-shadow: none;
 }
 

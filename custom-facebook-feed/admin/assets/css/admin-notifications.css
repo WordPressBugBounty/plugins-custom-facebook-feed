@@ -132,7 +132,6 @@
 }
 #cff-notifications .messages .message .buttons a:focus,
 #cff-notifications .messages .message .buttons a:active {
-  outline: none;
   box-shadow: none;
 }
 #cff-notifications .dismiss {

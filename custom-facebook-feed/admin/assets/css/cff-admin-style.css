@@ -845,7 +845,6 @@
 #cff-admin .wp-picker-container,
 #cff-admin .wp-picker-container:active {
     display: inline-block;
-    outline: 0;
 }
 
 /* Pro options */
@@ -3371,7 +3370,6 @@ body .cff_review_step1_notice .cff-btn-link:not(:last-child) {
 }
 .cff-admin-notices .license-action-btns .cff-notice-btn:active,
 .cff-admin-notices .license-action-btns .cff-notice-btn:focus {
-	outline: none;
 	box-shadow: none;
 }
 .cff-admin-notices .license-action-btns .cff-btn.cff-btn-blue {
@@ -3454,6 +3452,20 @@ body .cff_review_step1_notice .cff-btn-link:not(:last-child) {
 
 .cff-install-plugin-modal {
     max-width: 580px;
+}
+/* a11y (SMASH-1378): the cross-plugin install modal close control is now a
+   real <button> so it is keyboard-focusable / labelled. Reset UA button styles
+   here because this modal also renders on CFF admin pages that load this
+   stylesheet (not builder/global.css). Keeps the X visually identical. */
+button.cff-fb-popup-cls {
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
 }
 .cff-fb-popup-cls {
     height: 14px;
@@ -3722,7 +3734,6 @@ body .cff_review_step1_notice .cff-btn-link:not(:last-child) {
 	font-size: 14px;
 	line-height: 17px;
 	cursor: pointer;
-	outline: none;
 	font-weight: bold;
 	border-radius: 4px;
 	border: 1px solid #E6E6EB;
@@ -3737,4 +3748,20 @@ body .cff_review_step1_notice .cff-btn-link:not(:last-child) {
 	box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 4px 5px 0px rgba(0, 0, 0, 0.05);
 	background: #E6F4E3;
 	color: #203E1A;
+}
+
+/* Visually-hidden screen-reader utility — mirrors assets/css/cff-style.css.
+   Admin surfaces previously had no sr-only utility, so any aria-label /
+   visually-hidden text pattern on admin would not render off-screen.
+   Duplicated (not moved) since the frontend stylesheet still uses it. */
+.cff-screenreader {
+	text-indent: -9999px !important;
+	display: block !important;
+	width: 0 !important;
+	height: 0 !important;
+	line-height: 0 !important;
+}
+
+.cff-screenreader.cff-inline-sr {
+	display: inline-block !important;
 }

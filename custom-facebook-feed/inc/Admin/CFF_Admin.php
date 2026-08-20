@@ -203,6 +203,25 @@ class CFF_Admin
 				'ajax_url' => admin_url('admin-ajax.php'),
 				'cff_nonce' => wp_create_nonce('cff_nonce')
 			));
+
+		// SMASH-1378 A11Y-004: the cross-plugin "install this plugin" modal is
+		// opened from the CFF admin submenu items (Instagram / Reviews / YouTube /
+		// Twitter Feed) on these pages, NOT inside the feed builder. The shared
+		// focus-trap script is otherwise only enqueued on the builder/settings
+		// pages, so without this it never engages the modal on the pages where it
+		// actually appears. The script is framework-agnostic, guards against a
+		// missing dialog (no-op when no role="dialog" is present), and is safe to
+		// load globally on CFF admin screens. wp_enqueue_script de-dupes by handle,
+		// so this will not double-load on the builder page.
+		if (! wp_script_is('cff-popup-focus-trap', 'enqueued')) {
+			wp_enqueue_script(
+				'cff-popup-focus-trap',
+				CFF_PLUGIN_URL . 'admin/builder/assets/js/popup-focus-trap.js',
+				array(),
+				CFFVER,
+				true
+			);
+		}
 		$strings = array(
 			'addon_activate'                  => esc_html__('Activate', 'custom-facebook-feed'),
 			'addon_activated'                 => esc_html__('Activated', 'custom-facebook-feed'),

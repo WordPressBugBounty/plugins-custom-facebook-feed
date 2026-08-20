@@ -17,7 +17,7 @@
 			<h2>{{genericText.title}}</h2>
 			<div class="cff-search-doc">
 				<div :href="links.doc" target="_blank" class="cff-search-doc-field">
-					<span class="sb-btn-icon" @click="goToSearchDocumentation()" v-html="icons.magnify"></span>
+					<span class="sb-btn-icon" role="button" tabindex="0" :aria-label="buttons.searchDoc" @click="goToSearchDocumentation()" @keydown.enter.prevent="goToSearchDocumentation()" @keydown.space.prevent="goToSearchDocumentation()" v-html="icons.magnify"></span>
 					<input class="sb-btn-input" id="cff-search-doc-input" v-model="searchKeywords" v-on:keyup="searchDoc" v-on:paste="searchDocStrings" :placeholder="buttons.searchDoc">
 				</div>
 			</div>
@@ -139,7 +139,7 @@
 				<p>{{genericText.shareYour}}</p>
 			</div>
 			<div class="cff-export-right">
-				<select name="" id="cff-feeds-list" class="cff-select" v-model="exportFeed" ref="export_feed">
+				<select name="" id="cff-feeds-list" class="cff-select" v-model="exportFeed" ref="export_feed" :aria-label="genericText.exportSettings">
 					<option value="none" selected disabled>Select Feed</option>
 					<option v-for="feed in feeds" :value="feed.id">{{ feed.name }}</option>
 				</select>
@@ -171,7 +171,7 @@
 				<h3>{{genericText.tempLoginHeading}}</h3>
 				<p>{{genericText.tempLoginDesc}}</p>
 			</div>
-			<table aria-hidden="true" class="cff-tempuser-list">
+			<table class="cff-tempuser-list">
 				<tr>
 					<th>{{genericText.link}}</th>
 					<th>{{genericText.expires}}</th>
@@ -199,7 +199,7 @@
 		</div>
 	</div>
 </div>
-<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type">
+<div class="sb-notification-ctn" :data-active="notificationElement.shown" :data-type="notificationElement.type" role="status" aria-live="polite" aria-atomic="true">
 	<div class="sb-notification-icon" v-html="svgIcons[notificationElement.type+'Notification']"></div>
 	<span class="sb-notification-text" v-html="notificationElement.text"></span>
 </div>
