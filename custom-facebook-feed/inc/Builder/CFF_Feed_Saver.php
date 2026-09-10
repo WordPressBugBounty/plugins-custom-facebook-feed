@@ -333,10 +333,16 @@ class CFF_Feed_Saver
 			$return['feed_name'] = $settings_db_data[0]['feed_name'];
 		}
 
-		$return = wp_parse_args($return, CFF_Feed_Saver::settings_defaults());
+		$return = wp_parse_args( $return, CFF_Feed_Saver::settings_defaults() );
 
+		// Background caching requires the Pro background refresher, which does not run
+		// in the free version. Free always uses page caching so feeds honor the
+		// configured cache time and unit on page load.
+		if ( ! \CustomFacebookFeed\CFF_Utils::cff_is_pro_version() ) {
+			$return['cachetype'] = 'page';
+		}
 
-		if (empty($return['sources'])) {
+		if ( empty( $return['sources'] ) ) {
 			return $return;
 		}
 		$args = array( 'id' => $return['sources'] );

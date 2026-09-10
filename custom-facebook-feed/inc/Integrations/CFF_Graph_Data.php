@@ -457,27 +457,36 @@ class CFF_Graph_Data
 	 *
 	 * @since 5.0
 	 */
-	public function get_cache_seconds()
-	{
+	public function get_cache_seconds() {
 		$cache_type = $this->feed_settings['cachetype'];
 
-		if ($cache_type === 'background') {
+		// Background caching is Pro-only (free has no background refresher). Free feeds
+		// are set to page caching in CFF_Feed_Saver::get_feed_settings(); this guard
+		// keeps any other path from landing in the 7-day background window on free.
+		if ( $cache_type === 'background' && CFF_Utils::cff_is_pro_version() ) {
 			return 7 * DAY_IN_SECONDS;
 		}
 
 		$cache_unit = 60;
-		$cache_time = (intval($this->feed_settings['cachetime']) < 1) ? 1 : $this->feed_settings['cachetime'];
+		$cache_time = ( intval( $this->feed_settings['cachetime'] ) < 1 ) ? 1 : $this->feed_settings['cachetime'];
 
-		switch ($this->feed_settings['cacheunit']) {
-			case ('hour' || 'hours' || 0):
-				$cache_unit = 60 * 60;
+		switch ( $this->feed_settings['cacheunit'] ) {
+			case 'minute':
+			case 'minutes':
+				$cache_unit = 60;
 				break;
-			case ('day' || 'days'):
+			case 'day':
+			case 'days':
 				$cache_unit = 60 * 60 * 24;
+				break;
+			case 'hour':
+			case 'hours':
+			default:
+				$cache_unit = 60 * 60;
 				break;
 		}
 
-		return intval($cache_unit) * intval($cache_time);
+		return intval( $cache_unit ) * intval( $cache_time );
 	}
 
 
