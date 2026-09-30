@@ -54,6 +54,38 @@
 	<span class="sb-onboarding-wizard-license-error" v-if="setupLicencekeyError !== null" v-html="setupLicencekeyError"></span>
 </div>
 
+<?php
+/**
+ * Onboarding consent checkbox (Free only — the package template self-guards on
+ * Pro). The checkbox saves through the shared sbcConsent.saveChoice AJAX, which
+ * also marks the re-prompt modal dismissed so it never nags afterwards.
+ */
+// Skip the box when data sharing is already on (accepted in any Smash Balloon plugin).
+if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) && ! \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::is_dsc_enabled() ) {
+	echo '<div class="sb-onboarding-wizard-consent-ctn sb-fs">';
+	\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::render_onboarding_section( 'facebook' );
+	echo '</div>';
+	?>
+	<script>
+	(function () {
+		'use strict';
+		// Delegate from document: the wizard is a Vue template, so Vue replaces
+		// this markup when it mounts and a listener bound to the original
+		// checkbox would be lost, silently dropping the consent choice.
+		document.addEventListener('change', function (e) {
+			var box = e.target;
+			if (!box || box.id !== 'sbc-consent-onboarding-checkbox' || !window.sbcConsent || typeof window.sbcConsent.saveChoice !== 'function') {
+				return;
+			}
+			var on = !!box.checked;
+			window.sbcConsent.saveChoice(on ? 'accept' : 'skip', { dsc: on, notif: on });
+		});
+	})();
+	</script>
+	<?php
+}
+?>
+
 <div class="sb-onboarding-wizard-finish-ctn sb-fs">
 	<button class="sb-btn sb-btn-grey"  @click.prevent.default="dismissOnboardingWizard">
 		<?php echo __('Complete Setup Without Upgrading') ?>

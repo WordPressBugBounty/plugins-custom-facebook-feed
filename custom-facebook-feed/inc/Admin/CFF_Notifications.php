@@ -92,6 +92,8 @@ class CFF_Notifications
 
 		// on cron. Once a week?
 		add_action('cff_notification_update', array( $this, 'update' ));
+		// SMASH-1245: notifications now refresh on the render path (consent-gated), no background cron.
+		// The legacy 'cff_notification_update' event is cleared once via the cff_check_for_db_updates() migration.
 
 		add_action('wp_ajax_cff_dashboard_notification_dismiss', array( $this, 'dismiss' ));
 
@@ -415,21 +417,54 @@ class CFF_Notifications
 			return array();
 		}
 
-		$option = $this->get_option();
+		// Honour the consent source switch so local <-> remote is an exclusive
+		// swap rather than additive (mirrors instagram-feed). 'none' hides
+		// everything; 'local' serves the Consent package's bundled fallback;
+		// 'remote' uses the fetched feed as before.
+		$source = class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' )
+			? \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::notification_source()
+			: 'remote';
 
-		// Update notifications using async task.
-		if (empty($option['update']) || cff_get_current_time() > $option['update'] + DAY_IN_SECONDS) {
-			$this->update();
+		if ( 'none' === $source ) {
+			return array();
 		}
 
-		$events = ! empty($option['events']) ? $this->verify_active($option['events']) : array();
-		$feed   = ! empty($option['feed']) ? $this->verify_active($option['feed']) : array();
+		$option = $this->get_option();
+
+		if ( 'local' === $source ) {
+			// load_local_fallback() already runs the payload through schema +
+			// targeting verification, so it is used directly. The recent-install
+			// gate in verify_active() is intentionally skipped here so the offline
+			// notices surface immediately (mirrors instagram-feed).
+			$feed = class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentNotifications' )
+				? \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentNotifications::load_local_fallback( self::PLUGIN, CFF_Utils::cff_is_pro_version() )
+				: array();
+		} else {
+			// Update notifications using async task.
+			if ( empty( $option['update'] ) || cff_get_current_time() > $option['update'] + DAY_IN_SECONDS ) {
+				$this->update();
+			}
+			$feed = ! empty( $option['feed'] ) ? $this->verify_active( $option['feed'] ) : array();
+
+			// Free and Pro share cff_notifications, so after a downgrade/upgrade the
+			// cached feed still holds the other edition's cards until the daily
+			// refetch. Re-scope it to this edition on read.
+			if ( class_exists( '\\Smashballoon\\Framework\\Packages\\Consent\\ConsentNotifications' ) ) {
+				$feed = \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentNotifications::verify( $feed, self::PLUGIN, CFF_Utils::cff_is_pro_version() );
+			}
+		}
+
+		// 'events' are locally-generated admin notices added via add() (feed errors,
+		// internal events) — NOT remote-fetched marketing data, which lives in
+		// 'feed' and is gated above. 'none' has already returned, so events only
+		// surface for the 'local'/'remote' sources, same as instagram-feed.
+		$events = ! empty( $option['events'] ) ? $this->verify_active( $option['events'] ) : array();
 
 		// If there is a new user notification, add it to the beginning of the notification list
 		$cff_newuser = new CFF_New_User();
 		$newuser_notifications = $cff_newuser->get();
 
-		if (! empty($newuser_notifications)) {
+		if ( ! empty( $newuser_notifications ) ) {
 			$events = array_merge($newuser_notifications, $events);
 		}
 
@@ -493,6 +528,17 @@ class CFF_Notifications
 	 */
 	public function update()
 	{
+		// The Consent package owns the source-switch + local-fallback path. Only
+		// fire the remote fetch when consent resolves to 'remote'; 'local' and
+		// 'none' are no-ops here (mirrors instagram-feed).
+		$source = class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' )
+			? \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::notification_source()
+			: 'remote';
+
+		if ( 'remote' !== $source ) {
+			return;
+		}
+
 		$feed   = $this->fetch_feed();
 		$option = $this->get_option();
 
@@ -590,6 +636,13 @@ class CFF_Notifications
 		}
 
 		$notifications = $this->get();
+
+		// Keep the persisted marketing store in sync with the active consent
+		// source — an empty/none result clears it — so notices from a previous
+		// source can't linger (mirrors instagram-feed).
+		if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentNotifications' ) ) {
+			\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentNotifications::reconcile_from_notifications( 'custom-facebook-feed', $notifications );
+		}
 
 		if (empty($notifications)) {
 			return;

@@ -3325,6 +3325,22 @@ body .cff_review_step1_notice .cff-btn-link:not(:last-child) {
 	color: #434960;
 	margin: 0;
 }
+
+/* Opt-in spacing for notices whose body is more than one short line: the
+   base rule zeroes paragraph margins, which runs the message straight into
+   the title and the action button. Left/right padding stays at the base
+   value deliberately — the 60px right gutter already clears the 40px-wide
+   absolutely-positioned .cff-notice-dismiss, and this notice renders no
+   icon, so it needs no icon gutter on the left. */
+.cff-admin-notices.cff-admin-notices-spaced-p {
+	padding: 20px 60px 20px 60px;
+}
+.cff-admin-notices.cff-admin-notices-spaced-p p {
+	margin-top: 15px;
+}
+.cff-admin-notices.cff-admin-notices-spaced-p .cff-error-directions a {
+	margin-right: 8px;
+}
 .cff-admin-notices .sb-notice-icon {
 	position: absolute;
 	left: 22px;
@@ -3764,4 +3780,11 @@ button.cff-fb-popup-cls {
 
 .cff-screenreader.cff-inline-sr {
 	display: inline-block !important;
+}
+
+/* The admin header's visually-hidden <h1> is a flex item of .cff-fb-header;
+   left in flow, `justify-content: space-between` treats it as the first of
+   three items and pushes the logo block into the middle of the header. */
+.cff-fb-header > .cff-screenreader {
+	position: absolute !important;
 }

@@ -646,6 +646,28 @@ cffBuilder = new Vue({
 		 *
 		 * @return boolean
 		 */
+		/**
+		 * HTML-encode a value before it is concatenated into markup or bound with v-html.
+		 * Used by printPostText() / processPostTags() to neutralize HTML in untrusted
+		 * Facebook content (post message, description, link title, tagged names) before
+		 * the link/tag/newline transforms run.
+		 *
+		 * @since 4.13.1
+		 *
+		 * @return String
+		 */
+		escapeHtml : function( value ){
+			if ( value === null || value === undefined ) {
+				return '';
+			}
+			return String( value )
+				.replace( /&/g, '&amp;' )
+				.replace( /</g, '&lt;' )
+				.replace( />/g, '&gt;' )
+				.replace( /"/g, '&quot;' )
+				.replace( /'/g, '&#39;' );
+		},
+
 		hasOwnNestedProperty : function(obj,propertyPath) {
 		  if (!propertyPath){return false;}var properties = propertyPath.split('.');
 		  for (var i = 0; i < properties.length; i++) {
@@ -2764,6 +2786,10 @@ cffBuilder = new Vue({
 
 			//postVideoEmbed = self.processIframeAndLink( post, postText ),
 			postText = (!fullText && postText != null) ? postText.substring(0, self.customizerFeedData.settings.textlength) : postText,
+			// Neutralize any HTML in the untrusted Facebook text before it is turned into markup below
+			// (and before the plain-anchor branch concatenates it into an <a> with no processing at all).
+			// Defence in depth on top of the PHP-side ingestion sanitize in CFF_Shortcode::cff_get_json_data().
+			postText = self.escapeHtml( postText ),
 			postTags = post.message_tags ? post.message_tags : null,
 			postText = ( !self.valueIsEnabled(self.customizerFeedData.settings.textlink) ) ? self.processPostTags( self.processPostUrls( self.processNewLine( postText ) ), postTags ) : '<a href="https://www.facebook.com/'+post.id+'" target="_blank">' + postText + '</a>';
 			return postText;
@@ -2777,10 +2803,15 @@ cffBuilder = new Vue({
 		 * @return String
 		 */
 		processPostTags : function( postText, postTags ){
+			var self = this;
 			if(postTags !== null){
 				postTags.forEach( function( singleTag ) {
-					var regEx = new RegExp(singleTag.name, "ig");
-					postText = postText.replace(regEx, '<a href="https://facebook.com/' + singleTag.id + '" target="_blank" rel="nofollow">' + singleTag.name + '</a>');
+					// postText is already HTML-escaped, so match the escaped form of the name and
+					// neutralize regex metacharacters in it (a name like "A+B (Official)" used to throw).
+					var escapedName = self.escapeHtml( singleTag.name ),
+						regEx = new RegExp( escapedName.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ), "ig" );
+					// Function replacement: a literal "$&" / "$1" in the name must not be expanded.
+					postText = postText.replace(regEx, function(){ return '<a href="https://facebook.com/' + encodeURIComponent( singleTag.id ) + '" target="_blank" rel="nofollow">' + escapedName + '</a>'; });
 				});
 			}
 			return postText;

@@ -97,12 +97,9 @@ class CFF_Support
 			return;
 		}
 
-		wp_enqueue_style(
-			'cff-fira-code-font',
-			'https://fonts.googleapis.com/css2?family=Fira+Code&display=swap',
-			false,
-			CFFVER
-		);
+		// Fira Code was loaded from Google Fonts (external CDN, disallowed by
+		// WP.org). Dropped — the code sample falls back to the system monospace
+		// font, with no external request.
 
 		wp_enqueue_style(
 			'support-style',

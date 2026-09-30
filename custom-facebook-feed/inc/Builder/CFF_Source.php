@@ -125,6 +125,12 @@ class CFF_Source
 		if (! isset($header_details->error) && ! isset($header_details->cached_error)) {
 			$source_data['error']                     = '';
 			$source_data['info']->connected_version   = CFFVER;
+			$source_data['info'] =
+				self::maybe_attach_connect_baseline(
+					$source_data['info'],
+					$source_data['id'],
+					$source_data['access_token']
+				);
 			CFF_Source::update_or_insert($source_data);
 		}
 
@@ -169,6 +175,12 @@ class CFF_Source
 					if (! isset($header_details->error)) {
 						$source_data['error']                     = '';
 						$source_data['info']->connected_version   = CFFVER;
+						$source_data['info'] =
+							self::maybe_attach_connect_baseline(
+								$source_data['info'],
+								$source_data['id'],
+								$source_data['access_token']
+							);
 						CFF_Source::update_or_insert($source_data);
 					} else {
 						$has_error = true;
@@ -461,10 +473,18 @@ class CFF_Source
 			$reporter->remove_error('accesstoken');
 
 			$access_token = sanitize_text_field($_GET['cff_access_token']);
+			// Not sent by the broker yet; captured the moment it starts forwarding one.
+			// A data_access_expiration_time of 0 is a real Meta value meaning
+			// "no data-access expiry", so test isset() + is_numeric() rather
+			// than !empty(): null is reserved for "the flow didn't send one".
+			$data_access_expires_at = isset($_GET['cff_data_access_expiration_time'])
+				&& is_numeric($_GET['cff_data_access_expiration_time'])
+					? (int)$_GET['cff_data_access_expiration_time']
+					: null;
 			if (isset($_GET['cff_group'])) {
-				$return = CFF_Source::retrieve_available_groups($access_token);
+				$return = CFF_Source::retrieve_available_groups($access_token, $data_access_expires_at);
 			} else {
-				$return = CFF_Source::retrieve_available_pages($access_token);
+				$return = CFF_Source::retrieve_available_pages($access_token, $data_access_expires_at);
 			}
 
 			if ($return) {
@@ -478,16 +498,224 @@ class CFF_Source
 	}
 
 	/**
+	 * Retrieves the permissions granted to the connecting user's token,
+	 * parsed into granted and declined scope lists for the connect
+	 * baseline. Returns null when the request fails so a connect is
+	 * never blocked by this call.
+	 *
+	 * @param string $access_token The user access token from the connect flow.
+	 *
+	 * @return array|null
+	 */
+	public static function fetch_connect_permissions($access_token)
+	{
+		$url = 'https://graph.facebook.com/me/permissions?access_token=' . $access_token;
+		$permissions_data = \CustomFacebookFeed\CFF_Utils::cff_fetchUrl($url);
+
+		if (empty($permissions_data)) {
+			return null;
+		}
+
+		$permissions_data_arr = json_decode($permissions_data, true);
+
+		if (!is_array($permissions_data_arr) || !isset($permissions_data_arr['data'])) {
+			return null;
+		}
+
+		$permission_sets = array(
+			'scopes' => array(),
+			'declined_scopes' => array(),
+		);
+		foreach ($permissions_data_arr['data'] as $permission) {
+			if (empty($permission['permission']) || empty($permission['status'])) {
+				continue;
+			}
+			if ($permission['status'] === 'granted') {
+				$permission_sets['scopes'][] = $permission['permission'];
+			} elseif ($permission['status'] === 'declined') {
+				$permission_sets['declined_scopes'][] = $permission['permission'];
+			}
+		}
+
+		return $permission_sets;
+	}
+
+	/**
+	 * Builds the connect-time baseline stored with each source: the
+	 * granted/declined scope set, the asset ids visible to the token,
+	 * and the data-access expiry when the flow provides one. Fields the
+	 * current flow can't provide are stored as null so sources with a
+	 * baseline are distinguishable from sources connected before one
+	 * was captured.
+	 *
+	 * Asset lists are bounded by the connect flow's limit=500 accounts
+	 * request — the stored size budget depends on that cap.
+	 *
+	 * @param array|null $permission_sets Parsed sets from fetch_connect_permissions(), or null when unavailable.
+	 * @param array|null $accounts_data Response of /me/accounts, or null when unavailable.
+	 * @param int|null   $data_access_expires_at Data-access expiry timestamp when the flow provides one.
+	 * @param array|null $group_ids Ids of the groups visible to the token, or null when not a group connect.
+	 *
+	 * @return array
+	 */
+	public static function build_connect_baseline(
+		$permission_sets,
+		$accounts_data,
+		$data_access_expires_at = null,
+		$group_ids = null
+	) {
+		$defaults = array(
+			'scopes' => null,
+			'declined_scopes' => null,
+		);
+		$permission_sets = is_array($permission_sets) ? array_merge($defaults, $permission_sets) : $defaults;
+
+		$asset_targets = null;
+		$page_assets = isset($accounts_data['data']) ? $accounts_data['data'] : null;
+		if (null !== $page_assets || is_array($group_ids)) {
+			$asset_targets = array(
+				'pages' => array(),
+				'groups' => array(),
+			);
+			foreach ((array)$page_assets as $asset) {
+				if (!empty($asset['id'])) {
+					$asset_targets['pages'][] = (string)$asset['id'];
+				}
+			}
+			foreach ((array)$group_ids as $group_id) {
+				$asset_targets['groups'][] = (string)$group_id;
+			}
+		}
+
+		// States why scopes are null: the token family exposes no scope
+		// surface at all, or a scope surface exists but the fetch failed.
+		$capture_status = 'scopes_captured';
+		if (null === $permission_sets['scopes']) {
+			$capture_status = null === $asset_targets ? 'no_scope_surface' : 'scopes_unavailable';
+		}
+
+		return array(
+			'baseline_version' => 1,
+			'capture_status' => $capture_status,
+			'captured_at' => time(),
+			'data_access_expires_at' => null !== $data_access_expires_at ? (int)$data_access_expires_at : null,
+			'scopes' => $permission_sets['scopes'],
+			'declined_scopes' => $permission_sets['declined_scopes'],
+			'asset_targets' => $asset_targets,
+		);
+	}
+
+	/**
+	 * Holds the connect baseline briefly so the source rows written when
+	 * the user picks accounts (a separate request) receive it.
+	 *
+	 * The stash is bound to the token it describes: alongside each asset
+	 * id we record a keyed fingerprint of the access token that asset will
+	 * be saved with — an HMAC-SHA256 keyed with wp_salt('nonce'), not a
+	 * bare digest, so the value that lands in wp_options is useless as an
+	 * offline verifier to anyone who can only read the database.
+	 *
+	 * A baseline describes one token's grants, so the token is the key the
+	 * baseline is actually about — an asset id alone
+	 * cannot tell this connect's token apart from a token pasted by hand
+	 * for a page that merely appeared in this connect's picker. Only the
+	 * fingerprints are stored; the raw tokens never are.
+	 *
+	 * Pages are saved with their own page token (and a location page with
+	 * its parent page's token), groups with the user token, so the
+	 * fingerprint is recorded per asset rather than once for the connect.
+	 *
+	 * Deliberately not deleted on first use: one connect can persist
+	 * several picked sources across requests within the TTL, and the
+	 * fingerprint already rejects every other token, so the stash simply
+	 * expires. Consuming it per asset would instead re-arm the TTL on
+	 * every save — turning a fixed 15-minute window into a sliding one —
+	 * and its read-modify-write would race concurrent saves.
+	 *
+	 * @param array $connect_baseline The baseline built at connect time.
+	 * @param array $asset_tokens Map of asset id => the access token that asset will be saved with.
+	 */
+	public static function stash_connect_baseline($connect_baseline, $asset_tokens)
+	{
+		$ids = array();
+		$token_hashes = array();
+		foreach ((array)$asset_tokens as $id => $token) {
+			$id = (string)$id;
+			$ids[] = $id;
+			if (!empty($token) && is_string($token)) {
+				$token_hashes[$id] = hash_hmac('sha256', $token, wp_salt('nonce'));
+			}
+		}
+
+		set_transient(
+			'cff_connect_baseline_' . get_current_user_id(),
+			array(
+				'asset_ids' => $ids,
+				'token_hashes' => $token_hashes,
+				'baseline' => $connect_baseline,
+			),
+			15 * MINUTE_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Attaches the stashed connect baseline to a source's info data when
+	 * the source is one of the assets the baseline was captured for and
+	 * the token being saved is the token the baseline describes.
+	 *
+	 * The token fingerprint is the load-bearing half of that pair: a
+	 * manual token paste for an id that was merely visible in this
+	 * connect's picker must not adopt a baseline describing a different
+	 * token's grants. The candidate token is re-keyed with the same
+	 * wp_salt('nonce') HMAC and compared with hash_equals against the
+	 * stashed fingerprint; the token itself is never logged or persisted
+	 * here. Rotating the site's salts invalidates outstanding stashes,
+	 * which is harmless given the 15-minute TTL.
+	 *
+	 * @param object $info The source's info data.
+	 * @param string $source_id The account id of the source being saved.
+	 * @param string $access_token The access token the source is being saved with.
+	 *
+	 * @return object
+	 */
+	public static function maybe_attach_connect_baseline($info, $source_id, $access_token)
+	{
+		$stashed = get_transient('cff_connect_baseline_' . get_current_user_id());
+		$source_id = (string)$source_id;
+		$stashed_hash = isset($stashed['token_hashes'][$source_id])
+			? $stashed['token_hashes'][$source_id]
+			: null;
+		$token_matches = !empty($stashed_hash)
+			&& is_string($stashed_hash)
+			&& !empty($access_token)
+			&& is_string($access_token)
+			&& hash_equals($stashed_hash, hash_hmac('sha256', $access_token, wp_salt('nonce')));
+
+		if (
+			$token_matches
+			&& !empty($stashed['baseline']) && is_array($stashed['baseline'])
+			&& !empty($stashed['asset_ids']) && is_array($stashed['asset_ids'])
+			&& in_array($source_id, $stashed['asset_ids'], true)
+			&& is_object($info)
+		) {
+			$info->connect_baseline = $stashed['baseline'];
+		}
+
+		return $info;
+	}
+
+	/**
 	 * Uses the Facebook API to retrieve a list of pages for the
 	 * access token
 	 *
-	 * @param string $access_token
+	 * @param string   $access_token           A Facebook user access token.
+	 * @param int|null $data_access_expires_at Data-access expiry timestamp when the flow provides one.
 	 *
 	 * @return array|bool
 	 *
 	 * @since 4.0
 	 */
-	public static function retrieve_available_pages($access_token)
+	public static function retrieve_available_pages($access_token, $data_access_expires_at = null)
 	{
 
 		// Get User Info
@@ -500,6 +728,25 @@ class CFF_Source
 		$pages_data_arr = json_decode($pages_data, true);
 
 		if (isset($pages_data_arr['data'])) {
+			// Each page is saved with its own page token, so the baseline is
+			// stashed against the token each asset will actually be saved with.
+			$asset_tokens = array();
+			foreach ((array)$pages_data_arr['data'] as $page_asset) {
+				if (!empty($page_asset['id'])) {
+					$asset_tokens[(string)$page_asset['id']] =
+						isset($page_asset['access_token']) ? $page_asset['access_token'] : '';
+				}
+			}
+
+			self::stash_connect_baseline(
+				self::build_connect_baseline(
+					self::fetch_connect_permissions($access_token),
+					$pages_data_arr,
+					$data_access_expires_at
+				),
+				$asset_tokens
+			);
+
 			$return = array(
 				'user'  => $user_id_data_arr,
 				'pages'  => $pages_data_arr['data'],
@@ -522,13 +769,14 @@ class CFF_Source
 	 * Uses the Facebook API to retrieve a list of groups for the
 	 * access token split into "admin" and "member" groupings
 	 *
-	 * @param string $access_token
+	 * @param string   $access_token           A Facebook user access token.
+	 * @param int|null $data_access_expires_at Data-access expiry timestamp when the flow provides one.
 	 *
 	 * @return array|bool
 	 *
 	 * @since 4.0
 	 */
-	public static function retrieve_available_groups($access_token)
+	public static function retrieve_available_groups($access_token, $data_access_expires_at = null)
 	{
 		// Extend the user token by making a call to /me/accounts. User must be an admin of a page for this to work as won't work if the response is empty.
 		$url = 'https://graph.facebook.com/me/accounts?limit=500&access_token=' . $access_token;
@@ -581,15 +829,30 @@ class CFF_Source
 			$groups_data     = \CustomFacebookFeed\CFF_Utils::cff_fetchUrl($groups_url);
 			$groups_data_arr = json_decode($groups_data, true);
 			$member_groups   = array();
+			$group_ids       = $admin_ids;
 			if (isset($groups_data_arr['data'])) {
 				foreach ($groups_data_arr['data'] as $single_group) {
 					if (! in_array($single_group['id'], $admin_ids, true)) {
 						$single_group['expiration'] = $cff_token_expiration;
 						$single_group['access_token'] = $access_token;
 						$member_groups[]            = $single_group;
+						$group_ids[]                = $single_group['id'];
 					}
 				}
 			}
+
+			// Every group is saved with the user token (set on each group
+			// above), so all of them fingerprint to that one token.
+			self::stash_connect_baseline(
+				self::build_connect_baseline(
+					self::fetch_connect_permissions($access_token),
+					json_decode($accounts_data, true),
+					$data_access_expires_at,
+					$group_ids
+				),
+				array_fill_keys($group_ids, $access_token)
+			);
+
 			$return = array(
 				'user'  => $user_id_data_arr,
 				'admin'  => $admin_groups,

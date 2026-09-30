@@ -77,6 +77,59 @@ function cff_activate_addon()
 add_action('wp_ajax_cff_activate_addon', 'cff_activate_addon');
 
 /**
+ * Whether a plugin package URL may be handed to the installer.
+ *
+ * The install handler runs with the install_plugins capability and downloads,
+ * unpacks and activates whatever package URL it is given, so the URL is a
+ * remote-code-execution primitive for anything that can reach the handler
+ * (including script running in an administrator's browser session). Only
+ * HTTPS packages on the exact hosts the plugin itself links to -- the
+ * wordpress.org download host and smashballoon.com -- are accepted; everything
+ * else is rejected before any download. Hosts are pinned exactly (no wildcard
+ * subdomains) so a dangling DNS record on an unrelated subdomain can never
+ * become an install path, and because the downloader follows redirects the
+ * allowed hosts are ones we control or that never redirect off-site.
+ *
+ * @param mixed $url Raw URL submitted to the handler.
+ *
+ * @return bool
+ *
+ * @since 4.13.1
+ */
+function cff_is_allowed_plugin_download_url( $url )
+{
+	if (! is_string($url) || '' === $url) {
+		return false;
+	}
+
+	$parts = wp_parse_url($url);
+	if (! is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+		return false;
+	}
+
+	if ('https' !== strtolower($parts['scheme'])) {
+		return false;
+	}
+
+	// Credentials or a non-default port in the URL are never part of a legitimate package link.
+	if (isset($parts['user']) || isset($parts['pass']) || isset($parts['port'])) {
+		return false;
+	}
+
+	$host = strtolower($parts['host']);
+
+	// A host must be well-formed DNS labels: no empty label (leading/trailing/double dot)
+	// so ".wordpress.org" cannot satisfy the suffix comparison below.
+	if (! preg_match('/^[a-z0-9-]+(\.[a-z0-9-]+)*$/', $host)) {
+		return false;
+	}
+
+	$allowed_hosts = array( 'downloads.wordpress.org', 'wordpress.org', 'smashballoon.com', 'www.smashballoon.com' );
+
+	return in_array($host, $allowed_hosts, true);
+}
+
+/**
  * Install addon.
  *
  * @since 1.0.0
@@ -95,6 +148,12 @@ function cff_install_addon()
 	$error = esc_html__('Could not install addon. Please download from smashballoon.com and install manually.', 'custom-facebook-feed');
 
 	if (empty($_POST['plugin'])) {
+		wp_send_json_error($error);
+	}
+
+	// Only packages from trusted hosts may be installed; see cff_is_allowed_plugin_download_url().
+	$plugin_url = is_string($_POST['plugin']) ? esc_url_raw(wp_unslash($_POST['plugin'])) : '';
+	if (! cff_is_allowed_plugin_download_url($plugin_url)) {
 		wp_send_json_error($error);
 	}
 
@@ -139,7 +198,7 @@ function cff_install_addon()
 		wp_send_json_error($error);
 	}
 
-	$installer->install( $_POST['plugin'] ); // phpcs:ignore
+	$installer->install($plugin_url);
 
 	// Flush the cache and return the newly installed plugin basename.
 	wp_cache_flush();

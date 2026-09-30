@@ -13,9 +13,9 @@
 				</div>
 				<div class="cff-videos-item-info cff-singlemedia-item-info cff-fb-fs">
 					<h4>
-						<a :href="'https://www.facebook.com/'+singlePost.id" target="_blank" v-html="singlePost.title"></a>
+						<a :href="'https://www.facebook.com/'+singlePost.id" target="_blank" v-text="singlePost.title"></a>
 					</h4>
-					<p v-html="(singlePost.description != null && singlePost.description != undefined ? (singlePost.description.substring(0, 50) + (singlePost.description.length > 50 ? '...' : '') ) : '')"></p>
+					<p v-text="(singlePost.description != null && singlePost.description != undefined ? (singlePost.description.substring(0, 50) + (singlePost.description.length > 50 ? '...' : '') ) : '')"></p>
 				</div>
 			</div>
 		</div>

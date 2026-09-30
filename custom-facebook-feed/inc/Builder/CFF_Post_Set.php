@@ -162,6 +162,11 @@ class CFF_Post_Set
 			$id = CFF_Parse::get_post_id($single_post);
 			$json_object = \CustomFacebookFeed\CFF_Utils::cff_fetchUrl("https://graph.facebook.com/" . $id . "/?fields=comments.limit(5){created_time,from{name,id,picture{url},link},id,message,message_tags,attachment,like_count}&access_token=" . $settings['accesstoken']);
 			$comments_return = json_decode($json_object);
+			// Comment message and commenter name are attacker-influenceable (anyone with a Facebook
+			// account can comment on the Page); strip markup on ingestion like the post fetch does.
+			if (is_object($comments_return)) {
+				\CustomFacebookFeed\CFF_Shortcode::cff_sanitize_untrusted_post_fields($comments_return);
+			}
 			if (isset($comments_return->comments->data)) {
 				$comments[ $id ] = $comments_return->comments->data;
 			}

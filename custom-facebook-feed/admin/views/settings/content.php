@@ -20,7 +20,7 @@
 		<form action="">
 			<div class="sb-tabs">
 				<div class="left-buttons" role="tablist" aria-label="<?php esc_attr_e( 'Settings', 'custom-facebook-feed' ); ?>">
-					<tab v-bind:section="section" v-bind:index="index" v-for="(section, index) in sections" v-bind:class="{ active : section === currentTab }" v-bind:data-index="index+1" key="index"></tab>
+					<tab v-bind:section="section" v-bind:index="index" v-for="(section, index) in sections" v-if="section !== 'Data Sharing' || !debugTab.lockedByPro" v-bind:class="{ active : section === currentTab }" v-bind:data-index="index+1" key="index"></tab>
 				</div>
 				<div class="right-buttons">
 					<button class="cff-btn sb-btn-orange" @click.prevent="saveSettings" :disabled="btnStatus !== null">
@@ -36,6 +36,7 @@
 						CustomFacebookFeed\CFF_View::render('settings.tab.general');
 						CustomFacebookFeed\CFF_View::render('settings.tab.feeds');
 						CustomFacebookFeed\CFF_View::render('settings.tab.translation');
+						CustomFacebookFeed\CFF_View::render( 'settings.tab.debug' );
 						CustomFacebookFeed\CFF_View::render('settings.tab.advanced');
 					?>
 				</div>

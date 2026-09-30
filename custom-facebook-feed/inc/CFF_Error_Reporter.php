@@ -11,12 +11,14 @@
 namespace CustomFacebookFeed;
 
 use CustomFacebookFeed\CFF_Education;
+use CustomFacebookFeed\Builder\CFF_Db;
 use CustomFacebookFeed\Builder\CFF_Source;
+use CustomFacebookFeed\Token_Health\MetaErrorMap;
+use CustomFacebookFeed\UsageTracking\ErrorAccumulator;
 
 if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
-
 
 class CFF_Error_Reporter
 {
@@ -62,6 +64,8 @@ class CFF_Error_Reporter
 		}
 
 
+		$this->prune_orphaned_account_errors();
+
 		$this->display_error = [];
 		$this->frontend_error = '';
 
@@ -105,18 +109,57 @@ class CFF_Error_Reporter
 			$this->add_connected_account_error($connected_account, $type, $args);
 		}
 
+		// Accumulate API-error telemetry per day so weekly usage reports cover
+		// the whole period instead of sampling this option at cron time. The
+		// accesstoken payload carries its Graph code as `errorno`, which
+		// MetaErrorMap::extract() does not read, so it is passed explicitly.
+		//
+		// What that buys is narrow and worth stating: only codes 10, 4 and 200
+		// reach this branch ($access_token_refresh_errors), so the explicit pass
+		// is what stops those three landing in `other`. It does nothing for a
+		// dead token -- 190 arrives on the `api` branch below, where extract()
+		// supplies both the code and the subcode. The subcode is forwarded here
+		// anyway so a future caller that does route a 190 through this path can
+		// still bump `expiring`.
+		if ($type === 'accesstoken') {
+			ErrorAccumulator::record_api_error(
+				isset($args['errorno']) ? (int)$args['errorno'] : 0,
+				isset($args['error_subcode']) ? (int)$args['error_subcode'] : 0
+			);
+		} elseif ($type === 'api' || $type === 'wp_remote_get') {
+			$extracted = MetaErrorMap::extract($args);
+			if ($extracted['code'] > 0) {
+				ErrorAccumulator::record_api_error($extracted['code'], $extracted['subcode'], $extracted['message']);
+			} else {
+				// An `api` call whose response is a WP_Error is a transport failure,
+				// semantically identical to the wp_remote_get type -- the same shape
+				// this method already special-cases below. Record it as `network`
+				// rather than dropping it into the `other` catch-all.
+				$is_transport = 'wp_remote_get' === $type
+					|| (isset($args['response']) && is_wp_error($args['response']));
+				ErrorAccumulator::record_category($is_transport ? 'network' : 'other');
+			}
+		}
+
 		// Access Token Error
 		if ($type === 'accesstoken') {
 			$accesstoken_error_exists = false;
 			if (isset($this->errors['accounts'])) {
 				foreach ($this->errors['accounts'] as $account) {
-					if ($args['accesstoken'] === $account['accesstoken']) {
+					// Per-account buckets are keyed by error type ('api' => ...), so
+					// 'accesstoken' is normally absent and reading it unguarded emits
+					// "Undefined array key" on PHP 8.
+					if (isset($account['accesstoken']) && $args['accesstoken'] === $account['accesstoken']) {
 						$accesstoken_error_exists = true;
 					}
 				}
 			}
-			if (!$accesstoken_error_exists && isset($this->errors['accounts'])) {
-				$this->errors['accounts'][$connected_account['id']][] = array(
+			if (
+				!$accesstoken_error_exists
+				&& isset($this->errors['accounts'])
+				&& !empty($connected_account['account_id'])
+			) {
+				$this->errors['accounts'][$connected_account['account_id']][] = array(
 					'accesstoken' => $args['accesstoken'],
 					'post_id' => $args['post_id'],
 					'critical' => true,
@@ -209,21 +252,55 @@ class CFF_Error_Reporter
 	 */
 	public function add_connected_account_error($connected_account, $error_type, $details)
 	{
-		$account_id = $connected_account['id'];
+		// Per-account errors are addressed by the Facebook account id everywhere
+		// they are read, so that is the only key worth storing one under. A source
+		// row also carries the sources table's own primary key in ['id'], and
+		// keying by that stored errors nothing could ever look up again.
+		if (empty($connected_account['account_id'])) {
+			return;
+		}
+
+		$account_id = $connected_account['account_id'];
 		$this->errors['accounts'][ $account_id ][ $error_type ] = $details;
 
+		// clear_time is a RETRY-BACKOFF HINT, not an error expiry, and nothing
+		// may read it as one. It is written for every api/accesstoken error at a
+		// flat three minutes -- matching the Instagram siblings' window -- and
+		// only lengthened for the routes that publish a retry_after. A dead
+		// token (190/463) therefore carries a three-minute clear_time, so
+		// treating it as an expiry would silently drop a genuine critical state
+		// after three minutes and make every critical surface flicker. Recovery
+		// is driven by clear_account_errors() on a successful fetch instead,
+		// which is evidence the account is healthy rather than a guess.
 		if ($error_type === 'api' || $error_type === 'accesstoken') {
 			$this->errors['accounts'][ $account_id ][ $error_type ]['clear_time'] = time() + 60 * 3;
 		}
 
-		if (
-			isset($details['error']['code'])
-			&& (int)$details['error']['code'] === 18
-		) {
-			$this->errors['accounts'][ $account_id ][ $error_type ]['clear_time'] = time() + 60 * 15;
+		$error = MetaErrorMap::extract($details);
+		$route = MetaErrorMap::route($error['code'], $error['subcode'], $error['message']);
+
+		// Rate limits and throttled features need longer than the general
+		// window, and the table is where those durations live now. Still a
+		// backoff hint -- see above.
+		if (!empty($route['retry_after'])) {
+			$this->errors['accounts'][ $account_id ][ $error_type ]['clear_time'] = time() + (int)$route['retry_after'];
 		}
 
-		\CustomFacebookFeed\Builder\CFF_Source::add_error($account_id, $details);
+		// Only mark the source unusable when it genuinely is: that error column
+		// is what paints a Reconnect prompt in the builder, so a rate limit must
+		// not reach it. Skipped rather than cleared, so a source already invalid
+		// stays invalid until the next successful fetch clears it.
+		//
+		// PPCA is the one cause the table cannot route: it is not a Graph code,
+		// it arrives as "(#10)" inside the message, and code 10 on its own means
+		// only "a scope is missing" -- which leaves the source usable. PPCA does
+		// not: the account does not manage the page and the feed will never work,
+		// which is the clearest Source Invalid case there is. Detected with the
+		// same single predicate the copy layer routes it with, so the two cannot
+		// drift apart.
+		if ($route['invalidates_source'] || self::is_ppca_error($error['message'])) {
+			\CustomFacebookFeed\Builder\CFF_Source::add_error($account_id, $details);
+		}
 	}
 
 	/**
@@ -237,6 +314,213 @@ class CFF_Error_Reporter
 	}
 
 
+
+	/**
+	 * Applies the shared routing table over the copy this class already
+	 * carries: the table owns whether reconnecting can fix a failure, and
+	 * supplies copy for the shapes that previously had none.
+	 *
+	 * @param array $data Copy data from get_error_message_data().
+	 * @param array $route Row from the shared error map.
+	 * @param int   $error_code Graph error code, so the routed copy can still
+	 *                         name it for support.
+	 *
+	 * @return array
+	 */
+	private function apply_error_route($data, $route, $error_code = 0)
+	{
+		// Reconnecting cannot grant a missing scope, clear a rate limit or
+		// restore a lost page role, so the table decides this, not a code list.
+		$data['show_reconnect'] = (bool)$route['show_reconnect'];
+
+		// Every row this table replaces leads with "Error N:", and the title is
+		// the only admin-facing place the code still appears once the raw Graph
+		// message is dropped — without it support cannot triage a screenshot.
+		$copy = array(
+			'rate_limited' => array(
+				/* translators: %s: Facebook Graph API error code. */
+				'title' => sprintf(__('Error %s: Rate Limit Reached', 'custom-facebook-feed'), $error_code),
+				'description' => __('Facebook is temporarily limiting requests from this site.', 'custom-facebook-feed'),
+				'action' => __('The feed retries automatically and keeps serving its cached posts meanwhile. Increasing the cache time in your feed settings reduces how often this happens. No reconnection is needed.', 'custom-facebook-feed'),
+			),
+			'temporarily_blocked' => array(
+				/* translators: %s: Facebook Graph API error code. */
+				'title' => sprintf(__('Error %s: Temporarily Blocked', 'custom-facebook-feed'), $error_code),
+				'description' => __('Facebook has temporarily blocked requests for this account.', 'custom-facebook-feed'),
+				'action' => __('This clears on its own. No reconnection is needed; if it persists for more than a day, contact support.', 'custom-facebook-feed'),
+			),
+			'page_role_lost_or_2fa' => array(
+				/* translators: %s: Facebook Graph API error code. */
+				'title' => sprintf(__('Error %s: Page Access Lost', 'custom-facebook-feed'), $error_code),
+				'description' => __('This account no longer has access to the connected page.', 'custom-facebook-feed'),
+				'action' => __('Either the account lost its administrator, editor or moderator role on the page, or the page now requires Two Factor Authentication which this account has not enabled. Restore the page role, or enable Two Factor Authentication, then retry the feed.', 'custom-facebook-feed'),
+			),
+			'permission_regrant' => array(
+				/* translators: %s: Facebook Graph API error code. */
+				'title' => sprintf(__('Error %s: Permission Missing', 'custom-facebook-feed'), $error_code),
+				'description' => __('The stored access token is valid but is missing a permission this feed needs.', 'custom-facebook-feed'),
+				'action' => __('Open the source and approve the missing permission. A full reconnection is not required, because the token itself is still valid.', 'custom-facebook-feed'),
+			),
+		);
+
+		if (isset($copy[ $route['copy_key'] ])) {
+			$data = array_merge($data, $copy[ $route['copy_key'] ]);
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Returns structured human-readable message data for a Facebook API error code.
+	 *
+	 * @param int  $error_code    Facebook error code (104 already normalised to 999 by caller).
+	 * @param int  $error_subcode Facebook error_subcode, 0 if absent.
+	 * @param bool $ppca_error    True when error message contains "Public Content Access".
+	 * @return array Keys: public (string), title (string), description (string), action (string), url (string), show_reconnect (bool).
+	 */
+	private function get_error_message_data($error_code, $error_subcode = 0, $ppca_error = false)
+	{
+		$docs_base = 'https://smashballoon.com/doc/facebook-api-errors/?facebook&utm_campaign=facebook-free&utm_source=error&utm_medium=docs#';
+
+		if ($ppca_error) {
+			return [
+				'public'          => __('Error connecting to the Facebook API.', 'custom-facebook-feed'),
+				'title'           => __('PPCA Error: Page not managed by you', 'custom-facebook-feed'),
+				'description'     => __('Facebook no longer allows displaying feeds from Pages you are not an admin of.', 'custom-facebook-feed'),
+				'action'          => __("Switch to a Facebook Page you manage, or use that Page's own access token.", 'custom-facebook-feed'),
+				'url'             => 'https://smashballoon.com/facebook-api-changes-september-4-2020/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs',
+				'show_reconnect'  => false,
+			];
+		}
+
+		if ($error_code === 190) {
+			$subcode_messages = [
+				463 => [
+					'title'       => __('Error 190: Access Token Expired', 'custom-facebook-feed'),
+					'description' => __('Your Facebook session has expired.', 'custom-facebook-feed'),
+					'action'      => __('Reconnect your Facebook account in Sources to generate a new token.', 'custom-facebook-feed'),
+				],
+				460 => [
+					'title'       => __('Error 190: Password Changed', 'custom-facebook-feed'),
+					'description' => __('Your Facebook password was changed, which invalidated the stored access token.', 'custom-facebook-feed'),
+					'action'      => __('Reconnect your Facebook account to generate a fresh token.', 'custom-facebook-feed'),
+				],
+				458 => [
+					'title'       => __('Error 190: App Not Authorized', 'custom-facebook-feed'),
+					'description' => __('The Smash Balloon app has not been authorized for this Facebook account.', 'custom-facebook-feed'),
+					'action'      => __('Reconnect your account and approve the app permissions when prompted.', 'custom-facebook-feed'),
+				],
+				459 => [
+					'title'       => __('Error 190: Security Checkpoint', 'custom-facebook-feed'),
+					'description' => __('Facebook has placed a security checkpoint on this account, which invalidated the stored access token.', 'custom-facebook-feed'),
+					'action'      => __('The account owner needs to log in to Facebook and clear the checkpoint first, then reconnect the account in Sources.', 'custom-facebook-feed'),
+				],
+				464 => [
+					'title'       => __('Error 190: Account Unconfirmed', 'custom-facebook-feed'),
+					'description' => __('This Facebook account is unconfirmed, so Facebook rejects the access token issued for it.', 'custom-facebook-feed'),
+					'action'      => __('The account owner needs to confirm the account with Facebook first, then reconnect it in Sources.', 'custom-facebook-feed'),
+				],
+				467 => [
+					'title'       => __('Error 190: Invalid Access Token', 'custom-facebook-feed'),
+					'description' => __('The access token stored for this account is no longer valid.', 'custom-facebook-feed'),
+					'action'      => __('Reconnect your Facebook account in Sources to get a new valid token.', 'custom-facebook-feed'),
+				],
+			];
+			$subcode_data = isset($subcode_messages[$error_subcode]) ? $subcode_messages[$error_subcode] : [
+				'title'       => __('Error 190: Invalid Access Token', 'custom-facebook-feed'),
+				'description' => __('Your Facebook access token is invalid or has expired.', 'custom-facebook-feed'),
+				'action'      => __('Go to Sources in the feed builder and reconnect your Facebook account.', 'custom-facebook-feed'),
+			];
+			return array_merge(
+				[
+					'public'         => __('Error connecting to the Facebook API.', 'custom-facebook-feed'),
+					'url'            => $docs_base . '190',
+					'show_reconnect' => true,
+				],
+				$subcode_data
+			);
+		}
+
+		$messages = [
+			4   => [
+				'title'          => __('Error 4: Rate Limit Reached', 'custom-facebook-feed'),
+				'description'    => __('Your feed has made too many requests to Facebook in a short period.', 'custom-facebook-feed'),
+				'action'         => __('Wait a few minutes then reload the page. If this persists, increase the cache time in your feed settings.', 'custom-facebook-feed'),
+				'show_reconnect' => false,
+			],
+			10  => [
+				'title'          => __('Error 10: Permission Denied', 'custom-facebook-feed'),
+				'description'    => __('The access token does not have permission to read the requested data.', 'custom-facebook-feed'),
+				'action'         => __('Reconnect your account and ensure all required permissions are granted during the authorisation step.', 'custom-facebook-feed'),
+				'show_reconnect' => true,
+			],
+			18  => [
+				'title'          => __('Error 18: Request Throttled', 'custom-facebook-feed'),
+				'description'    => __('Facebook has temporarily throttled requests from this account.', 'custom-facebook-feed'),
+				'action'         => __('Your feed will automatically retry in 15 minutes. No action is needed right now.', 'custom-facebook-feed'),
+				'show_reconnect' => false,
+			],
+			100 => [
+				'title'          => __('Error 100: Invalid Parameter', 'custom-facebook-feed'),
+				'description'    => __('The Page or Group ID is invalid, or the app is not installed on this account.', 'custom-facebook-feed'),
+				'action'         => __('Check that the Page or Group ID is correct, then reconnect the account in Sources.', 'custom-facebook-feed'),
+				'show_reconnect' => true,
+			],
+			200 => [
+				'title'          => __('Error 200: Permissions Error', 'custom-facebook-feed'),
+				'description'    => __('The access token does not have the required permissions for this feed type.', 'custom-facebook-feed'),
+				'action'         => __('Reconnect your account and approve all permission requests when prompted.', 'custom-facebook-feed'),
+				'show_reconnect' => true,
+			],
+			999 => [
+				'title'          => __('Error 999: Token Decryption Failed', 'custom-facebook-feed'),
+				'description'    => __('The stored access token for this account could not be decrypted on this server.', 'custom-facebook-feed'),
+				'action'         => __('Reconnect your account to store a fresh token, or follow our guide for server-specific decryption issues.', 'custom-facebook-feed'),
+				'url'            => 'https://smashballoon.com/doc/error-999-access-token-could-not-be-decrypted/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs',
+				'show_reconnect' => true,
+			],
+		];
+
+		if (isset($messages[$error_code])) {
+			$data = $messages[$error_code];
+			$data['public'] = __('Error connecting to the Facebook API.', 'custom-facebook-feed');
+			if (!isset($data['url'])) {
+				$data['url'] = $docs_base . $error_code;
+			}
+			return $data;
+		}
+
+		return [
+			'public'         => __('Error connecting to the Facebook API.', 'custom-facebook-feed'),
+			/* translators: %s: Facebook Graph API error code. */
+			'title'          => sprintf(__('API Error %s', 'custom-facebook-feed'), $error_code),
+			'description'    => __('An unexpected error was returned by the Facebook API.', 'custom-facebook-feed'),
+			'action'         => __('Check our documentation for this error code, or contact support if the issue persists.', 'custom-facebook-feed'),
+			'url'            => $docs_base . $error_code,
+			'show_reconnect' => false,
+		];
+	}
+
+	/**
+	 * Whether a Graph error message is the Public Content Access refusal.
+	 *
+	 * PPCA has no Graph error code of its own -- it rides in on code 10 with
+	 * "(#10) ... Public Content Access" as the message -- so the routing table
+	 * cannot express it and every surface that needs to know has to read the
+	 * message. This is the one place that reads it, so the copy layer and the
+	 * two source-invalidation write sites cannot end up disagreeing about what
+	 * counts as PPCA.
+	 *
+	 * @param mixed $message Raw Graph error message.
+	 *
+	 * @return bool
+	 *
+	 * @since SMASH-1806
+	 */
+	public static function is_ppca_error($message)
+	{
+		return is_string($message) && strpos($message, 'Public Content Access') !== false;
+	}
 
 	/**
 	 * Creates an array of information for easy display of API errors
@@ -261,31 +545,38 @@ class CFF_Error_Reporter
 		);
 
 		if (isset($response['error']['code'])) {
-			$error_code 							= (int)$response['error']['code'];
+			$error_code    = (int)$response['error']['code'];
+			$error_subcode = isset($response['error']['error_subcode']) ? (int)$response['error']['error_subcode'] : 0;
+			$raw_message   = isset($response['error']['message']) ? $response['error']['message'] : '';
+			$ppca_error    = self::is_ppca_error($raw_message);
+
 			if ($error_code === 104) {
 				$error_code = 999;
-				$url        = 'https://smashballoon.com/doc/error-999-access-token-could-not-be-decrypted/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs';
-
-				$response['error']['message'] = __('Your access token could not be decrypted on this website. Reconnect this account or go to our website to learn how to prevent this.', 'custom-facebook-feed');
-			} else {
-				$url = 'https://smashballoon.com/doc/facebook-api-errors/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs';
 			}
 
-			$api_error_number_message 				= sprintf(__('API Error %s:', 'custom-facebook-feed'), $error_code);
-			$error_message_return['public_message'] = __('Error connecting to the Facebook API.', 'custom-facebook-feed') . ' ' . $api_error_number_message;
-			$ppca_error								= ( strpos($response['error']['message'], 'Public Content Access') !== false ) ? true : false;
+			$data = $this->get_error_message_data($error_code, $error_subcode, $ppca_error);
 
-			$error_message_return['admin_message'] 	= ( $ppca_error)
-				? '<B>PPCA Error:</b> Due to Facebook API changes it is no longer possible to display a feed from a Facebook Page you are not an admin of. Please use the button below for more information on how to fix this.'
-				: '<strong>' . $api_error_number_message . '</strong><br>' . $response['error']['message'];
+			// PPCA is not a Graph error code, so it keeps its own answer; every
+			// real code now takes its reconnect decision, and its copy for the
+			// previously unhandled shapes, from the shared table.
+			if (!$ppca_error) {
+				$data = $this->apply_error_route(
+					$data,
+					MetaErrorMap::route($error_code, $error_subcode, $raw_message),
+					$error_code
+				);
+			}
 
-			$error_message_return['frontend_directions'] = ( $ppca_error )
-				? '<p class="cff-error-directions"><a href="https://smashballoon.com/facebook-api-changes-september-4-2020/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>'
-				: '<p class="cff-error-directions"><a href="' . $url . '#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a></p>';
+			$reconnect_url = admin_url('admin.php?page=cff-settings&connect_source=1');
 
-			$error_message_return['backend_directions'] = ( $ppca_error )
-				? '<a class="cff-notice-btn cff-btn-blue" href="https://smashballoon.com/facebook-api-changes-september-4-2020/?utm_campaign=facebook-free&utm_source=error&utm_medium=docs" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>'
-				: '<a class="cff-notice-btn cff-btn-blue" href="' . $url . '#' . absint($error_code) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed')  . '</a>';
+			$error_message_return['public_message']      = $data['public'];
+			$error_message_return['admin_message']       = '<strong>' . $data['title'] . '</strong><br>' . $data['description'] . '<br><em>' . $data['action'] . '</em>';
+			$error_message_return['frontend_directions'] = '<p class="cff-error-directions"><a href="' . esc_url($data['url']) . '" target="_blank" rel="noopener">' . __('Directions on How to Resolve This Issue', 'custom-facebook-feed') . '</a></p>';
+
+			$reconnect_btn = $data['show_reconnect']
+				? '<a class="cff-notice-btn cff-btn-orange" href="' . esc_url($reconnect_url) . '">' . __('Reconnect Account', 'custom-facebook-feed') . '</a> '
+				: '';
+			$error_message_return['backend_directions'] = $reconnect_btn . '<a class="cff-notice-btn cff-btn-grey" href="' . esc_url($data['url']) . '" target="_blank" rel="noopener">' . __('Learn More', 'custom-facebook-feed') . '</a>';
 
 			$error_message_return['errorno'] = $error_code;
 		} else {
@@ -311,18 +602,9 @@ class CFF_Error_Reporter
 	 */
 	public function is_critical_error($details)
 	{
-		$error_code = (int)$details['error']['code'];
+		$error = MetaErrorMap::extract($details);
 
-		$critical_codes = array(
-			10,
-			100,
-			200,
-			190,
-			104,
-			999
-		);
-
-		return in_array($error_code, $critical_codes, true);
+		return MetaErrorMap::isCritical($error['code'], $error['subcode'], $error['message']);
 	}
 
 	/**
@@ -353,6 +635,69 @@ class CFF_Error_Reporter
 		}
 	}
 
+	/**
+	 * Clears everything stored against one Facebook account.
+	 *
+	 * This is the recovery path the per-account arm was missing. Before it,
+	 * errors['accounts'][$id] was written on failure and removed by nothing
+	 * short of deleting all platform data, so a single since-fixed 190 left
+	 * are_critical_errors() true forever -- and because the builder gates its
+	 * per-source clear on that same site-wide check, every source's Source
+	 * Invalid flag became unclearable too. Cannot clear because critical,
+	 * critical because never cleared.
+	 *
+	 * The one caller is CFF_API_Connect::connect(), on a fetch that returned a
+	 * well-formed Graph payload with no error member -- the only place a success
+	 * and the account it belongs to are both known. That is why the builder's
+	 * site-wide gate can stay: it stops being a deadlock once something outside
+	 * it can make the verdict go false.
+	 *
+	 * Deliberately a new method rather than a second argument on
+	 * remove_error(): that one keys off an error TYPE and has eight call sites
+	 * that all pass one argument. This one is addressed by an account and
+	 * clears errors['accounts'][$id] -- and ONLY that.
+	 *
+	 * It must not touch errors['revoked']: that list drives the warning copy for
+	 * a pending 7-day platform-data deletion, and dropping an id from it cancels
+	 * the visible warning while Platform_Data's deletion timer keeps running.
+	 * Its stale-latch problem is fixed at the READ instead, in
+	 * was_app_permission_related_error().
+	 *
+	 * Typed mixed on purpose: there is no parameter type declaration, so a
+	 * caller can hand this anything, and the is_scalar() guard below exists to
+	 * absorb that. Declaring string|int would make the guard read as dead code.
+	 *
+	 * @param mixed $account_id Facebook account id.
+	 *
+	 * @return bool Whether anything was stored to clear.
+	 *
+	 * @since SMASH-1806
+	 */
+	public function clear_account_errors($account_id)
+	{
+		$account_id = is_scalar($account_id) ? (string)$account_id : '';
+		if ($account_id === '') {
+			return false;
+		}
+
+		// Nothing stored for this account means the successful fetch that called
+		// this has nothing to report, and must not rewrite the option -- this
+		// runs on every healthy fetch, which is the overwhelming majority.
+		if (
+			!isset($this->errors['accounts'])
+			|| !is_array($this->errors['accounts'])
+			|| !isset($this->errors['accounts'][ $account_id ])
+		) {
+			return false;
+		}
+
+		unset($this->errors['accounts'][ $account_id ]);
+		$this->add_action_log('Cleared stored errors for account ' . $account_id . '.');
+		update_option($this->reporter_key, $this->errors, false);
+
+		return true;
+	}
+
 	public function remove_all_errors()
 	{
 		delete_option($this->reporter_key);
@@ -363,6 +708,100 @@ class CFF_Error_Reporter
 		$this->errors['connection'] = array();
 		$this->errors['accounts'] = array();
 		update_option($this->reporter_key, $this->errors, false);
+	}
+
+	/**
+	 * The account ids to check for stored per-account errors.
+	 *
+	 * The sources table is the source of truth here, not the legacy
+	 * cff_connected_accounts option. Entries in that option carry no
+	 * 'account_id' key at all -- get_connected_accounts_list() maps a modern
+	 * source's account_id into 'id' -- so a lookup keyed off 'account_id'
+	 * skipped every entry and the per-account arm below never ran on a real
+	 * site. The option's 'id' IS the page id, which keeps it usable as a
+	 * fallback for a site whose sources table is empty or unavailable.
+	 *
+	 * @return array List of account id strings.
+	 *
+	 * @since SMASH-1806
+	 */
+	private function get_connected_account_ids()
+	{
+		$account_ids = CFF_Db::source_account_ids();
+
+		if (!empty($account_ids)) {
+			return $account_ids;
+		}
+
+		$account_ids = array();
+		foreach (CFF_Utils::cff_get_connected_accounts() as $connected_account) {
+			$connected_account = (array)$connected_account;
+			if (!empty($connected_account['id'])) {
+				$account_ids[] = $connected_account['id'];
+			}
+		}
+
+		return $account_ids;
+	}
+
+	/**
+	 * Drops per-account errors stored under something that cannot be a Facebook
+	 * account id.
+	 *
+	 * Two writers produced unreachable keys before SMASH-1806: the Free edition
+	 * keyed by the sources table's own primary key, and both editions keyed by
+	 * '' when no account could be resolved. Nothing can ever read either back --
+	 * are_critical_errors() looks accounts up by account id, and
+	 * CFF_Source::add_error() matches the account_id column -- so they are swept
+	 * once, in place, rather than left to accumulate.
+	 *
+	 * A key survives only while it is still in get_connected_account_ids() --
+	 * deliberately the reader's own list, including its legacy-option fallback,
+	 * so the prune can never drop a key are_critical_errors() would still look
+	 * up. When that list is empty or unavailable nothing is pruned at all, so a
+	 * failed lookup can never be read as "every stored error is an orphan".
+	 *
+	 * @return void
+	 *
+	 * @since SMASH-1806
+	 */
+	private function prune_orphaned_account_errors()
+	{
+		if (empty($this->errors['accounts']) || !is_array($this->errors['accounts'])) {
+			return;
+		}
+
+		// Membership of the live account-id list decides this, not how long the
+		// key looks. A length heuristic was unsafe in the one direction that
+		// matters: 2007-2009-era page ids and especially group ids are commonly
+		// nine digits or fewer, so the oldest sites -- the ones most likely to
+		// hit a token error -- had their real per-account error silently deleted
+		// on the next page load, with no signal.
+		//
+		// An empty list means the sources table is empty or the lookup failed, and
+		// says nothing about which keys are orphans, so fail closed and delete
+		// nothing. The lookup itself is memoised per request and only runs at all
+		// when there is a stored per-account error to check (the guard above).
+		$account_ids = array_map('strval', $this->get_connected_account_ids());
+		if (empty($account_ids)) {
+			return;
+		}
+
+		$pruned = false;
+		foreach (array_keys($this->errors['accounts']) as $key) {
+			// '' is what the pre-SMASH-1806 writers left when no account could be
+			// resolved, and an account id is always numeric; anything else here is
+			// a key no reader looks up any more.
+			$candidate = (string)$key;
+			if ($candidate === '' || !ctype_digit($candidate) || !in_array($candidate, $account_ids, true)) {
+				unset($this->errors['accounts'][ $key ]);
+				$pruned = true;
+			}
+		}
+
+		if ($pruned) {
+			update_option($this->reporter_key, $this->errors, false);
+		}
 	}
 
 	/**
@@ -402,42 +841,88 @@ class CFF_Error_Reporter
 		$accounts_revoked = '';
 
 		if ($this->was_app_permission_related_error()) {
-			$accounts_revoked = $this->get_app_permission_related_error_ids();
-			if (count($accounts_revoked) > 1) {
-				$accounts_revoked = implode(', ', $accounts_revoked);
-			} else {
-				$accounts_revoked = $accounts_revoked[0];
+			$revoked_ids = $this->get_app_permission_related_error_ids();
+			$revoked_ids = is_array($revoked_ids) ? $revoked_ids : array();
+
+			// reset(), not [0]: the unset() in remove_error() does not reindex,
+			// so after one id has been cleared the survivor's key is whatever it
+			// always was. Reading [0] then raises an undefined-key warning on
+			// PHP 8 and prints nothing.
+			if (count($revoked_ids) > 1) {
+				$accounts_revoked = implode(', ', $revoked_ids);
+			} elseif (count($revoked_ids) === 1) {
+				$accounts_revoked = (string)reset($revoked_ids);
 			}
-			$accounts_revoked_string = sprintf(__('Facebook Feed related data for the account(s) %s was removed due to permission for the Smash Balloon App on Facebook being revoked. <br><br> To prevent the automated data deletion for the account, please reconnect your account within 7 days.', 'custom-facebook-feed'), $accounts_revoked);
+
+			// was_app_permission_related_error() already required a non-empty
+			// list, so this should not be reachable -- but naming an account id
+			// of '' in copy about pending data deletion is worse than saying
+			// nothing.
+			if ($accounts_revoked !== '') {
+				$accounts_revoked_string = sprintf(__('Facebook Feed related data for the account(s) %s was removed due to permission for the Smash Balloon App on Facebook being revoked. <br><br> To prevent the automated data deletion for the account, please reconnect your account within 7 days.', 'custom-facebook-feed'), $accounts_revoked);
+			}
+		}
+
+		// Which stored error this message describes. The connection slot is a
+		// SINGLE value that every API error overwrites, so it can be empty --
+		// or hold a since-superseded non-critical error -- while the
+		// per-account scan is what made are_critical_errors() true. Source A
+		// returns 190, source B then returns a rate limit and overwrites the
+		// slot: the badge, Site Health, the email and the front-end box all
+		// fire, and the settings page, the only surface that says what to do,
+		// rendered nothing at all. The fallback reads the same stored error the
+		// scan accepted and routes it through the same generate_error_message()
+		// path, so the copy is the connection arm's copy, not a second set.
+		$error_message_array = false;
+
+		// Value, not presence: the flag is written on every stored error,
+		// so a presence check reports a broken connection for any code.
+		if (!empty($this->errors['connection']['critical'])) {
+			$error = $this->errors['connection'];
+			$error_message_array = isset($error['error_message']) ? $error['error_message'] : false;
+		} else {
+			$account_error = $this->get_first_critical_account_error();
+			if ($account_error !== false) {
+				$error_message_array = $this->generate_error_message($account_error['error']);
+			}
 		}
 
 		$error_message = $directions = false;
-		if (isset($this->errors['connection']['critical'])) {
-			$errors = $this->get_errors();
-			$error_message = '';
-			$error = $errors['connection'];
-			if ($errors['connection']['error_id'] === 190) {
-				$error_message .= '<strong>' . __('Action Required Within 7 Days', 'custom-facebook-feed') . '</strong><br>';
-				$error_message .= __('An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin.', 'custom-facebook-feed');
-				$error_message .= ' ' . sprintf(__('If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website for this account (ID: %s) due to Facebook data privacy rules.', 'custom-facebook-feed'), $accounts_revoked);
-				$error_message .= __('<br><br>To prevent the automated data deletion for the account, please reconnect your account within 7 days.', 'custom-facebook-feed');
-				$error_message .= '<br><br><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-free&utm_source=error&utm_medium=notice&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a>';
-				$directions = '';
-			} else {
-				$error_message_array = $error['error_message'];
-				$error_message = $error_message_array['admin_message'];
-				if (!empty($accounts_revoked_string)) {
-					$error_message .= $accounts_revoked_string . '<br><br>';
-				}
 
-				$directions = '<p class="cff-error-directions">';
-				$directions .= $error_message_array['backend_directions'];
-				if (!empty($error_message_array['post_id'])) {
-					$directions .= '<button data-url="' . get_the_permalink($error_message_array['post_id']) . '" class="cff-clear-errors-visit-page cff-space-left cff-btn cff-notice-btn cff-btn-grey">' . __('View Feed and Retry', 'custom-facebook-feed') . '</button>';
-				}
-				$directions .= '</p>';
+		// Gated on a CURRENTLY pending revoke rather than on code 190: this
+		// block names a 7-day data-deletion deadline, so it may only render
+		// while that deletion is genuinely still scheduled. Claiming the
+		// whole 190 family here meant the per-cause copy (expired, password
+		// changed, app removed) never reached the admin notice at all, and
+		// reading errors['revoked'] alone had the same effect for good once
+		// any revoke had ever been recorded. See
+		// was_app_permission_related_error().
+		//
+		// Deliberately NOT nested under the is_array($error_message_array)
+		// check below. This branch reads only errors['revoked'] and the
+		// Platform_Data deletion timer, never the stored message, so nesting
+		// it made a critical connection error with a missing or legacy-string
+		// error_message plus an armed revoke render nothing at all -- losing
+		// the 7-day copy the pre-SMASH-1806 code did show.
+		if ($this->was_app_permission_related_error()) {
+			$error_message = '<strong>' . __('Action Required Within 7 Days', 'custom-facebook-feed') . '</strong><br>';
+			$error_message .= __('An account admin has deauthorized the Smash Balloon app used to power the Facebook Feed plugin.', 'custom-facebook-feed');
+			$error_message .= ' ' . sprintf(__('If the Facebook source is not reconnected within 7 days then all Facebook data will be automatically deleted on your website for this account (ID: %s) due to Facebook data privacy rules.', 'custom-facebook-feed'), $accounts_revoked);
+			$error_message .= __('<br><br>To prevent the automated data deletion for the account, please reconnect your account within 7 days.', 'custom-facebook-feed');
+			$error_message .= '<br><br><a href="https://smashballoon.com/doc/action-required-within-7-days/?facebook&utm_campaign=facebook-free&utm_source=error&utm_medium=notice&utm_content=More Information" target="_blank" rel="noopener">' . __('More Information', 'custom-facebook-feed') . '</a>';
+			$directions = '';
+		} elseif (is_array($error_message_array)) {
+			$error_message = $error_message_array['admin_message'];
+			if (!empty($accounts_revoked_string)) {
+				$error_message .= $accounts_revoked_string . '<br><br>';
 			}
-		} else {
+
+			$directions = '<p class="cff-error-directions">';
+			$directions .= $error_message_array['backend_directions'];
+			if (!empty($error_message_array['post_id'])) {
+				$directions .= '<button data-url="' . get_the_permalink($error_message_array['post_id']) . '" class="cff-clear-errors-visit-page cff-space-left cff-btn cff-notice-btn cff-btn-grey">' . __('View Feed and Retry', 'custom-facebook-feed') . '</button>';
+			}
+			$directions .= '</p>';
 		}
 		return [
 			'error_message' => $error_message,
@@ -447,26 +932,56 @@ class CFF_Error_Reporter
 
 	public function are_critical_errors()
 	{
-		$are_errors = false;
 		$errors = $this->get_errors();
 		if (
 			(isset($errors['connection']['critical']) && $errors['connection']['critical'] === true) ||
 			CFF_Source::should_show_group_deprecation()
 		) {
 			return true;
-		} else {
-			$connected_accounts = CFF_Utils::cff_get_connected_accounts();
-			foreach ($connected_accounts as $connected_account) {
-				$connected_account = (array) $connected_account;
+		}
 
-				if (isset($connected_account['account_id']) && isset($this->errors['accounts'][$connected_account['account_id']]['api'])) {
-					if (isset($this->errors['accounts'][$connected_account['account_id']]['api']['error'])) {
-						return $this->is_critical_error($this->errors['accounts'][$connected_account['account_id']]['api']);
-					}
-				}
+		return $this->get_first_critical_account_error() !== false;
+	}
+
+	/**
+	 * The first stored per-account error the routing table calls critical.
+	 *
+	 * This is the per-account arm of are_critical_errors(), factored out so
+	 * get_critical_errors() can describe exactly the error that made the site
+	 * critical. Two copies of this scan would be free to drift, and the one
+	 * that drifted would be the one that decides whether the admin sees a
+	 * message at all.
+	 *
+	 * @return array|false array('account_id' => string, 'error' => array), or
+	 *                     false when no stored per-account error is critical.
+	 *
+	 * @since SMASH-1806
+	 */
+	private function get_first_critical_account_error()
+	{
+		if (empty($this->errors['accounts']) || !is_array($this->errors['accounts'])) {
+			return false;
+		}
+
+		foreach ($this->get_connected_account_ids() as $account_id) {
+			// An account with nothing stored against it says nothing about
+			// whether the site is broken, so it cannot end the scan either.
+			if (!isset($this->errors['accounts'][ $account_id ]['api']['error'])) {
+				continue;
+			}
+
+			// A non-critical account no longer ends the scan early —
+			// otherwise a dead token on one source goes unreported when
+			// another source's transient error was the last one stored.
+			if ($this->is_critical_error($this->errors['accounts'][ $account_id ]['api'])) {
+				return array(
+					'account_id' => (string)$account_id,
+					'error'      => $this->errors['accounts'][ $account_id ]['api'],
+				);
 			}
 		}
-		return $are_errors;
+
+		return false;
 	}
 
 	/**
@@ -687,7 +1202,18 @@ class CFF_Error_Reporter
 		wp_die();
 	}
 
-	public function send_report_email()
+	/**
+	 * Builds and sends the weekly feed issue report email.
+	 *
+	 * @param array $staleness Optional BackupCacheMonitor::evaluate() state.
+	 *                         When its tier is non-zero the report describes
+	 *                         stale saved content instead of a connection
+	 *                         error; pass nothing to keep the original
+	 *                         critical-error copy.
+	 *
+	 * @return bool
+	 */
+	public function send_report_email($staleness = array())
 	{
 		$options = get_option('cff_style_settings', array());
 
@@ -716,9 +1242,29 @@ class CFF_Error_Reporter
 		$link = admin_url('admin.php?page=cff-settings');
 		// &tab=customize-advanced
 		$footer_link = admin_url('admin.php?page=cff-style&tab=misc&flag=emails');
-		$bold = __('There\'s an Issue with a Facebook Feed on Your Website', 'custom-facebook-feed');
-		$details = '<p>' . __('A Custom Facebook Feed on your website is currently unable to connect to Facebook to retrieve new posts. Don\'t worry, your feed is still being displayed using a cached version, but is no longer able to display new posts.', 'custom-facebook-feed') . '</p>';
-		$details .= '<p>' . sprintf(__('This is caused by an issue with your Facebook account connecting to the Facebook API. For information on the exact issue and directions on how to resolve it, please visit the %sCustom Facebook Feed settings page%s on your website.', 'custom-facebook-feed'), '<a href="' . esc_url($link) . '">', '</a>') . '</p>';
+
+		// Staleness copy is used only when staleness is the reason we are
+		// emailing at all; a critical error keeps the wording it always had.
+		if (! empty($staleness['tier'])) {
+			$stale_days = isset($staleness['worst_days']) ? (int)$staleness['worst_days'] : 0;
+			$stale_feeds = isset($staleness['feed_count']) ? (int)$staleness['feed_count'] : 0;
+
+			$bold = __('A Facebook Feed on Your Website is Showing Old Posts', 'custom-facebook-feed');
+			/* translators: %d: number of days the feed has been serving saved posts. */
+			$details = '<p>' . sprintf(__('A Facebook feed on your website has not been able to get new posts from Facebook for %d days, so visitors are seeing an old saved copy of your feed. Your website looks normal, which makes this easy to miss, but new Facebook posts will not appear until the connection is fixed.', 'custom-facebook-feed'), $stale_days) . '</p>';
+
+			if ($stale_feeds > 1) {
+				/* translators: %d: number of feeds on this site serving saved posts. */
+				$details .= '<p>' . sprintf(__('%d feeds on this site are affected.', 'custom-facebook-feed'), $stale_feeds) . '</p>';
+			}
+
+			/* translators: %1$s: opening anchor tag for the settings page. %2$s: closing anchor tag. */
+			$details .= '<p>' . sprintf(__('To check the connection and get it working again, please visit the %1$sFacebook Feed settings page%2$s on your website.', 'custom-facebook-feed'), '<a href="' . esc_url($link) . '">', '</a>') . '</p>';
+		} else {
+			$bold = __('There\'s an Issue with a Facebook Feed on Your Website', 'custom-facebook-feed');
+			$details = '<p>' . __('A Custom Facebook Feed on your website is currently unable to connect to Facebook to retrieve new posts. Don\'t worry, your feed is still being displayed using a cached version, but is no longer able to display new posts.', 'custom-facebook-feed') . '</p>';
+			$details .= '<p>' . sprintf(__('This is caused by an issue with your Facebook account connecting to the Facebook API. For information on the exact issue and directions on how to resolve it, please visit the %sCustom Facebook Feed settings page%s on your website.', 'custom-facebook-feed'), '<a href="' . esc_url($link) . '">', '</a>') . '</p>';
+		}
 		$message_content = '<h6 style="padding:0;word-wrap:normal;font-family:\'Helvetica Neue\',Helvetica,Arial,sans-serif;font-weight:bold;line-height:130%;font-size: 16px;color:#444444;text-align:inherit;margin:0 0 20px 0;Margin:0 0 20px 0;">' . $bold . '</h6>' . $details;
 		$educator = new CFF_Education();
 		$dyk_message = $educator->dyk_display();
@@ -749,19 +1295,69 @@ class CFF_Error_Reporter
 		return in_array($error_code, $critical_codes, true) && strpos($details['error']['message'], 'user has not authorized application') !== false;
 	}
 
+	/**
+	 * Whether the "Feed Issue Email Reports" opt-in on Settings -> Advanced
+	 * allows a report to be sent.
+	 *
+	 * The setting lives in `cff_style_settings` -- that is what the settings
+	 * page writes and what the Pro edition's reporter reads. This guard used to
+	 * read `cff_settings`, which is only a wp_localize_script handle and is
+	 * never stored as an option, so the opt-out had no effect at all.
+	 *
+	 * The stored shape depends on which era wrote it: the current settings app
+	 * saves a JSON boolean, the onboarding wizard saves `true`, the pre-4.0
+	 * settings form saved 'on' when checked and '' when not, and a fresh install
+	 * has no key at all (the defaults in CFF_Global_Settings are merged for
+	 * display only, never persisted) -- so an absent value keeps the historical
+	 * enabled-by-default behaviour.
+	 *
+	 * The falsey-plus-'off' test is deliberately identical to the plugin's other
+	 * reader of this same setting, FacebookFreeReporter::get_global_settings(),
+	 * which reports it as `! empty( $value ) && 'off' !== $value`. Previously
+	 * the two disagreed: a stored 'off' was truthy here, so telemetry called the
+	 * setting disabled while this guard still sent the email. If either reader
+	 * changes, change both.
+	 *
+	 * @return bool
+	 */
+	private function is_email_report_enabled()
+	{
+		$options = get_option('cff_style_settings');
+
+		if (! is_array($options) || ! isset($options['enable_email_report'])) {
+			return true;
+		}
+
+		$value = $options['enable_email_report'];
+
+		return ! empty($value) && 'off' !== $value;
+	}
+
 	public function maybe_trigger_report_email_send()
 	{
-		if (! $this->are_critical_errors()) {
+		$are_critical_errors = $this->are_critical_errors();
+
+		// Backup-cache staleness is a time-based signal that can be true with
+		// no critical error at all: a feed can keep serving saved posts for
+		// weeks while the site looks perfectly healthy. That is exactly the
+		// case the staleness notice exists for, so it has to reach the weekly
+		// report too, which previously sent nothing for it. Reuses this cron
+		// run, its toggle and its recipients rather than adding a second
+		// scheduler.
+		$staleness = BackupCacheMonitor::evaluate();
+		$is_stale = $staleness['tier'] > 0;
+
+		if (! $are_critical_errors && ! $is_stale) {
 			return;
 		}
-		/** TODO: Match real option */
-		$options = get_option('cff_settings');
 
-		if (isset($options['enable_email_report']) && empty($options['enable_email_report'])) {
+		if (! $this->is_email_report_enabled()) {
 			return;
 		}
 
-		$this->send_report_email();
+		// One email per run. A critical error is the more actionable problem,
+		// so it wins the copy when both are true.
+		$this->send_report_email($are_critical_errors ? array() : $staleness);
 	}
 
 	public function admin_error_notices()
@@ -795,10 +1391,13 @@ class CFF_Error_Reporter
 							<?php echo esc_html__('Custom Facebook Feed is encountering an error and your feeds may not be updating due to the following reasons:', 'custom-facebook-feed') ; ?>
 						</h3>
 
-						<p><?php echo $errors['error_message']; ?></p>
+						<p><?php echo wp_kses_post($errors['error_message']); ?></p>
 
 						<div class="license-action-btns">
-							<?php echo $errors['directions']; ?>
+							<?php
+							// kses allows data-* globally: the button keeps class/data-url, only onclick goes.
+							echo wp_kses_post($errors['directions']);
+							?>
 						</div>
 					</div>
 				</div>
@@ -855,13 +1454,49 @@ class CFF_Error_Reporter
 	}
 
 	/**
-	 * Whether or not there was a platform data clearing error
+	 * Whether a platform-data deletion is CURRENTLY pending for a revoked app
+	 * permission.
+	 *
+	 * Two conditions, both required. errors['revoked'] names the accounts a
+	 * revoke was ever recorded against, and on its own it latches for good --
+	 * only remove_error()'s second argument clears it, and all eight call sites
+	 * omit it. Since it gates copy announcing a 7-day data-deletion deadline,
+	 * one historical revoke made every later critical error render the deletion
+	 * warning and hide its own cause: a 190/463 expiry said "an admin
+	 * deauthorized the app" instead of "reconnect, your token expired".
+	 *
+	 * The deadline itself belongs to Platform_Data:
+	 * handle_app_permission_status() writes revoke_platform_data_timestamp
+	 * seven days out, handle_app_permission_error() acts once it passes, and
+	 * cleanup_revoked_account() deletes the option on reconnect or after the
+	 * deletion. So the warning is true exactly while that timer is armed and
+	 * still in the future. Reading that, rather than letting a feed path mutate
+	 * errors['revoked'], is deliberate: dropping an id would cancel the visible
+	 * warning while the real deletion timer kept running and its notification
+	 * email had already gone out.
+	 *
+	 * Read defensively -- a missing option, a non-array, or a missing or
+	 * non-numeric timestamp all mean "not armed", never "armed".
 	 *
 	 * @return bool
 	 */
 	public function was_app_permission_related_error()
 	{
-		return !empty($this->errors['revoked']);
+		if (empty($this->errors['revoked'])) {
+			return false;
+		}
+
+		$revoke = get_option(Platform_Data::REVOKE_PLATFORM_DATA_OPTION_KEY, array());
+		if (!is_array($revoke) || !isset($revoke['revoke_platform_data_timestamp'])) {
+			return false;
+		}
+
+		$deletion_due = $revoke['revoke_platform_data_timestamp'];
+		if (!is_numeric($deletion_due)) {
+			return false;
+		}
+
+		return (int)$deletion_due > time();
 	}
 
 	public function get_app_permission_related_error_ids()

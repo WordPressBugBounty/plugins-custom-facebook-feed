@@ -148,7 +148,17 @@ class CFF_Feed_Saver_Manager
 				);
 				$results = CFF_Db::source_query($args);
 
-				$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($results[0]['account_id'], $results[0]['account_type'] === 'group', $results[0]['access_token'], 0, false, '');
+				$header_details = self::header_or_fallback(
+					\CustomFacebookFeed\CFF_Utils::fetch_header_data(
+						$results[0]['account_id'],
+						$results[0]['account_type'] === 'group',
+						$results[0]['access_token'],
+						0,
+						false,
+						''
+					),
+					$results[0]
+				);
 			}
 
 			$return['header'] = $header_details;
@@ -364,7 +374,17 @@ class CFF_Feed_Saver_Manager
 				if (isset($settings['sources'][0])) {
 					$results = $settings['sources'];
 
-					$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($results[0]['account_id'], $results[0]['account_type'] === 'group', $results[0]['access_token'], 0, false, '');
+					$header_details = self::header_or_fallback(
+						\CustomFacebookFeed\CFF_Utils::fetch_header_data(
+							$results[0]['account_id'],
+							$results[0]['account_type'] === 'group',
+							$results[0]['access_token'],
+							0,
+							false,
+							''
+						),
+						$results[0]
+					);
 				}
 				$return['header'] = $header_details;
 
@@ -382,6 +402,33 @@ class CFF_Feed_Saver_Manager
 		}
 		return false;
 	}
+	/**
+	 * Header data handed to the customizer, with a minimal fallback when the API call failed.
+	 *
+	 * fetch_header_data() returns null when the source's token is invalid/expired and no header is
+	 * cached. The builder's Vue templates read header.name / header.id directly, so a null header
+	 * stops the app from mounting (blank editor). Fall back to {id, name} from the stored source row
+	 * so the customizer renders and surfaces the plugin's own error notice instead. (SMASH-1598)
+	 *
+	 * @param mixed $header_details Return value of CFF_Utils::fetch_header_data().
+	 * @param array $source         Source row (account_id, username, ...).
+	 *
+	 * @return object
+	 *
+	 * @since 4.13.1
+	 */
+	private static function header_or_fallback($header_details, $source)
+	{
+		if (is_object($header_details)) {
+			return $header_details;
+		}
+
+		return (object) array(
+			'id'   => isset($source['account_id']) ? $source['account_id'] : '',
+			'name' => isset($source['username']) ? $source['username'] : '',
+		);
+	}
+
 	/**
 	 * Used to retrieve Feed Posts for preview screen
 	 * Returns Feed info or false!
@@ -418,7 +465,17 @@ class CFF_Feed_Saver_Manager
 					'id' => $settings['sources'][0]['account_id']
 				);
 				$results = CFF_Db::source_query($args);
-				$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($results[0]['account_id'], $results[0]['account_type'] === 'group', $results[0]['access_token'], 0, false, '');
+				$header_details = self::header_or_fallback(
+					\CustomFacebookFeed\CFF_Utils::fetch_header_data(
+						$results[0]['account_id'],
+						$results[0]['account_type'] === 'group',
+						$results[0]['access_token'],
+						0,
+						false,
+						''
+					),
+					$results[0]
+				);
 			}
 			$return['header'] = $header_details;
 
@@ -488,7 +545,17 @@ class CFF_Feed_Saver_Manager
 				);
 				$results = CFF_Db::source_query($args);
 
-				$header_details = \CustomFacebookFeed\CFF_Utils::fetch_header_data($results[0]['account_id'], $results[0]['account_type'] === 'group', $results[0]['access_token'], 0, false, '');
+				$header_details = self::header_or_fallback(
+					\CustomFacebookFeed\CFF_Utils::fetch_header_data(
+						$results[0]['account_id'],
+						$results[0]['account_type'] === 'group',
+						$results[0]['access_token'],
+						0,
+						false,
+						''
+					),
+					$results[0]
+				);
 			}
 
 			$return['header'] = $header_details;

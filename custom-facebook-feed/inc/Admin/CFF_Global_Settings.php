@@ -157,6 +157,23 @@ class CFF_Global_Settings
 		$translation = (array) $model['translation'];
 		$advanced = (array) $model['advanced'];
 
+		/**
+		 * Debug Tab — consent toggles.
+		 *
+		 * Routed through the shared Consent package so cron reconciliation and the
+		 * 3-state notification source switch stay consistent. $dismiss_modal is left
+		 * null so a Settings save does not affect the re-prompt-modal state. The
+		 * flags live in top-level wp_options (sbc_data_sharing_consent /
+		 * sbc_in_plugin_notifications), NOT inside cff_style_settings.
+		 */
+		if ( isset( $model['debug'] ) && class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) ) {
+			$debug = (array) $model['debug'];
+			\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::update(
+				! empty( $debug['sbc_data_sharing_consent'] ),
+				! empty( $debug['sbc_in_plugin_notifications'] )
+			);
+		}
+
 		// Get the values and sanitize
 		$cff_locale 							= sanitize_text_field($feeds['selectedLocale']);
 		$cff_style_settings = get_option( 'cff_style_settings', array() );
@@ -945,6 +962,18 @@ class CFF_Global_Settings
 			}
 		}
 
+		// Settings/Debug consent links route through the shared Consent package
+		// (sb-common owns the canonical URLs + per-surface UTM tags). Empty when
+		// the package is absent rather than duplicating the URLs here.
+		$cff_consent_permissions_url = '';
+		$cff_consent_terms_url       = '';
+		$cff_consent_privacy_url     = '';
+		if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) ) {
+			$cff_consent_permissions_url = \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::link_url( 'settings', 'permissions', 'facebook' );
+			$cff_consent_terms_url       = \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::link_url( 'settings', 'terms', 'facebook' );
+			$cff_consent_privacy_url     = \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::link_url( 'settings', 'privacy', 'facebook' );
+		}
+
 		$cff_settings = array(
 			'admin_url' 		=> admin_url(),
 			'ajax_handler'		=> admin_url('admin-ajax.php'),
@@ -1256,6 +1285,21 @@ class CFF_Global_Settings
 					'clear' => __('Delete all Platform Data', 'custom-facebook-feed'),
 				),
 			),
+			'debugTab'             => array(
+				'dataSharingTitle'    => __( 'Data sharing', 'custom-facebook-feed' ),
+				'dataSharingDesc'     => __( 'We share limited, non-sensitive usage data to keep your plugins updated and improve our products. We never collect your feed content or your visitors’ personal information.', 'custom-facebook-feed' ),
+				'permissionsLinkText' => __( 'What permissions are being granted?', 'custom-facebook-feed' ),
+				'termsLinkText'       => __( 'Terms & Conditions', 'custom-facebook-feed' ),
+				'privacyLinkText'     => __( 'Privacy', 'custom-facebook-feed' ),
+				'permissionsUrl'      => $cff_consent_permissions_url,
+				'termsUrl'            => $cff_consent_terms_url,
+				'privacyUrl'          => $cff_consent_privacy_url,
+				'notificationsTitle'  => __( 'In-Plugin Notifications', 'custom-facebook-feed' ),
+				'notificationsDesc'   => __( 'We send you in-plugin notifications about updates, fixes, and new features.', 'custom-facebook-feed' ),
+				// When any Smash Balloon Pro plugin is active, consent is forced on
+				// and governed centrally — the toggles are hidden on this tab.
+				'lockedByPro'         => class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) && \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::is_locked_by_pro(),
+			),
 			'dialogBoxPopupScreen'  => array(
 				'deleteSource' => array(
 					'heading' =>  __('Delete "#"?', 'custom-facebook-feed'),
@@ -1534,6 +1578,16 @@ class CFF_Global_Settings
 		$active_gdpr_plugin = CFF_GDPR_Integrations::gdpr_plugins_active();
 		$cff_cache_time = get_option('cff_cache_time', 1);
 		$cff_cache_time_unit = get_option('cff_cache_time_unit', 'hours');
+
+		// Seed Debug-tab toggles from the central consent flags. These flags live
+		// in top-level options (sbc_data_sharing_consent / sbc_in_plugin_notifications),
+		// not inside cff_style_settings — see ConsentManager::update().
+		$cff_consent_flags = class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' )
+			? \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::flags()
+			: array(
+				'dsc'   => false,
+				'notif' => false,
+			);
 		$custom_js_text = ! empty($cff_style_settings['cff_custom_js']) && trim(wp_unslash($cff_style_settings['cff_custom_js'])) !== '' ? wp_unslash($cff_style_settings['cff_custom_js']) : '';
 		if (! empty($custom_js_text)) {
 			$js_wrapper_array = [
@@ -1632,7 +1686,11 @@ class CFF_Global_Settings
 				'enable_email_report' => $cff_style_settings['enable_email_report'],
 				'email_notification' => $cff_style_settings['email_notification'],
 				'email_notification_addresses' => $cff_style_settings['email_notification_addresses'],
-			)
+			),
+			'debug'       => array(
+				'sbc_data_sharing_consent'    => ! empty( $cff_consent_flags['dsc'] ),
+				'sbc_in_plugin_notifications' => ! empty( $cff_consent_flags['notif'] ),
+			),
 		);
 	}
 

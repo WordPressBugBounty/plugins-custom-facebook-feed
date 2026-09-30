@@ -594,6 +594,29 @@ class CFF_Graph_Data
 		$posts_json = wp_json_encode($posts_json, true);
 		$this->set_posts_json($posts_json);
 		$this->process_backup_data($fb_data);
+
+		// Same gap as the legacy path: process_backup_data()'s !empty($fb_data)
+		// guard skips its entire body -- including the healthy-again clear --
+		// when the API succeeded but returned zero posts. isset($fb_data_json->data)
+		// confirms this really was a well-formed data payload rather than an
+		// error object or an undecodable body (SMASH-1808).
+		//
+		// Deliberately NOT gated on !$this->is_customizer, unlike the two
+		// record_backup_serve() calls: the pre-existing clear in
+		// process_backup_data() is unguarded too, and the direction is safe. A
+		// Graph call that succeeded is genuine evidence the connection works
+		// whichever screen triggered it, so clearing the staleness entry is right
+		// regardless of context. The serve side is guarded because the reverse is
+		// not true -- a builder probe falling back to cache is not a visitor
+		// seeing stale content.
+		if (
+			'posts' === $this->cache_type
+			&& isset($fb_data_json->data)
+			&& !isset($fb_data_json->error)
+			&& empty($fb_data)
+		) {
+			\CustomFacebookFeed\BackupCacheMonitor::record_fresh_content($this->transient_name);
+		}
 	}
 
 	/**
@@ -606,6 +629,12 @@ class CFF_Graph_Data
 		$posts_json = $this->feed_cache->get($this->cache_type_page);
 		if ($posts_json !== null && strpos($posts_json, '"error":{"message":') !== false && false !== get_transient('!cff_backup_' . $this->transient_name)) {
 			$posts_json = $this->feed_cache->get($this->cache_type . '_backup');
+
+			// The feed is being served stale — record it so the staleness
+			// notice can escalate if this keeps happening (SMASH-1808).
+			if (!$this->is_customizer && 'posts' === $this->cache_type && is_string($posts_json) && '' !== $posts_json) {
+				\CustomFacebookFeed\BackupCacheMonitor::record_backup_serve($this->transient_name);
+			}
 		}
 		if ($posts_json === false) {
 			$posts_json = $this->get_remote_data();
@@ -654,6 +683,12 @@ class CFF_Graph_Data
 					$error_json,
 					json_decode($posts_json, true)
 				);
+
+				// Backup content is actually being served in place of a
+				// fresh fetch — record the stale serve (SMASH-1808).
+				if (!$this->is_customizer && 'posts' === $cache_type) {
+					\CustomFacebookFeed\BackupCacheMonitor::record_backup_serve($this->transient_name);
+				}
 			}
 			$posts_json = wp_json_encode($error_json);
 		}
@@ -675,6 +710,10 @@ class CFF_Graph_Data
 			} else {
 				if ($this->cache_type === 'posts') {
 					$this->feed_cache->after_new_posts_retrieved();
+				}
+				// Fresh content committed — the feed is healthy again.
+				if ('posts' === $this->cache_type) {
+					\CustomFacebookFeed\BackupCacheMonitor::record_fresh_content($this->transient_name);
 				}
 			}
 			$this->feed_cache->update_or_insert($this->cache_type, $this->posts_json);

@@ -48,9 +48,27 @@ class CFF_Utils
 
 
 				$error = json_decode($feedData, true);
-				$reporter = CFF_Utils::cff_is_pro_version() ? \cff_main_pro()->cff_error_reporter : \cff_main()->cff_error_reporter;
 
-				if ($reporter->is_critical_error($error)) {
+				// Criticality is not the right question for this write: it decides
+				// whether the SOURCE is unusable, which is what paints "Source
+				// Invalid" plus a Reconnect prompt in the builder. A missing
+				// permission (code 10) and a rate limit are both critical for
+				// the feed while leaving the stored token perfectly valid, so
+				// they must not reach this column.
+				$route_error = \CustomFacebookFeed\Token_Health\MetaErrorMap::extract($error);
+				$invalidates = \CustomFacebookFeed\Token_Health\MetaErrorMap::invalidatesSource(
+					$route_error['code'],
+					$route_error['subcode'],
+					$route_error['message']
+				);
+
+				// PPCA is the one cause the table cannot route: it has no Graph
+				// code of its own and arrives as "(#10) ... Public Content
+				// Access", and code 10 alone means a scope is missing, which
+				// leaves the source usable. PPCA does not -- the account does
+				// not manage the page, so the feed can never work. Same single
+				// predicate the copy layer uses, so the two cannot drift.
+				if ($invalidates || \CustomFacebookFeed\CFF_Error_Reporter::is_ppca_error($route_error['message'])) {
 					$parsed_url = parse_url($url);
 					if (! empty($parsed_url['query'])) {
 						parse_str($parsed_url['query'], $parsed);
@@ -88,6 +106,61 @@ class CFF_Utils
 	 * @static
 	 * @since 2.19
 	 */
+	/**
+	 * Strips HTML markup from a free-text value fetched from the Facebook API without
+	 * otherwise altering the text.
+	 *
+	 * Removes exactly what a browser's HTML tokenizer would treat as markup: a "<" followed
+	 * by an ASCII letter, "/", "!" or "?" (a tag, end tag, comment/doctype or processing
+	 * instruction), through the next ">" or, for an unterminated tag, the end of the string.
+	 * A "<" followed by anything else ("I <3 this", "a < b") is emitted by browsers as literal
+	 * text and is left alone. Runs until stable (bounded by the string length, which every pass
+	 * shrinks) so a nested construct such as "<<b>img ...>" cannot reassemble into a tag after
+	 * one pass, and fails closed if anything tag-shaped somehow survives.
+	 *
+	 * This is used instead of wp_kses() because the value is later bound as *text*
+	 * (Vue v-text in the builder preview) and wp_kses() entity-normalizes the string
+	 * ("&" becomes "&amp;", "<3" is treated as a tag and dropped), which shows up literally
+	 * in a text sink. Output escaping still happens at every sink; this is defence in depth.
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 *
+	 * @since 4.13.1
+	 */
+	public static function strip_untrusted_html( $text )
+	{
+		if (! is_string($text) || '' === $text) {
+			return $text;
+		}
+
+		$text = wp_kses_no_null($text);
+
+		// Every changing pass removes at least one "<", so the loop always reaches a fixed
+		// point. Cap the passes anyway: beyond ~100 levels of deliberately nested "<" the
+		// fail-closed branch below drops every "<" in one step instead of paying O(n^2).
+		$max_passes = min(strlen($text) + 1, 100);
+		$passes = 0;
+		do {
+			$previous = $text;
+			$text = preg_replace('/<(?=[A-Za-z\/!?])[^>]*(?:>|$)/s', '', $text);
+			$passes++;
+		} while (null !== $text && $previous !== $text && $passes < $max_passes);
+
+		if (null === $text) {
+			return '';
+		}
+
+		// Fail closed: if anything tag-shaped is still present (preg_replace hit a limit),
+		// drop every "<" rather than return live markup from a function named "strip".
+		if (preg_match('/<[A-Za-z\/!?]/', $text)) {
+			$text = str_replace('<', '', $text);
+		}
+
+		return $text;
+	}
+
 	public static function cff_desc_tags($description)
 	{
 		preg_match_all("/@\[(.*?)\]/", $description, $cff_tag_matches);
@@ -224,7 +297,7 @@ class CFF_Utils
 				'errorno' => $api_error_code
 			);
 
-			\cff_main()->cff_error_reporter->add_error('accesstoken', $error, $accesstoken);
+			\cff_main()->cff_error_reporter->add_error('accesstoken', $error);
 		} else {
 			\cff_main()->cff_error_reporter->add_error('api', $response);
 		}
@@ -653,6 +726,34 @@ class CFF_Utils
 
 
 	/**
+	 * Safely decode a JSON payload.
+	 *
+	 * PHP 8 throws a TypeError when json_decode() receives a non-string, and the
+	 * feed pipeline can legitimately hand us data that is already decoded — e.g.
+	 * the customizer path yields an empty array when the API returns an error
+	 * and no backup cache exists. Pass arrays/objects through untouched, decode
+	 * strings, and return null for anything else (PHP 7 only warned here; null is
+	 * what every caller already tolerates).
+	 *
+	 * @param mixed $json  Raw JSON string, or an already-decoded value.
+	 * @param bool  $assoc Return associative arrays instead of objects.
+	 *
+	 * @return mixed
+	 *
+	 * @since 4.13.1
+	 */
+	public static function cff_json_decode($json, $assoc = false)
+	{
+		if (is_array($json) || is_object($json)) {
+			return $json;
+		}
+		if (!is_string($json) || $json === '') {
+			return null;
+		}
+		return json_decode($json, $assoc);
+	}
+
+	/**
 	 *
 	 * @access public
 	 * @static
@@ -710,6 +811,16 @@ class CFF_Utils
 			// Check whether any data is returned from the API. If it isn't then don't cache the error response and instead keep checking the API on every page load until data is returned.
 			$FBdata = json_decode($posts_json);
 
+			// Both captured before the ->data unwrap below, while $FBdata is still
+			// the decoded response object. A successful-but-empty payload has to
+			// be distinguishable from a transport failure, an error payload, and
+			// -- the case a substring test gets wrong -- a body that was cut off
+			// mid-transfer but still begins {"data": (SMASH-1808).
+			$cff_api_errored = isset($FBdata->error);
+			$cff_api_zero_posts = isset($FBdata->data)
+				&& is_array($FBdata->data)
+				&& count($FBdata->data) === 0;
+
 			// Check whether the JSON is wrapped in a "data" property as if it doesn't then it's a featured post
 			$prefix_data = '{"data":';
 			(substr($posts_json, 0, strlen($prefix_data)) == $prefix_data) ? $cff_featured_post = false : $cff_featured_post = true;
@@ -748,6 +859,14 @@ class CFF_Utils
 						$error_json = '{"cached_error": { "message": "' . $error_message . '", "type": "' . $error_type . '" }';
 						$error_json .= !empty($posts_json) ? ', ' . $posts_json : '}';
 						$posts_json = $error_json;
+
+						// Legacy feed served from backup after an API error — only
+						// when backup content actually replaced the feed: the guard
+						// above is always-true for the header path, whose backup is
+						// never hydrated (SMASH-1808).
+						if ('posts' === $cache_type && !empty($posts_cache)) {
+							BackupCacheMonitor::record_backup_serve($transient_name);
+						}
 					}
 
 					// Posts data returned by API
@@ -760,15 +879,45 @@ class CFF_Utils
 					if ($cache_type === 'posts') {
 						$feed_cache->after_new_posts_retrieved();
 					}
+
+					// Fresh content committed — the feed is healthy again.
+					if ('posts' === $cache_type) {
+						BackupCacheMonitor::record_fresh_content($transient_name);
+					}
 				}
 
 				$feed_cache->update_or_insert($cache_type, $posts_json);
+			}
+
+			// A successful response with zero posts -- an empty page, or every
+			// post filtered out by the feed's own options -- is still proof the
+			// connection works, so it has to clear any staleness entry. It does
+			// not reach the branch above: the ->data unwrap turns {"data":[]}
+			// into an empty array, and the !empty($FBdata) guard then skips the
+			// whole block.
+			//
+			// The test is deliberately on the DECODED object, not on the body's
+			// prefix. An earlier version gated on !$cff_featured_post, which is
+			// a raw substring test -- so a response truncated mid-transfer
+			// ({"data":[{"id":"1","message":"hel) still matched the prefix,
+			// decoded to null, and cleared the entry as if the feed were
+			// healthy. That silently defeats the very signal this feature
+			// exists to raise. isset() also excludes {"data":null}, and reading
+			// the decoded object fixes the mirror-image miss, where a payload
+			// with leading whitespace failed the prefix test and never cleared.
+			if ('posts' === $cache_type && !$cff_api_errored && $cff_api_zero_posts) {
+				BackupCacheMonitor::record_fresh_content($transient_name);
 			}
 		} else {
 			$posts_json = $feed_cache->get($cache_type_page);
 			if (strpos($posts_json, '"error":{"message":') !== false) {
 				// Use backup cache if exists
 				$posts_json = $feed_cache->get($cache_type . '_backup');
+
+				// Legacy feed served from backup on a warm cache hit (SMASH-1808).
+				if ('posts' === $cache_type && is_string($posts_json) && '' !== $posts_json) {
+					BackupCacheMonitor::record_backup_serve($transient_name);
+				}
 			}
 
 			// If we can't find the transient then fall back to just getting the json from the api

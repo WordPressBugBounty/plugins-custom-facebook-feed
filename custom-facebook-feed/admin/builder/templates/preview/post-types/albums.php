@@ -7,7 +7,7 @@
 			</div>
 			<div class="cff-albums-item-info cff-singlemedia-item-info cff-fb-fs">
 				<h4 class="cff-fb-fs">
-					<a :href="'https://www.facebook.com/'+singlePost.id" target="_blank" v-html="singlePost.name"></a>
+					<a :href="'https://www.facebook.com/'+singlePost.id" target="_blank">{{ singlePost.name }}</a>
 				</h4>
 				<p class="cff-fb-fs">
 					{{singlePost.count}} <span v-html="(singlePost.count > 1) ? genericText.photos : genericText.photo"></span>

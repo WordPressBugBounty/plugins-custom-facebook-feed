@@ -112,6 +112,49 @@ class CFF_API_Connect
 		$this->response = $response;
 		if (is_wp_error($body) || isset($body['error'])) {
 			$this->log_fb_error();
+		} elseif (is_array($body) && array_key_exists('data', $body)) {
+			// The mirror of log_fb_error(), and the recovery path the per-account
+			// error bucket never had: a well-formed Graph payload with a 'data'
+			// member and no 'error' member is proof this page is reachable with
+			// the stored token, so anything recorded against it has to come out.
+			//
+			// Here and not in the feed render loops: those see only the merged
+			// blob, cannot tell which source produced it, and one runs right
+			// after the fetch that RECORDED the error. This method is the only
+			// place that knows both that a fetch succeeded and which page id it
+			// was for -- log_fb_error() resolves the same params['page_id'] on the
+			// failure side, so the two arms cannot drift apart.
+			//
+			// is_array() is what keeps the failure shapes out, since each decodes
+			// to null: a WP_Error and a 200 with an empty body both retrieve as
+			// '', and an HTML error page or a body truncated mid-transfer is not
+			// valid JSON. array_key_exists() rather than a truthiness test
+			// because an empty 'data' array MUST still clear -- an empty page is
+			// still proof the page was reachable.
+			$page_id = isset($this->params['page_id']) ? $this->params['page_id'] : false;
+			if (!empty($page_id)) {
+				\cff_main()->cff_error_reporter->clear_account_errors($page_id);
+			}
+
+			// And the site-wide connection slot, which until now only
+			// cff_fetchUrl() ever cleared (CFF_Utils.php:39, :191) -- a
+			// different fetch path, used by the builder's source list, comments,
+			// events and groups. That slot's contract has always been "the last
+			// error sets it, the next success clears it"; this fetch path simply
+			// never got the mirror, so a site whose last stored error was itself
+			// critical stayed critical off the connection arm until one of those
+			// other fetches happened to succeed.
+			//
+			// Safe because the slot is no longer load-bearing for either the
+			// verdict or the copy: a still-dead account keeps
+			// are_critical_errors() true through the per-account arm, and
+			// get_critical_errors()'s per-account fallback renders that
+			// account's own cause. Nothing goes silent.
+			//
+			// Outside the page_id guard on purpose: the slot is a single
+			// site-wide value, not an account-addressed bucket, so it is
+			// clearable on the strength of the successful fetch alone.
+			\cff_main()->cff_error_reporter->remove_error('connection');
 		}
 	}
 

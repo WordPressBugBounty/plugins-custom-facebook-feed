@@ -176,7 +176,7 @@ class CFF_Admin
 		wp_enqueue_style('custom_wp_admin_css');
 		wp_enqueue_style(
 			'cff-font-awesome',
-			'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css',
+			CFF_PLUGIN_URL . 'assets/css/font-awesome.min.css',
 			array(),
 			'4.5.0'
 		);

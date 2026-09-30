@@ -7,11 +7,11 @@
 		</div>
 		<div class="cff-post-item-info" v-if="customizerFeedData.settings.include.includes('author')">
 			<div class="cff-post-item-info-top">
-				<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.name')" class="cff-post-item-author-name" :href="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.id') ? 'https://www.facebook.com/'+singlePost.from.id : '#'" target="_blank" v-html="singlePost.from.name"></a>
-				<span class="cff-post-item-story" v-html="$parent.$parent.printStory(singlePost)"></span>
+				<a v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.name')" class="cff-post-item-author-name" :href="$parent.$parent.hasOwnNestedProperty(singlePost, 'from.id') ? 'https://www.facebook.com/'+singlePost.from.id : '#'" target="_blank" v-text="singlePost.from.name"></a>
+				<span class="cff-post-item-story" v-text="$parent.$parent.printStory(singlePost)"></span>
 				<span class="cff-rating" v-if="customizerFeedData.settings.feedtype == 'reviews' && singlePost.rating != undefined">
 					<span class="cff-star" v-for="singleRating in singlePost.rating" :key="singleRating">★</span>
-					<span class="cff-rating-num" v-html="singlePost.rating"></span>
+					<span class="cff-rating-num" v-text="singlePost.rating"></span>
 				</span>
 			</div>
 			<div class="cff-post-item-info-bottom">
@@ -42,12 +42,12 @@
 				<img alt="" :src="postmedia.args.poster">
 			</a>
 			<div class="cff-post-item-link-info cff-fb-fs">
-				<a class="cff-post-item-link-a" :href="postmedia.args.unshimmedUrl" target="_blank" v-html="postmedia.args.title"></a>
-				<div class="cff-post-item-link-small" v-html="postmedia.args.domain"></div>
-				<div class="cff-post-item-link-description" v-if="customizerFeedData.settings.include.includes('desc')" v-html="(postmedia.args.description != null) ? (postmedia.args.description.substring(0, customizerFeedData.settings.desclength) + (postmedia.args.description.length > customizerFeedData.settings.desclength ? '...' : '')) : ''"></div>
+				<a class="cff-post-item-link-a" :href="postmedia.args.unshimmedUrl" target="_blank" v-text="postmedia.args.title"></a>
+				<div class="cff-post-item-link-small" v-text="postmedia.args.domain"></div>
+				<div class="cff-post-item-link-description" v-if="customizerFeedData.settings.include.includes('desc')" v-text="(postmedia.args.description != null) ? (postmedia.args.description.substring(0, customizerFeedData.settings.desclength) + (postmedia.args.description.length > customizerFeedData.settings.desclength ? '...' : '')) : ''"></div>
 			</div>
 		</div>
-		<div class="cff-post-item-text" v-if="postmedia.type == 'link' && !customizerFeedData.settings.include.includes('sharedlinks')" v-html="postmedia.args.title">
+		<div class="cff-post-item-text" v-if="postmedia.type == 'link' && !customizerFeedData.settings.include.includes('sharedlinks')" v-text="postmedia.args.title">
 		</div>
 	</div>
 </script>
@@ -138,8 +138,8 @@
 					</a>
 					<div class="cff-post-comment-item-content">
 						<p>
-							<a class="cff-post-comment-item-author cff-post-meta-link" :href="$parent.$parent.hasOwnNestedProperty(singleComment, 'from.link') ? singleComment.from.link : '#'" target="_blank" v-html="$parent.$parent.hasOwnNestedProperty(singleComment, 'from.name') ? singleComment.from.name : ''"></a>
-							<span class="cff-post-comment-item-txt cff-post-meta-txt" v-html="singleComment.message"></span>
+							<a class="cff-post-comment-item-author cff-post-meta-link" :href="$parent.$parent.hasOwnNestedProperty(singleComment, 'from.link') ? singleComment.from.link : '#'" target="_blank" v-text="$parent.$parent.hasOwnNestedProperty(singleComment, 'from.name') ? singleComment.from.name : ''"></a>
+							<span class="cff-post-comment-item-txt cff-post-meta-txt" v-text="singleComment.message"></span>
 						</p>
 						<span class="cff-post-comment-item-date cff-post-meta-txt" v-html="$parent.$parent.printDate(singleComment.created_time)"></span>
 					</div>
@@ -155,11 +155,11 @@
 
 <script type="text/x-template" id="cff-post-event-detail-component">
 	<div class="cff-post-event-detail cff-fb-fs"  v-if="customizerFeedData.settings.feedtype == 'events' || (singlePost.status_type == 'created_event')">
-		<p v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'attachments.data') && singlePost.attachments.data[0] && singlePost.attachments.data[0].title" v-html="singlePost.attachments.data[0].title">
+		<p v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'attachments.data') && singlePost.attachments.data[0] && singlePost.attachments.data[0].title" v-text="singlePost.attachments.data[0].title">
 		</p>
 		<!--
 		<p class="cff-post-event-title cff-fb-fs" v-if="customizerFeedData.settings.include.includes('eventtitle')">
-			<a :href="'https://facebook.com/events/'+singlePost.id" target="_blank" v-html="singlePost.name"></a>
+			<a :href="'https://facebook.com/events/'+singlePost.id" target="_blank" v-text="singlePost.name"></a>
 		</p>
 		-->
 		<p class="cff-post-event-date cff-fb-fs" v-if="$parent.$parent.hasOwnNestedProperty(singlePost, 'start_time') || $parent.$parent.hasOwnNestedProperty(singlePost, 'end_time')">
@@ -288,9 +288,9 @@
 	<div class="cff-post-item-media-ctn cff-fb-fs">
 		<div class="cff-post-item-link-ctn" v-if="(postmedia.type == 'link' || postmedia.type == 'video') && customizerFeedData.settings.include.includes('sharedlinks')" :data-linkbox="customizerFeedData.settings.disablelinkbox">
 			<div class="cff-post-item-link-info cff-fb-fs">
-				<a class="cff-post-item-link-a" :href="postmedia.args.unshimmedUrl" target="_blank" v-html="postmedia.args.title"></a>
-				<div class="cff-post-item-link-small" v-html="postmedia.args.domain"></div>
-				<div class="cff-post-item-link-description" v-if="customizerFeedData.settings.include.includes('desc')" v-html="(postmedia.args.description != null) ? (postmedia.args.description.substring(0, customizerFeedData.settings.desclength) + (postmedia.args.description.length > customizerFeedData.settings.desclength ? '...' : '')) : ''"></div>
+				<a class="cff-post-item-link-a" :href="postmedia.args.unshimmedUrl" target="_blank" v-text="postmedia.args.title"></a>
+				<div class="cff-post-item-link-small" v-text="postmedia.args.domain"></div>
+				<div class="cff-post-item-link-description" v-if="customizerFeedData.settings.include.includes('desc')" v-text="(postmedia.args.description != null) ? (postmedia.args.description.substring(0, customizerFeedData.settings.desclength) + (postmedia.args.description.length > customizerFeedData.settings.desclength ? '...' : '')) : ''"></div>
 			</div>
 		</div>
 	</div>

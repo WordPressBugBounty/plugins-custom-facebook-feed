@@ -63,6 +63,12 @@ class SmashUsageTracking {
 	 * Cron callback: ensure site token, build payload, send, update last_send.
 	 */
 	public function send_checkin() {
+		// DSC master kill-switch: suppress all telemetry when data-sharing
+		// consent is off, regardless of the per-plugin cff_usage_tracking toggle.
+		if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) && ! \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::is_dsc_enabled() ) {
+			return;
+		}
+
 		if ( ! Config::is_enabled() ) {
 			return;
 		}

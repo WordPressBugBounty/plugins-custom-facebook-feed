@@ -134,12 +134,22 @@ class CFF_Feed_Pro
 		}
 
 		$reporter = CFF_Utils::cff_is_pro_version() ? \cff_main_pro()->cff_error_reporter : \cff_main()->cff_error_reporter;
+		// The gate stays, for the same reason as CFF_Shortcode's copy of this
+		// loop: a pagination request's fetch may have just recorded an error,
+		// and settings['sources'] cannot be matched against the merged
+		// response. Recovery lives in CFF_API_Connect::connect() instead.
 		if (
 			! $reporter->are_critical_errors()
 			 && isset($settings['sources'])
 			 && is_array($settings['sources'])
 		) {
 			foreach ($settings['sources'] as $source) {
+				// A pure-legacy sources list can be an array of bare id strings,
+				// where empty($string['account_id']) is true on PHP 8 -- so this
+				// also keeps the call below off a string offset.
+				if (empty($source['account_id'])) {
+					continue;
+				}
 				if (! empty($source['error'])) {
 					\CustomFacebookFeed\Builder\CFF_Source::clear_error($source['account_id']);
 				}

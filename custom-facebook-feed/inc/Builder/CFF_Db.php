@@ -1051,6 +1051,66 @@ class CFF_Db
 	}
 
 	/**
+	 * The Facebook account ids of every source stored in the sources table.
+	 *
+	 * Deliberately a plain SELECT rather than source_query() with no arguments:
+	 * that branch joins the feeds table and, for any source whose access token
+	 * will not decrypt, calls CFF_Source::add_report_error_option(), which
+	 * performs a Graph API request. This list is read while deciding whether to
+	 * render an admin notice, and a network round trip does not belong there.
+	 *
+	 * Memoised for the life of the request. The callers are hot and repetitive --
+	 * are_critical_errors() runs from the admin menu, twice from
+	 * admin_error_notices(), from Site Health, from the front-end feed render
+	 * (CFF_Shortcode) and from pagination AJAX (CFF_Feed_Pro) -- which meant 2-4
+	 * identical queries per request where the code this replaced read a cached
+	 * option. The memo is request-scoped only and deliberately not persisted:
+	 * sources change from the builder, and a cached copy surviving that would be
+	 * read as "this source no longer exists".
+	 *
+	 * No LIMIT: it is a single indexed column, and a cap silently truncated large
+	 * portfolios so the dropped sources' errors were never scanned at all.
+	 *
+	 * @return array List of unique account id strings, empty when there are none.
+	 *
+	 * @since SMASH-1806
+	 */
+	public static function source_account_ids()
+	{
+		static $memo = null;
+
+		if (is_array($memo)) {
+			return $memo;
+		}
+
+		global $wpdb;
+		$sources_table_name = $wpdb->prefix . 'cff_sources';
+
+		$results = $wpdb->get_results("
+			SELECT DISTINCT account_id FROM $sources_table_name
+			WHERE account_id != '';
+		 ", ARRAY_A);
+
+		$account_ids = array();
+
+		if (empty($results)) {
+			$memo = $account_ids;
+
+			return $memo;
+		}
+
+		foreach ($results as $result) {
+			if (!empty($result['account_id'])) {
+				$account_ids[] = $result['account_id'];
+			}
+		}
+
+		$memo = $account_ids;
+
+		return $memo;
+	}
+
+	/**
 	 * Query to Remove Source from Database
 	 *
 	 * @param array $args

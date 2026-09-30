@@ -23,6 +23,17 @@ class Scheduler {
 	public function schedule() {
 		$this->cleanup_legacy();
 
+		// DSC master kill-switch: never leave a telemetry cron scheduled without
+		// data-sharing consent, regardless of the per-plugin enabled toggle. WP.org
+		// review flags scheduled hooks that hit external URLs, so we unschedule
+		// (not merely skip) when consent is off.
+		if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager' ) && ! \FacebookFeed\Vendor\Smashballoon\Framework\Packages\Consent\ConsentManager::is_dsc_enabled() ) {
+			if ( wp_next_scheduled( Config::CRON_HOOK ) ) {
+				wp_clear_scheduled_hook( Config::CRON_HOOK );
+			}
+			return;
+		}
+
 		if ( ! Config::is_enabled() ) {
 			return;
 		}

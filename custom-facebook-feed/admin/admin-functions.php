@@ -2,6 +2,177 @@
 if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
+
+add_action('admin_init', 'cff_backup_cache_staleness_notice');
+
+/**
+ * Registers (or clears) the backup-cache staleness notice.
+ *
+ * Rendered on every admin page — the whole point is catching a dead feed
+ * without the owner opening this plugin's settings screen. Type `error` is
+ * deliberate: SBNotices drops `warning`/`information` notices whenever the
+ * plugin has admin errors, which is precisely when this notice matters.
+ *
+ * Because of that, it is also the one notice a site cannot simply dismiss its
+ * way out of: the tier 2 id rotates weekly, so a never-fixed feed brings back
+ * a fresh, undismissed error notice every week. The
+ * `cff_backup_cache_stale_notice_enabled` filter is the off switch for sites
+ * that have accepted the situation — return false and the notice is neither
+ * registered nor left behind (anything already showing is swept on the next
+ * admin request). The email half of the feature has its own opt-out; this is
+ * the notice half's.
+ *
+ * @since SMASH-1808
+ */
+function cff_backup_cache_staleness_notice()
+{
+	global $cff_notices;
+
+	if (empty($cff_notices)) {
+		return;
+	}
+
+	// admin_init also fires on admin-ajax.php, admin-post.php and every
+	// heartbeat tick. Nothing renders a notice on those requests, so running
+	// the whole evaluate + sweep + record cycle every 15-60 seconds buys
+	// nothing.
+	if (wp_doing_ajax()) {
+		return;
+	}
+
+	$state = \CustomFacebookFeed\BackupCacheMonitor::evaluate();
+	$previous = \CustomFacebookFeed\BackupCacheMonitor::get_registered_notice();
+
+	/**
+	 * Filters whether the backup-cache staleness notice may be registered.
+	 *
+	 * Returning false suppresses it permanently — including the weekly tier 2
+	 * rotation — and lets the sweep below remove one that is already showing.
+	 * The staleness state itself keeps being tracked, so the weekly issue
+	 * email (which has its own opt-out) is unaffected.
+	 *
+	 * @since SMASH-1808
+	 *
+	 * @param bool $enabled Whether to register the notice. Default true.
+	 */
+	$notice_enabled = (bool)apply_filters('cff_backup_cache_stale_notice_enabled', true);
+
+	$current_id = ($notice_enabled && $state['tier'] > 0)
+		? \CustomFacebookFeed\BackupCacheMonitor::notice_id($state['tier'])
+		: '';
+
+	// Remove anything that is not the current notice. The tier 1 id and every
+	// tier 2 id actually registered are swept, not just the stored id and this
+	// week's — the stored id can be lost to option-corruption healing, and a
+	// tier 2 id minted in a PRIOR week is then reachable by no fixed id at all
+	// and would persist forever. Sweeping the urgent prefix across what is
+	// registered covers every week that was ever minted.
+	$urgent_ids = array();
+	foreach (array_keys((array)$cff_notices->get_notices()) as $registered_id) {
+		$registered_id = (string)$registered_id;
+		if (0 === strpos($registered_id, \CustomFacebookFeed\BackupCacheMonitor::NOTICE_ID_URGENT_PREFIX)) {
+			$urgent_ids[] = $registered_id;
+		}
+	}
+
+	$known_ids = array_unique(array_filter(array_merge(
+		array(
+			$previous['id'],
+			\CustomFacebookFeed\BackupCacheMonitor::NOTICE_ID,
+		),
+		$urgent_ids
+	)));
+	foreach ($known_ids as $known_id) {
+		if ($known_id !== $current_id) {
+			$cff_notices->remove_notice($known_id);
+		}
+	}
+
+	// SBNotices ignores add_notice for an existing id, so when the rendered
+	// numbers move (day 7 -> day 8) the notice is re-added with fresh copy.
+	// Dismissals live in per-user meta keyed on the id and are unaffected.
+	if ($current_id === $previous['id']
+		&& ($state['worst_days'] !== $previous['days'] || $state['feed_count'] !== $previous['feeds'])
+	) {
+		$cff_notices->remove_notice($current_id);
+	}
+
+	\CustomFacebookFeed\BackupCacheMonitor::set_registered_notice($current_id, $state['worst_days'], $state['feed_count']);
+
+	if ('' === $current_id) {
+		return;
+	}
+
+	if ($state['tier'] >= 2) {
+		/* translators: %d: number of days the feed has been serving saved posts. */
+		$title = sprintf(
+			__('Action needed: your Facebook feed has been showing old posts for %d days', 'custom-facebook-feed'),
+			$state['worst_days']
+		);
+		$message = __('Your Facebook feed has not been able to get new posts from Facebook for a long time, so visitors are seeing an old saved copy of your feed. Your website looks normal, which makes this easy to miss — but new Facebook posts will not appear until the connection is fixed.', 'custom-facebook-feed');
+	} else {
+		/* translators: %d: number of days the feed has been serving saved posts. */
+		$title = sprintf(
+			__('Your Facebook feed has not updated in %d days', 'custom-facebook-feed'),
+			$state['worst_days']
+		);
+		$message = __('Your Facebook feed is showing visitors a saved copy of its posts because it cannot get new ones from Facebook. This usually means the connection to Facebook needs attention.', 'custom-facebook-feed');
+	}
+
+	if ($state['feed_count'] > 1) {
+		/* translators: %d: number of feeds on this site serving saved posts. */
+		$message .= ' ' . sprintf(
+			__('%d feeds on this site are affected.', 'custom-facebook-feed'),
+			$state['feed_count']
+		);
+	}
+
+	$cff_notices->add_notice(
+		$current_id,
+		'error',
+		array(
+			'class' => 'cff-admin-notices cff-admin-notices-spaced-p',
+			'title' => array(
+				'text' => $title,
+				'class' => 'sb-notice-title',
+				'tag' => 'h3',
+			),
+			'message' => '<p>' . $message . '</p>',
+			'dismissible' => true,
+			'dismiss' => array(
+				'class' => 'cff-notice-dismiss',
+				'icon' => CFF_PLUGIN_URL . 'admin/assets/img/cff-dismiss-icon.svg',
+				'tag' => 'a',
+				'href' => array(
+					// Keyed to the id actually rendered, never a literal: the
+					// tier 2 id rotates weekly, and SBNotices resolves the
+					// dismissal by looking this value up in its notice array
+					// and writing user meta named after it. A hardcoded id
+					// would dismiss the wrong notice or, once the week rolled
+					// over, silently nothing at all.
+					'args' => array(
+						'sb-dismiss-notice' => $current_id,
+					),
+					'action' => 'sb_dismiss_notice_nonce',
+					'nonce' => '_sb_notice_nonce',
+				),
+			),
+			'capability' => 'manage_options',
+			'priority' => 2,
+			'buttons' => array(
+				array(
+					'text' => __('Check my feed connection', 'custom-facebook-feed'),
+					'url' => admin_url('admin.php?page=cff-settings'),
+					'class' => 'cff-btn-blue cff-notice-btn',
+					'tag' => 'a',
+				),
+			),
+			'buttons_wrap_start' => '<p class="cff-error-directions">',
+			'buttons_wrap_end' => '</p>',
+			'wrap_schema' => '<div {id} {class}><div class="cff-notice-body">{title}{message}</div>{dismiss}{buttons}</div>',
+		)
+	);
+}
 use CustomFacebookFeed\CFF_Utils;
 use CustomFacebookFeed\CFF_Oembed;
 use CustomFacebookFeed\CFF_GDPR_Integrations;

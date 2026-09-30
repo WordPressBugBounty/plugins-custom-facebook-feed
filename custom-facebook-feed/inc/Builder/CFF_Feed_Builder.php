@@ -753,14 +753,14 @@ class CFF_Feed_Builder
 			// Masonry + Isotope + ImagesLoaded Scripts
 			wp_enqueue_script(
 				"cff-isotope",
-				'https://unpkg.com/isotope-layout@3.0.6/dist/isotope.pkgd.min.js',
+				CFF_PLUGIN_URL . 'admin/builder/assets/js/isotope.pkgd.min.js',
 				null,
 				'3.0.6',
 				true
 			);
 			wp_enqueue_script(
 				"cff-images-loaded",
-				'https://unpkg.com/imagesloaded@4.1.4/imagesloaded.pkgd.min.js',
+				CFF_PLUGIN_URL . 'admin/builder/assets/js/imagesloaded.pkgd.min.js',
 				null,
 				'4.1.4',
 				true
@@ -770,7 +770,7 @@ class CFF_Feed_Builder
 			if ($active_extensions['carousel'] == true) {
 				wp_enqueue_script(
 					"cff-carousel-js",
-					'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
+					CFF_PLUGIN_URL . 'admin/builder/assets/js/owl.carousel.min.js',
 					null,
 					'2.3.4',
 					true
@@ -784,13 +784,13 @@ class CFF_Feed_Builder
 				);
 				wp_enqueue_style(
 					'cff-carousel-css',
-					'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css',
+					CFF_PLUGIN_URL . 'admin/builder/assets/css/owl.carousel.min.css',
 					false,
 					CFFVER
 				);
 				wp_enqueue_style(
 					'cff-carousel-theme-css',
-					'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css',
+					CFF_PLUGIN_URL . 'admin/builder/assets/css/owl.theme.default.min.css',
 					false,
 					CFFVER
 				);

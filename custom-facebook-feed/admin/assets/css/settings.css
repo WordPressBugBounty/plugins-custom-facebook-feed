@@ -1732,6 +1732,10 @@ Sources Instance Popup
 .sb-tab-content > div {
     min-height: 520px;
 }
+/* The Data Sharing tab only has two rows; don't pad it out to the full tab height. */
+.sb-tab-content > div.sb-data-sharing-tab {
+    min-height: 0;
+}
 .sb-form-field .sb-disabled-custom-code textarea{
     display: block;
     margin: 20px 0 0 0;
@@ -1751,4 +1755,35 @@ Sources Instance Popup
     overflow-y: scroll;
     border: 1px solid #ccc;
     color: #666;
+}
+/* Debug tab — consent toggles + links */
+.cff-checkbox input[type=checkbox]:disabled + .toggle-track {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+/* A locked (checked + disabled) consent toggle must stay faded-blue with the
+   knob on the right — override the earlier generic `:disabled` rules that gray
+   the track (#D0D1D7) and snap the indicator left, which would otherwise win
+   on the checked-and-disabled in-plugin notifications toggle. */
+.cff-checkbox input[type=checkbox]:checked:disabled + .toggle-track {
+    background: #0096CC;
+}
+.cff-checkbox input[type=checkbox]:checked:disabled + .toggle-track .toggle-indicator {
+    left: 18px;
+}
+.cff-debug-consent-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 8px;
+}
+.cff-debug-consent-links a,
+.cff-debug-consent-links a:visited {
+    font-size: 12px;
+    color: #0068A0;
+    text-decoration: none;
+}
+.cff-debug-consent-links a:hover,
+.cff-debug-consent-links a:focus {
+    text-decoration: underline;
 }
