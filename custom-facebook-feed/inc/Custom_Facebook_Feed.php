@@ -178,6 +178,19 @@ final class Custom_Facebook_Feed
 	public $cff_global_settings;
 
 	/**
+	 * CFF_Abilities.
+	 *
+	 * WordPress Abilities API integration (MCP clients, WPVibe). Ported from
+	 * custom-facebook-feed-pro (SBR-510).
+	 *
+	 * @since 4.14
+	 * @access public
+	 *
+	 * @var \CustomFacebookFeed\Abilities\CFF_Abilities
+	 */
+	public $cff_abilities;
+
+	/**
 	 * CFF_oEmbeds.
 	 *
 	 * oEmbeds Page.
@@ -412,6 +425,7 @@ final class Custom_Facebook_Feed
 		$this->cff_shortcode				= new CFF_Shortcode();
 		$this->cff_feed_builder				= new CFF_Feed_Builder();
 		$this->cff_global_settings			= new CFF_Global_Settings();
+		$this->cff_abilities				= new \CustomFacebookFeed\Abilities\CFF_Abilities();
 		$this->cff_oembeds					= new CFF_oEmbeds();
 		// The legacy in-plugin About Us page is replaced by the shared AboutUs package.
 		if ( class_exists( '\FacebookFeed\Vendor\Smashballoon\Framework\Packages\AboutUs\AboutUsManager' ) ) {
@@ -932,6 +946,15 @@ final class Custom_Facebook_Feed
 		if (! current_user_can('activate_plugins')) {
 			return;
 		}
+
+		// Abilities API state tokens + slots (CFF_State_Token::PREFIX). They no longer
+		// start with `cff_`, so the cache-wipe patterns do not reach them; remove the
+		// transient and its timeout row explicitly. Runs even when settings are
+		// preserved: these are short-lived tokens, not settings.
+		global $wpdb;
+		$wpdb->query("DELETE FROM {$wpdb->options} WHERE `option_name` LIKE ('\_transient\_sb\_abilities\_cff\_state\_%')");
+		$wpdb->query("DELETE FROM {$wpdb->options} WHERE `option_name` LIKE ('\_transient\_timeout\_sb\_abilities\_cff\_state\_%')");
+
 		// If the user is preserving the settings then don't delete them
 		$cff_preserve_settings = get_option('cff_preserve_settings');
 		if (! empty($cff_preserve_settings)) {
@@ -954,6 +977,9 @@ final class Custom_Facebook_Feed
 		delete_option('cff_title_length');
 		delete_option('cff_body_length');
 		delete_option('cff_style_settings');
+		// After the settings delete above: if the gate hooks were ever live in this
+		// request, delete_option('cff_style_settings') would re-create the epoch.
+		delete_option('sb_abilities_cff_gate_epoch');
 
 		delete_option('cff_usage_tracking_config');
 		// Usage-tracking consent, site token and telemetry are shared with the Pro plugin. Only remove

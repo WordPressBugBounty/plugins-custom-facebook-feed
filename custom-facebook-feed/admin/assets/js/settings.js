@@ -9,6 +9,10 @@ var CFF_TAB_ID_MAP = { 0: 'app-1', 1: 'app-2', 2: 'app-3', 3: 'app-5', 4: 'app-4
 var settings_data = {
     adminUrl: cff_settings.admin_url,
     nonce: cff_settings.nonce,
+    // Distinct from `nonce` above -- the install/activate-plugin AJAX handlers
+    // (cff_install_addon / cff_activate_addon) check the 'cff-admin' nonce
+    // action, not 'cff_admin_nonce' (SBR-510). See installOrActivateWPVibe().
+    addonNonce: cff_settings.addonNonce,
     ajaxHandler: cff_settings.ajax_handler,
     model: cff_settings.model,
     feeds: cff_settings.feeds,
@@ -57,6 +61,7 @@ var settings_data = {
     exportSVG: cff_settings.exportSVG,
     reloadSVG: cff_settings.reloadSVG,
     tooltipHelpSvg: cff_settings.tooltipHelpSvg,
+    wpvibeInstallStatus: null,
     tooltip : {
         text : '',
         hover : false
@@ -622,6 +627,12 @@ var cffSettings = new Vue({
                 this.cronNextCheck = data.data.cronNextCheck;
                 this.btnStatus = 'success';
                 this.loadedConsent = sentConsent;
+                // Resync MCP Write Access with what the server stored: a stale ON is
+                // refused, and the next save must compare against this value.
+                if ( typeof data.data.aiWriteEnabled !== 'undefined' ) {
+                    this.model.advanced.cff_ai_write_enabled = data.data.aiWriteEnabled;
+                    this.model.advanced.cff_ai_write_enabled_loaded = data.data.aiWriteEnabled;
+                }
                 setTimeout(function() {
                     this.btnStatus = null;
                 }.bind(this), 3000);
@@ -1008,6 +1019,87 @@ var cffSettings = new Vue({
         viewSourceInstances : function(source){
             var self = this;
             self.viewsActive.instanceSourceActive = source;
+        },
+
+        /**
+         * The AI Agents card's current display state.
+         *
+         * Mirrors the WPVibe install/activation status from PHP, except a
+         * failed install/activate attempt takes over the display until the
+         * user retries. Ported from custom-facebook-feed-pro (SBR-510).
+         *
+         * @since 4.14
+         *
+         * @return string 'not_installed' | 'inactive' | 'active' | 'installFailed'
+         */
+        aiAgentsState: function () {
+            if (this.wpvibeInstallStatus === 'failed') {
+                return 'installFailed';
+            }
+            return this.generalTab.aiAgents.status;
+        },
+
+        /**
+         * Open WPVibe's own admin page.
+         *
+         * @since 4.14
+         */
+        openWPVibe: function () {
+            window.location.href = this.generalTab.aiAgents.adminUrl;
+        },
+
+        /**
+         * Install or activate WPVibe for the AI Agents card.
+         *
+         * Reuses the existing cff_install_addon / cff_activate_addon AJAX
+         * actions -- no new installer, capability, or nonce is introduced.
+         * Sends `addonNonce` (action 'cff-admin'), NOT the settings page's own
+         * `nonce` (action 'cff_admin_nonce') -- the two handlers check
+         * different nonce actions (SBR-510).
+         *
+         * @since 4.14
+         */
+        installOrActivateWPVibe: function () {
+            let self = this,
+                aiAgents = self.generalTab.aiAgents,
+                isInstalled = aiAgents.status !== 'not_installed',
+                action = isInstalled ? 'cff_activate_addon' : 'cff_install_addon',
+                pluginParam = isInstalled ? aiAgents.basename : aiAgents.installDownloadUrl;
+
+            self.wpvibeInstallStatus = 'loading';
+
+            let data = new FormData();
+            data.append('action', action);
+            data.append('nonce', self.addonNonce);
+            data.append('type', 'plugin');
+            data.append('plugin', pluginParam);
+            fetch(self.ajaxHandler, {
+                method: "POST",
+                credentials: 'same-origin',
+                body: data
+            })
+                .then(response => response.json())
+                .then(function (response) {
+                    if (response.success !== true) {
+                        self.wpvibeInstallStatus = 'failed';
+                        return;
+                    }
+
+                    self.wpvibeInstallStatus = null;
+
+                    if (action === 'cff_install_addon') {
+                        if (response.data && response.data.basename) {
+                            aiAgents.basename = response.data.basename;
+                        }
+                        aiAgents.status = (response.data && response.data.is_activated) ? 'active' : 'inactive';
+                        return;
+                    }
+
+                    aiAgents.status = 'active';
+                })
+                .catch(function () {
+                    self.wpvibeInstallStatus = 'failed';
+                });
         },
     }
 });

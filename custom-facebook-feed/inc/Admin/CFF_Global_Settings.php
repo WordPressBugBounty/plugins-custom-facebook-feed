@@ -24,6 +24,7 @@ use CustomFacebookFeed\Builder\CFF_Feed_Saver_Manager;
 use CustomFacebookFeed\Builder\CFF_Db;
 use CustomFacebookFeed\Builder\CFF_Feed_Builder;
 use CustomFacebookFeed\Builder\CFF_Source;
+use CustomFacebookFeed\Abilities\CFF_Pro_Upsell;
 use CustomFacebookFeed\Admin\Traits\CFF_Settings;
 use CustomFacebookFeed\Helpers\Util;
 use CustomFacebookFeed\UsageTracking\Config as SmashTrackingConfig;
@@ -218,12 +219,39 @@ class CFF_Global_Settings
 		// Save advanced settings data
 		$cff_ajax = sanitize_text_field($advanced['cff_ajax']);
 
+		// What the page was loaded with for MCP Write Access; never a stored setting.
+		$ai_write_loaded = array_key_exists('cff_ai_write_enabled_loaded', $advanced)
+			? filter_var($advanced['cff_ai_write_enabled_loaded'], FILTER_VALIDATE_BOOLEAN)
+			: null;
+		unset($advanced['cff_ai_write_enabled_loaded']);
+
 		foreach ($advanced as $key => $val) {
 			if ($key == 'cff_disable_resize' || $key == 'disable_admin_notice') {
 				$cff_style_settings[ $key ] = !$val;
+			} elseif ($key == 'cff_ai_write_enabled') {
+				$cff_style_settings[ $key ] = $val === true || $val === 'true' || $val === 1 || $val === '1';
 			} else {
 				$cff_style_settings[ $key ] = $val;
 			}
+		}
+
+		/*
+		 * Fails CLOSED on a stale model (same guard as the Pro AI Agents port,
+		 * custom-facebook-feed-pro SBR-195): $cff_style_settings starts from
+		 * get_option() above, so a submitted model that OMITS this key (an old
+		 * cached JS bundle, a partial payload) skips it in the foreach above and
+		 * would otherwise leave whatever was already stored in place — silently
+		 * keeping AI write access enabled if it already was. Only an explicit
+		 * true in THIS submission turns it on.
+		 */
+		if (!array_key_exists('cff_ai_write_enabled', $advanced)) {
+			$cff_style_settings[ 'cff_ai_write_enabled' ] = false;
+		} else {
+			$cff_style_settings['cff_ai_write_enabled'] = self::reconcile_ai_write(
+				!empty($cff_style_settings['cff_ai_write_enabled']),
+				get_option('cff_style_settings', array()),
+				$ai_write_loaded
+			);
 		}
 
 		if ( isset( $advanced['usage_tracking'] ) ) {
@@ -254,13 +282,42 @@ class CFF_Global_Settings
 		// Update the cff_style_settings option that contains data for translation and advanced tabs
 		update_option('cff_style_settings', $cff_style_settings);
 
-		// clear cron caches
-		$this->cff_clear_cache();
+		// clear cron caches. Not via the cff_clear_cache() AJAX handler: it sends
+		// its own reply and exits, so the reply below (aiWriteEnabled) never left.
+		$this->apply_cache_settings();
 
 		$response = new CFF_Response(true, array(
-			'cronNextCheck' => $this->get_cron_next_check()
+			'cronNextCheck' => $this->get_cron_next_check(),
+			// The stored value, so the page can resync its toggle after a refused stale ON.
+			'aiWriteEnabled' => !empty($cff_style_settings['cff_ai_write_enabled']),
 		));
 		$response->send();
+	}
+
+	/**
+	 * Decide what to store for MCP Write Access from a Settings save.
+	 *
+	 * The page posts back the WHOLE model it loaded, so a tab opened while write
+	 * access was ON would re-enable it on any unrelated save after an admin
+	 * turned it off elsewhere. ON is accepted only when the page loaded it OFF
+	 * (the user flipped the switch in that tab); otherwise the stored value
+	 * stays. OFF is always honoured. A post with no loaded marker (an older
+	 * page) can only turn it off.
+	 *
+	 * @param bool        $posted_on Value posted for the toggle.
+	 * @param mixed       $stored    Currently stored cff_style_settings.
+	 * @param bool|null   $loaded    Value the page loaded the toggle with; null when absent.
+	 * @return bool
+	 */
+	public static function reconcile_ai_write($posted_on, $stored, $loaded)
+	{
+		if (!$posted_on) {
+			return false;
+		}
+		if ($loaded === false) {
+			return true;
+		}
+		return is_array($stored) && !empty($stored['cff_ai_write_enabled']);
 	}
 
 	/**
@@ -586,7 +643,21 @@ class CFF_Global_Settings
 			wp_send_json_error(); // This auto-dies.
 		}
 
+		$this->apply_cache_settings();
 
+		$response = CFF_Utils::cff_is_pro_version()
+			? new CFF_Response(true, array('cronNextCheck' => $this->get_cron_next_check()))
+			: new CFF_Response(true, array());
+		$response->send();
+	}
+
+	/**
+	 * Apply the posted cache settings, reschedule the cache cron and clear the
+	 * stored caches. Shared by the Clear Cache and Save Settings handlers, so
+	 * it must not send a reply or exit. Callers do the nonce and capability checks.
+	 */
+	private function apply_cache_settings()
+	{
 		// Get the settings model data
 		$model = isset($_POST[ 'model' ]) ? $_POST['model'] : null;
 
@@ -619,8 +690,7 @@ class CFF_Global_Settings
 
 			$this->clear_stored_caches();
 
-			$response = new CFF_Response(true, array());
-			$response->send();
+			return;
 		}
 
 		// Get the updated cron schedule interval and time settings from user input and update the database
@@ -673,11 +743,6 @@ class CFF_Global_Settings
 
 		CFF_Group_Posts::group_reschedule_event($cff_cache_cron_time_unix, $cff_cron_schedule);
 		wp_schedule_event($cff_cache_cron_time_unix, $cff_cron_schedule, 'cff_cache_cron');
-
-		$response = new CFF_Response(true, array(
-			'cronNextCheck' => $this->get_cron_next_check()
-		));
-		$response->send();
 	}
 
 	/**
@@ -874,6 +939,45 @@ class CFF_Global_Settings
 	}
 
 	/**
+	 * Determine WPVibe's install/activation status.
+	 *
+	 * Scans the installed-plugins list for a plugin whose folder is
+	 * `vibe-ai/`, rather than assuming a specific main-file name -- a
+	 * plugin's wp.org slug and its main file are not guaranteed to match.
+	 * Ported from custom-facebook-feed-pro (SBR-510).
+	 *
+	 * @return array{status: string, basename: string|null} status is one
+	 *               of 'not_installed' | 'inactive' | 'active'.
+	 * @since 4.14
+	 */
+	private function get_wpvibe_status()
+	{
+		if (!function_exists('get_plugins')) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$wpvibe_basename = null;
+		foreach (array_keys(get_plugins()) as $plugin_file) {
+			if (strtok($plugin_file, '/') === 'vibe-ai') {
+				$wpvibe_basename = $plugin_file;
+				break;
+			}
+		}
+
+		if (null === $wpvibe_basename) {
+			return array(
+				'status' => 'not_installed',
+				'basename' => null,
+			);
+		}
+
+		return array(
+			'status' => is_plugin_active($wpvibe_basename) ? 'active' : 'inactive',
+			'basename' => $wpvibe_basename,
+		);
+	}
+
+	/**
 	 * Enqueue Builder CSS & Script.
 	 *
 	 * Loads only for builder pages
@@ -954,6 +1058,25 @@ class CFF_Global_Settings
 
 		$sources_list = CFF_Feed_Builder::get_source_list();
 
+		// AI Agents card strings render through v-html on the Settings page
+		// (admin/views/settings/tab/general.php), and on a wp.org plugin the
+		// translations behind __() are community-supplied, not reviewed the
+		// way core strings are -- wp_kses() with a minimal allowlist so a
+		// malicious/mistranslated string can't inject markup beyond the <a>/
+		// <br> this card's own copy actually uses (SBR-510 suggestion S1).
+		$wpvibe_kses_allowed = array(
+			'a'  => array('href' => array(), 'target' => array(), 'rel' => array()),
+			'br' => array(),
+		);
+
+		$wpvibe             = $this->get_wpvibe_status();
+		$wpvibe_org_url      = 'https://wordpress.org/plugins/vibe-ai/';
+		/* translators: %s: URL to the WPVibe plugin on WordPress.org */
+		$wpvibe_description = wp_kses(
+			sprintf(__('Manage Facebook Feed from your favorite AI agent.<br>Works through <a href="%s" target="_blank" rel="noopener">WPVibe</a>, a free plugin you install once.', 'custom-facebook-feed'), esc_url($wpvibe_org_url)), // phpcs:ignore Generic.Files.LineLength.TooLong -- single literal for make-pot
+			$wpvibe_kses_allowed
+		);
+
 		// Extract only license keys and build array for extensions license keys
 		$extensions_license_key = array();
 		foreach ($this->get_extensions_license() as $item) {
@@ -978,6 +1101,14 @@ class CFF_Global_Settings
 			'admin_url' 		=> admin_url(),
 			'ajax_handler'		=> admin_url('admin-ajax.php'),
 			'nonce'             => wp_create_nonce('cff_admin_nonce'),
+			// The install/activate-plugin AJAX handlers (cff_install_addon /
+			// cff_activate_addon, admin/addon-functions.php) check the 'cff-admin'
+			// nonce action, not 'cff_admin_nonce' -- localized separately so the
+			// AI Agents card's WPVibe install/activate call sends the nonce its
+			// OWN handler actually verifies (SBR-510; a straight port of Pro's
+			// installOrActivateWPVibe(), which reuses `this.nonce`, 403s on free
+			// because Free's settings-page nonce is 'cff_admin_nonce').
+			'addonNonce'        => wp_create_nonce('cff-admin'),
 			'supportPageUrl'    => admin_url('admin.php?page=cff-support'),
 			'builderUrl'		=> admin_url('admin.php?page=cff-feed-builder'),
 			'links'				=> $this->get_links_with_utm(),
@@ -1023,6 +1154,51 @@ class CFF_Global_Settings
 					'title'	=> __('Manage Sources', 'custom-facebook-feed'),
 					'description'	=> __('Add or remove connected Facebook accounts', 'custom-facebook-feed'),
 				),
+				'aiAgents' => array(
+					'title' => __('AI Agents', 'custom-facebook-feed'),
+					'appsLabel' => __('Works with ChatGPT, Cursor and Claude', 'custom-facebook-feed'),
+					// "Do more with AI on Pro" strip under the MCP Write Access box (AgDR-9006).
+					// Free edition only: an empty array in Pro, which the Vue v-if hides.
+					'proUpsell' => $this->get_ai_pro_upsell(),
+					'status' => $wpvibe['status'],
+					'basename' => $wpvibe['basename'],
+					'installDownloadUrl' => 'https://downloads.wordpress.org/plugin/vibe-ai.zip',
+					'adminUrl' => admin_url('admin.php?page=vibe-ai'),
+					'states' => array(
+						'not_installed' => array(
+							'heading' => __('Use Facebook Feed with Claude, ChatGPT and more.', 'custom-facebook-feed'),
+							'description' => $wpvibe_description,
+							'button' => __('Install WPVibe for free', 'custom-facebook-feed'),
+						),
+						'inactive' => array(
+							'heading' => __('Use Facebook Feed with Claude, ChatGPT and more.', 'custom-facebook-feed'),
+							'description' => $wpvibe_description,
+							'button' => __('Activate WPVibe', 'custom-facebook-feed'),
+						),
+						'active' => array(
+							'heading' => __('WPVibe is connected to Facebook Feed.', 'custom-facebook-feed'),
+							'description' => wp_kses(
+								__('Manage Facebook Feed from your favorite AI agent.<br>Connect Claude, ChatGPT, Cursor or any MCP client in WPVibe.', 'custom-facebook-feed'), // phpcs:ignore Generic.Files.LineLength.TooLong -- single literal for make-pot
+								$wpvibe_kses_allowed
+							),
+							'button' => __('Open WPVibe', 'custom-facebook-feed'),
+						),
+						'installFailed' => array(
+							'heading' => __('Use Facebook Feed with Claude, ChatGPT and more.', 'custom-facebook-feed'),
+							'description' => $wpvibe_description,
+							'button' => __('Try again', 'custom-facebook-feed'),
+							/* translators: %s: URL to the Plugins screen */
+							'error' => wp_kses(
+								sprintf(__('Couldn\'t install WPVibe. <a href="%s">Install it from the Plugins screen</a> instead.', 'custom-facebook-feed'), esc_url(admin_url('plugins.php'))),
+								$wpvibe_kses_allowed
+							),
+						),
+					),
+				),
+				'mcpWrite' => array(
+					'title' => __('MCP Write Access', 'custom-facebook-feed'),
+					'helpText' => __('This will allow your AI agent to make changes to Facebook Feed.', 'custom-facebook-feed'),
+				),
 				'preserveBox'	=> array(
 					'title'	=> __('Preserve settings if plugin is removed', 'custom-facebook-feed'),
 					'description'	=> __('This will make sure that all of your feeds and settings are still saved even if the plugin is uninstalled', 'custom-facebook-feed'),
@@ -1058,11 +1234,11 @@ class CFF_Global_Settings
 						'12hours'	=> __('Every 12 hours', 'custom-facebook-feed'),
 						'24hours'	=> __('Every 24 hours', 'custom-facebook-feed'),
 					),
-					'timeUnits' => array(
-						'minutes'	=> __('Minutes', 'custom-facebook-feed'),
-						'hours'		=> __('Hours', 'custom-facebook-feed'),
-						'days'	=> __('Days', 'custom-facebook-feed'),
-					),
+					// Extracted to CFF_Settings::cache_time_units() (same trait as
+					// locales() above) so the Abilities API schema drift check can pin
+					// cff_cache_time_unit's enum against this real control definition
+					// instead of a hardcoded list.
+					'timeUnits' => self::cache_time_units(),
 					'am'		=> __('AM', 'custom-facebook-feed'),
 					'pm'		=> __('PM', 'custom-facebook-feed'),
 					'clearCache' => __('Clear All Caches', 'custom-facebook-feed'),
@@ -1334,6 +1510,30 @@ class CFF_Global_Settings
 			'settings-app',
 			'cff_settings',
 			$cff_settings
+		);
+	}
+
+	/**
+	 * Data for the "Do more with AI on Pro" strip in the AI Agents card.
+	 *
+	 * Free edition only; returns an empty array in Pro. Features are picked by popup
+	 * key (CFF_Pro_Upsell::BANNER_FEATURES) from the builder's own Pro-feature copy,
+	 * so the strip never carries text of its own beyond the title and button labels.
+	 * UTM: utm_source=settings, utm_medium=ai-agents-card (see CFF_Pro_Upsell).
+	 *
+	 * @return array{title: string, features: string[], button: string, newTab: string, url: string}|array{}
+	 */
+	private function get_ai_pro_upsell()
+	{
+		if (!CFF_Pro_Upsell::is_free()) {
+			return array();
+		}
+		return array(
+			'title'    => __('Do more with AI on Pro', 'custom-facebook-feed'),
+			'features' => CFF_Pro_Upsell::banner_feature_names(),
+			'button'   => __('Upgrade to Pro', 'custom-facebook-feed'),
+			'newTab'   => __('(opens in a new tab)', 'custom-facebook-feed'),
+			'url'      => CFF_Pro_Upsell::upgrade_url('ai-agents-card', 'settings'),
 		);
 	}
 
@@ -1680,6 +1880,9 @@ class CFF_Global_Settings
 				'cff_disable_resize' => !$cff_style_settings['cff_disable_resize'],
 				'usage_tracking' => SmashTrackingConfig::is_enabled(),
 				'cff_ajax' => $cff_ajax,
+				'cff_ai_write_enabled' => isset($cff_style_settings['cff_ai_write_enabled']) ? $cff_style_settings['cff_ai_write_enabled'] : false,
+				// What this page load saw; posted back so a stale tab cannot re-enable writes (see save handler).
+				'cff_ai_write_enabled_loaded' => !empty($cff_style_settings['cff_ai_write_enabled']),
 				'cff_show_credit' => $cff_style_settings['cff_show_credit'],
 				'cff_format_issue' => $cff_style_settings['cff_format_issue'],
 				'disable_admin_notice' => !$cff_style_settings['disable_admin_notice'],
@@ -1750,6 +1953,7 @@ class CFF_Global_Settings
 			'cff_translate_years'       					=> 'years',
 			'cff_translate_ago'         					=> 'ago',
 			'cff_show_credit'		    					=> false,
+			'cff_ai_write_enabled'							=> false,
 			'cff_format_issue'		    					=> false,
 			'cff_disable_resize'		    				=> false,
 			'disable_admin_notice'		    				=> false,

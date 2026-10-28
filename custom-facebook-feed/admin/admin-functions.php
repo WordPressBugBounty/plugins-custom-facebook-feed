@@ -768,3 +768,28 @@ function cffGetOembedConnectionUrl()
 		'stateURL' => $admin_url_state
 	);
 }
+
+if (!function_exists('cff_current_user_can')) {
+	/**
+	 * Capability check used by the Abilities API integration.
+	 *
+	 * Mirrors the capability check every CFF settings/AJAX handler already
+	 * performs inline (see CFF_Global_Settings::cff_save_settings()) as a
+	 * single, filterable helper so the Abilities module doesn't duplicate the
+	 * fallback + filter logic. Ported from custom-facebook-feed-pro's
+	 * admin/cff-functions.php (Pro's file is not loaded by the free plugin,
+	 * so this lives in admin/admin-functions.php instead).
+	 *
+	 * @since 4.14
+	 *
+	 * @param string $cap Capability to check (ignored, kept for call-site
+	 *                     parity with the Pro helper — CFF has one settings cap).
+	 * @return bool
+	 */
+	function cff_current_user_can($cap = 'manage_custom_facebook_feed_options')
+	{
+		$resolved = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+		$resolved = apply_filters('cff_settings_pages_capability', $resolved);
+		return current_user_can($resolved);
+	}
+}

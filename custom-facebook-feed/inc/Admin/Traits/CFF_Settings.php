@@ -16,6 +16,27 @@ if (! defined('ABSPATH')) {
 trait CFF_Settings
 {
 	/**
+	 * Cache-time units offered by the Settings page's caching control
+	 * (`cff_cache_time_unit`). Same trait as locales() below, for the same
+	 * reason: the Abilities API schema drift check
+	 * (tests/abilities/check-schema-drift.php) pins CFF_Settings_Schema's
+	 * `cff_cache_time_unit` enum against this real control definition
+	 * instead of a hardcoded list.
+	 *
+	 * @since 4.14
+	 *
+	 * @return array<string, string> unit key => translated label.
+	 */
+	public static function cache_time_units()
+	{
+		return array(
+			'minutes' => __('Minutes', 'custom-facebook-feed'),
+			'hours'   => __('Hours', 'custom-facebook-feed'),
+			'days'    => __('Days', 'custom-facebook-feed'),
+		);
+	}
+
+	/**
 	 * Return the locales
 	 *
 	 * @since 4.0

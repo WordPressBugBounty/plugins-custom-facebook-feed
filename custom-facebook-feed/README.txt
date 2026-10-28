@@ -4,7 +4,7 @@ Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 4.14.0
+Stable tag: 4.15.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -205,6 +205,9 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.15.0 =
+* New: Ask AI assistants like Claude, ChatGPT and Cursor to check and update your Facebook Feed settings for you, through the WordPress Abilities API (requires WordPress 6.9 or later and the free WPVibe plugin). A new AI Agents card in Settings → General lets you install or open WPVibe. Assistants can read your settings right away, and the plugin keeps its own AI changes off until you turn on MCP Write Access under Settings > General. Write access is off by default, and your license key and access tokens are never shared. [See what Facebook Feed Pro adds](https://smashballoon.com/custom-facebook-feed/facebook-lite-upgrade/?utm_source=changelog&utm_medium=aiagents&utm_campaign=facebook-free-readme)
+
 = 4.14.0 =
 * New: An admin notice now warns you when a feed has been showing an old saved copy of your Facebook posts for several days because it can't fetch fresh content, and the weekly Feed Issue Email Report now covers this case too.
 * New: Added a Debug tab in the plugin settings where you can control anonymous data sharing and in-plugin notifications. Usage data is only sent when you opt in, and onboarding now includes a consent checkbox.
