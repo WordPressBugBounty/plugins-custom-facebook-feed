@@ -601,6 +601,7 @@
     height: 123px;
     font-family: 'Fira Code', monospace;
     word-break: break-all;
+    white-space: pre-wrap;
 }
 .cff-system-info-section .cff-system-info .system_info.expanded {
     height: 600px;

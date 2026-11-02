@@ -126,7 +126,7 @@
 				</button>
 			</div>
 			<div class="cff-system-info">
-				<div v-html="system_info" id="system_info" class="system_info" :class="systemInfoBtnStatus"></div>
+				<div v-text="system_info" id="system_info" class="system_info" :class="systemInfoBtnStatus"></div>
 				<button class="cff-expand-btn" @click="expandSystemInfo">
 					<span v-html="icons.downAngle"></span>
 					<span v-html="expandBtnText()"></span>
