@@ -6,7 +6,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'FacebookFeed\\Vendor\\Smashballoon\\Stubs\\' => array($vendorDir . '/smashballoon/stubs/src'),
     'FacebookFeed\\Vendor\\Smashballoon\\Framework\\' => array($vendorDir . '/smashballoon/framework'),
+    'FacebookFeed\\Vendor\\Smashballoon\\Customizer\\V2\\' => array($vendorDir . '/smashballoon/customizer/app/V2'),
     'FacebookFeed\\Vendor\\Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'FacebookFeed\\Vendor\\PhpDocReader\\' => array($vendorDir . '/php-di/phpdoc-reader/src/PhpDocReader'),
     'FacebookFeed\\Vendor\\Laravel\\SerializableClosure\\' => array($vendorDir . '/laravel/serializable-closure/src'),

@@ -53,7 +53,7 @@
 					</svg>
 				<span>{{genericText.help}}</span>
 			</a>
-			<button v-if="customizerFeedData.feed_info.id !== 'legacy'" class="cff-fb-hd-btn cff-csz-btn-embd cff-btn-dark sb-button-standard" @click.prevent.default="activateView('embedPopup', null, true)">
+			<button v-if="customizerFeedData.feed_info.id !== 'legacy'" class="cff-fb-hd-btn cff-csz-btn-embd cff-btn-dark sb-button-standard" @click.prevent.default="openEmbedModal()">
 				<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M16 6L12.2287 9.77133L11.286 8.82867L14.1147 6L11.286 3.17133L12.2287 2.22867L16 6ZM1.88533 6L4.714 8.82867L3.77133 9.77133L0 6L3.77133 2.22867L4.71333 3.17133L1.88533 6ZM6.52533 12H5.10667L9.47467 0H10.8933L6.52533 12Z" fill="white"/>
 				</svg>

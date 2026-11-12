@@ -106,7 +106,7 @@ class CFF_Feed_Saver_Manager
 			'feed_id' => false
 		);
 
-		if ($feed_saver->update_or_insert()) {
+		if (false !== $feed_saver->update_or_insert()) {
 			$return = array(
 				'success' => true,
 				'feed_id' => $feed_saver->get_feed_id()

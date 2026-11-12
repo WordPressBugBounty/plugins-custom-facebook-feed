@@ -161,27 +161,61 @@ class CFF_Utils
 		return $text;
 	}
 
+	/**
+	 * Turn Facebook mention tokens (@[id:type:name]) into profile links.
+	 *
+	 * Call this on HTML-escaped text BEFORE autolinking. A token is only replaced when the
+	 * id and type are digits and the name holds no markup characters, so a token can never
+	 * span markup and break out of an attribute. Anything else stays as plain text.
+	 *
+	 * @param string $description HTML-escaped description text.
+	 * @return string
+	 */
 	public static function cff_desc_tags($description)
 	{
-		preg_match_all("/@\[(.*?)\]/", $description, $cff_tag_matches);
-		$replace_strings_arr = array();
-		foreach ($cff_tag_matches[1] as $cff_tag_match) {
-			$cff_tag_parts = explode(':', $cff_tag_match);
-			$replace_strings_arr[] = '<a href="https://facebook.com/' . $cff_tag_parts[0] . '">' . $cff_tag_parts[2] . '</a>';
-		}
-		$cff_tag_iterator = 0;
-		$cff_description_tagged = '';
-		$cff_text_split = preg_split("/@\[(.*?)\]/", $description);
-		foreach ($cff_text_split as $cff_desc_split) {
-			if ($cff_tag_iterator < count($replace_strings_arr)) {
-				$cff_description_tagged .= $cff_desc_split . $replace_strings_arr[ $cff_tag_iterator ];
-			} else {
-				$cff_description_tagged .= $cff_desc_split;
-			}
-			$cff_tag_iterator++;
-		}
+		$tagged = preg_replace_callback(
+			'/@\[(\d+):\d+:([^\[\]<>"]+)\]/',
+			function ($matches) {
+				$href = esc_attr('https://facebook.com/' . $matches[1]);
+				return '<a href="' . $href . '">' . esc_html($matches[2]) . '</a>';
+			},
+			(string) $description
+		);
 
-		return $cff_description_tagged;
+		return null === $tagged ? (string) $description : $tagged;
+	}
+
+	/**
+	 * Build the HTML for a post or event description: mention links first, then autolinks.
+	 *
+	 * The order matters (SMASH-2696). Mentions are parsed on the escaped text, before the
+	 * autolinker adds its own markup, so a token cannot overlap an autolinked URL.
+	 *
+	 * @param string $text       Raw description text.
+	 * @param string $link_color Link color passed to the autolinker.
+	 * @return string
+	 */
+	public static function cff_desc_tags_autolink($text, $link_color = '')
+	{
+		return CFF_Autolink::cff_autolink(self::cff_desc_tags(htmlspecialchars($text)), $link_color);
+	}
+
+	/**
+	 * Build the link for a story or message tag from the Graph API tag id and name.
+	 *
+	 * Both values come from Facebook and can hold markup characters, so the id is
+	 * URL-encoded and both are escaped (SMASH-2696). esc_html() does not double-encode, so a
+	 * name that is already escaped stays the same.
+	 *
+	 * @param string $id    Tag id.
+	 * @param string $name  Tag name.
+	 * @param string $attrs Extra attributes for the <a>, a fixed string from the caller.
+	 * @return string
+	 */
+	public static function cff_tag_link($id, $name, $attrs = '')
+	{
+		$href = esc_attr('https://facebook.com/' . rawurlencode((string) $id));
+		return '<a href="' . $href . '"' . $attrs . '>' . esc_html((string) $name) . '</a>';
 	}
 
 

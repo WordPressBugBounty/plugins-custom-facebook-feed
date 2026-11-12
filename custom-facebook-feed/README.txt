@@ -4,7 +4,7 @@ Tags: Facebook, Facebook feed, Facebook posts, Facebook account, Facebook page
 Requires at least: 4.1
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 4.15.1
+Stable tag: 4.16.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -205,6 +205,14 @@ The most common reason for this is that an add-on or extension you have installe
 9. It's super easy to display your Facebook feed in any page or post
 
 == Changelog ==
+= 4.16.0 =
+* New: The Embed button in the feed builder now opens a new Embed Feed window, and "Add to a Page" opens the editor with your Facebook Feed block already added. This needs WordPress 5.8 or later; on older versions the Embed button shows your feed shortcode instead.
+* Tweak: If you had turned on usage tracking, that choice now carries over to the Data Sharing setting when you update. If you never turned it on, or turned Data Sharing off, it stays off.
+* Fix: The feed builder preview no longer hides every post when no post types are selected.
+* Fix: Saving a feed twice in quick succession (for example Save, then Embed) no longer shows "Error saving Feed".
+* Fix: When several Smash Balloon plugins show a notice on the front of your site, the notices now stack instead of covering each other.
+* Fix: Plugin security hardening.
+
 = 4.15.1 =
 * Fix: The data-sharing popup no longer locks you out of your WordPress admin when your choice can't be saved. You can always close it and keep working.
 * Fix: Plugin security hardening.

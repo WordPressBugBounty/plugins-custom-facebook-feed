@@ -134,8 +134,6 @@ cffBuilder = new Vue({
 		pluginType	: cff_builder.pluginType,
 		genericText	: cff_builder.genericText,
 		ajaxHandler : cff_builder.ajax_handler,
-		adminPostURL : cff_builder.adminPostURL,
-		widgetsPageURL : cff_builder.widgetsPageURL,
 		translatedText : cff_builder.translatedText,
 		socialShareLink : cff_builder.socialShareLink,
 		licenseType: cff_builder.licenseType,
@@ -146,7 +144,6 @@ cffBuilder = new Vue({
 		allFeedsScreen 	 : cff_builder.allFeedsScreen,
 		extensionsPopup  : cff_builder.extensionsPopup,
 		mainFooterScreen : cff_builder.mainFooterScreen,
-		embedPopupScreen : cff_builder.embedPopupScreen,
 
 		newManualSourcePopup : cff_builder.newManualSourcePopup,
 
@@ -211,9 +208,6 @@ cffBuilder = new Vue({
 			clipboardCopiedNotif : false,
 			legacyFeedsShown : false,
 			editName : false,
-			embedPopup : false,
-			embedPopupScreen : 'step_1',
-			embedPopupSelectedPage : null,
 
             // onboarding
 			onboardingPopup : cff_builder.allFeedsScreen.onboarding.active,
@@ -279,7 +273,6 @@ cffBuilder = new Vue({
 
 		customizerFeedDataInitial : null,
 		customizerFeedData 	: cff_builder.customizerFeedData,
-		wordpressPageLists  : cff_builder.wordpressPageLists,
 		iscustomizerScreen  	: (cff_builder.customizerFeedData != undefined && cff_builder.customizerFeedData != false),
 
 		customizerSidebarBuilder : cff_builder.customizerSidebarBuilder,
@@ -447,6 +440,47 @@ cffBuilder = new Vue({
 			self.customizerFeedData.settings[id] = (self.customizerFeedData.settings[id].a == 1) ? self.customizerFeedData.settings[id].hex : self.customizerFeedData.settings[id].hex8;
 		},
 		/**
+		 * Save the feed, then open the sb-customizer Embed Feed modal.
+		 */
+		openEmbedModal : function(){
+			var self = this,
+				notify = function(type, text, ms){
+					var el = {type : type, text : text, shown : 'shown'};
+					self.notificationElement = el;
+					setTimeout(function(){
+						el.shown = 'hidden';
+					}, ms || 3000);
+				},
+				showShortcode = function(textKey){
+					// Show the shortcode after the save toast, which shares the one notification slot.
+					self.saveFeedSettings(function(){
+						notify('error', self.genericText[textKey].replace('%s', '[custom-facebook-feed feed=' + self.customizerFeedData.feed_info.id + ']'), 15000);
+					});
+				};
+			// Add to a Page relies on the feed block, which registers through block.json (WordPress 5.8+).
+			if (!window.SBEmbedModal || !cff_builder.embedModalSupported) {
+				showShortcode('embedUnavailable');
+				return;
+			}
+			try {
+				window.SBEmbedModal.open({
+					feedId : self.customizerFeedData.feed_info.id,
+					onCopy : function(text){
+						notify('success', text);
+					},
+					onCopyFailed : function(){
+						notify('error', self.genericText.copyFailed);
+					}
+				});
+			} catch (e) {
+				// The modal could not mount: give the shortcode instead.
+				showShortcode('embedOpenFailed');
+				return;
+			}
+			self.saveFeedSettings();
+		},
+
+		/**
 		 * Show & Hide View
 		 *
 		 * @since 4.0
@@ -484,9 +518,6 @@ cffBuilder = new Vue({
 				}
 				if(viewName == 'editName'){
 					document.getElementById("cff-csz-hd-input").focus();
-				}
-				if(viewName == 'embedPopup' && ajaxAction == true){
-					self.saveFeedSettings();
 				}
 				if((viewName == 'sourcePopup' || viewName == 'sourcePopupType') && sourcePopupType == 'creationRedirect'){
 					setTimeout(function(){
@@ -633,10 +664,10 @@ cffBuilder = new Vue({
 		 *
 		 * @since 4.0
 		 */
-		ajaxPost : function(data, callback){
+		ajaxPost : function(data, callback, onError){
 			var self = this;
 			data['nonce'] = data.nonce ? data.nonce : this.nonce;
-			self.$http.post(self.ajaxHandler,data).then(callback);
+			self.$http.post(self.ajaxHandler,data).then(callback, onError);
 		},
 
 		/**
@@ -2337,7 +2368,7 @@ cffBuilder = new Vue({
 		 *
 		 * @since 4.0
 		 */
-		saveFeedSettings : function(){
+		saveFeedSettings : function(onDone){
 			var self = this,
 				sources = [],
 				updateFeedData = {
@@ -2362,6 +2393,15 @@ cffBuilder = new Vue({
 					self.customizerFeedDataInitial = self.customizerFeedData;
 				}else{
 					self.processNotification('feedSavedError');
+				}
+				if(typeof onDone === 'function'){
+					onDone();
+				}
+			}, function(){
+				// An HTTP-level failure, for example a 403 from an expired nonce, still reaches onDone.
+				self.processNotification('feedSavedError');
+				if(typeof onDone === 'function'){
+					onDone();
 				}
 			});
 			cffBuilder.$forceUpdate();
@@ -3016,10 +3056,14 @@ cffBuilder = new Vue({
 			var self = this,
 				feedType = self.customizerFeedData.settings.feedtype,
 				type = self.customizerFeedData.settings.type,
+				showPostsTypes = self.customizerFeedData.settings.showpoststypes,
 				postType = self.getPostTypeTimeline( post ),
 				showPost = true;
 			//'links,events,videos,photos,albums,statuses',
-			if(feedType == 'timeline'){
+			// Same rule as CFF_Shortcode: no or 'all' post type choice shows every type. An empty or
+			// legacy 'timeline' type list is not a filter either, so it must not hide every post.
+			var filtersTypes = showPostsTypes && showPostsTypes !== 'all' && type && type.length && type !== 'timeline';
+			if(feedType == 'timeline' && filtersTypes){
 				showPost = type.includes( postType );
 			}
 			return showPost;
@@ -3283,13 +3327,14 @@ cffBuilder = new Vue({
 			var self = this,
 				notification = self.genericText.notification[ notificationType ];
 			self.loadingBar = false;
-			self.notificationElement =  {
+			var el = {
 				type : notification.type,
 				text : notification.text,
 				shown : "shown"
 			};
+			self.notificationElement = el;
 			setTimeout(function(){
-				self.notificationElement.shown =  "hidden";
+				el.shown =  "hidden";
 			}, 5000);
 		},
 

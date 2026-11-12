@@ -17,6 +17,8 @@ use CustomFacebookFeed\CFF_Utils;
 use CustomFacebookFeed\CFF_Response;
 use CustomFacebookFeed\Helpers\Util;
 use CustomFacebookFeed\SB_Facebook_Data_Encryption;
+use FacebookFeed\Vendor\Smashballoon\Customizer\V2\EmbedModal;
+use FacebookFeed\Vendor\Smashballoon\Customizer\V2\EmbedTargets;
 use function DI\value;
 
 class CFF_Feed_Builder
@@ -46,6 +48,22 @@ class CFF_Feed_Builder
 			CFF_Feed_Saver_Manager::hooks();
 			CFF_Source::hooks();
 			CFF_Feed_Builder::hooks();
+		}
+
+		// The Embed modal's page search route. Older sb-customizer builds lack it.
+		if (method_exists(EmbedTargets::class, 'register_route')) {
+			add_action('rest_api_init', array(EmbedTargets::class, 'register_route'));
+
+			// Translate the page search results' status labels, which render in a separate REST request.
+			add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+				if (strpos($request->get_route(), '/sb-customizer/v1/embed-targets') === 0) {
+					$strings = self::embed_modal_strings();
+					add_filter('gettext_reviews-feed', function ($translation, $text) use ($strings) {
+						return isset($strings[$text]) ? $strings[$text] : $translation;
+					}, 10, 2);
+				}
+				return $result;
+			}, 10, 3);
 		}
 	}
 
@@ -243,10 +261,9 @@ class CFF_Feed_Builder
 			'admin_nonce'		=> wp_create_nonce('cff_admin_nonce'),
 
 			'upgradeUrl'		=> $upgrade_url,
-			'adminPostURL'		=> 	admin_url('post.php'),
-			'widgetsPageURL'	=> 	admin_url('widgets.php'),
 			'groupSourcesNumber' => CFF_Db::check_group_source(),
 			'genericText'       => self::get_generic_text(),
+			'embedModalSupported' => version_compare(get_bloginfo('version'), '5.8', '>='),
 			'welcomeScreen' => array(
 				'mainHeading' => __('All Feeds', 'custom-facebook-feed'),
 				'createFeed' => __('Create your Feed', 'custom-facebook-feed'),
@@ -345,14 +362,6 @@ class CFF_Feed_Builder
 				'heading' => sprintf(__('Upgrade to the %sAll Access Bundle%s to get all of our Pro Plugins', 'custom-facebook-feed'), '<strong>', '</strong>'),
 				'description' => __('Includes all Smash Balloon plugins for one low price: Instagram, Facebook, Twitter, YouTube, and Social Wall', 'custom-facebook-feed'),
 				'promo' => sprintf(__('%sBonus%s Lite users get %s50&#37; Off%s automatically applied at checkout', 'custom-facebook-feed'), '<span class="cff-bld-ft-bns">', '</span>', '<strong>', '</strong>'),
-			),
-			'embedPopupScreen' => array(
-				'heading' => __('Embed Feed', 'custom-facebook-feed'),
-				'description' => __('Add the unique shortcode to any page, post, or widget:', 'custom-facebook-feed'),
-				'description_2' => __('Or use the built in WordPress block or widget', 'custom-facebook-feed'),
-				'addPage' => __('Add to a Page', 'custom-facebook-feed'),
-				'addWidget' => __('Add to a Widget', 'custom-facebook-feed'),
-				'selectPage' => __('Select Page', 'custom-facebook-feed'),
 			),
 			'dialogBoxPopupScreen'  => array(
 				'deleteSourceCustomizer' => array(
@@ -468,7 +477,36 @@ class CFF_Feed_Builder
 			);
 			$cff_builder['customizerFeedData'] 			=  $maybe_feed_customizer_data;
 			$cff_builder['customizerSidebarBuilder'] 	=  \CustomFacebookFeed\Builder\Tabs\CFF_Builder_Customizer_Tab::get_customizer_tabs();
-			$cff_builder['wordpressPageLists']	= $this->get_wp_pages();
+			$cap = current_user_can('manage_custom_facebook_feed_options') ? 'manage_custom_facebook_feed_options' : 'manage_options';
+			$embed_strings = self::embed_modal_strings();
+			$embed_gettext = function ($translation, $text) use ($embed_strings) {
+				return isset($embed_strings[$text]) ? $embed_strings[$text] : $translation;
+			};
+			add_filter('gettext_reviews-feed', $embed_gettext, 10, 2);
+			EmbedModal::enqueue(
+				array(
+					'capability' => apply_filters('cff_settings_pages_capability', $cap),
+					'block_title' => __('Facebook Feed', 'custom-facebook-feed'),
+					'wizard_arg' => 'cff_wizard',
+					'shortcode' => '[custom-facebook-feed feed=%s]',
+				)
+			);
+			remove_filter('gettext_reviews-feed', $embed_gettext, 10);
+			if (!empty($embed_strings)) {
+				wp_add_inline_script(
+					EmbedModal::HANDLE,
+					'wp.i18n.setLocaleData(' . wp_json_encode(array_map(function ($translation) {
+						return array($translation);
+					}, $embed_strings)) . ', "reviews-feed");',
+					'before'
+				);
+			}
+			// The modal close button uses the sb-customizer text domain.
+			wp_add_inline_script(
+				EmbedModal::HANDLE,
+				'wp.i18n.setLocaleData(' . wp_json_encode(array('Close' => array(__('Close', 'custom-facebook-feed')))) . ', "sb-customizer");',
+				'before'
+			);
 			$cff_builder['facebook_feed_dismiss_lite'] = get_transient('facebook_feed_dismiss_lite');
 
 			// Date
@@ -513,7 +551,7 @@ class CFF_Feed_Builder
 			'feed-builder-style',
 			CFF_PLUGIN_URL . 'admin/builder/assets/css/builder.css',
 			false,
-			CFFVER
+			CFFVER . '.' . filemtime(CFF_PLUGIN_DIR . 'admin/builder/assets/css/builder.css')
 		);
 
 		self::global_enqueue_ressources_scripts();
@@ -522,7 +560,7 @@ class CFF_Feed_Builder
 			'feed-builder-app',
 			CFF_PLUGIN_URL . 'admin/builder/assets/js/builder.js',
 			null,
-			CFFVER,
+			CFFVER . '.' . filemtime(CFF_PLUGIN_DIR . 'admin/builder/assets/js/builder.js'),
 			true
 		);
 
@@ -563,7 +601,7 @@ class CFF_Feed_Builder
 			'feed-global-style',
 			CFF_PLUGIN_URL . 'admin/builder/assets/css/global.css',
 			array('cff-tokens-local'),
-			CFFVER
+			CFFVER . '.' . filemtime(CFF_PLUGIN_DIR . 'admin/builder/assets/css/global.css')
 		);
 
 		wp_enqueue_script(
@@ -656,25 +694,6 @@ class CFF_Feed_Builder
 		return 'free';
 	}
 
-	/**
-	 * Get WP Pages List
-	 *
-	 * @return string
-	 *
-	 * @since 4.0
-	 */
-	public function get_wp_pages()
-	{
-		$pagesList = get_pages();
-		$pagesResult = [];
-		if (is_array($pagesList)) {
-			foreach ($pagesList as $page) {
-				array_push($pagesResult, ['id' => $page->ID, 'title' => $page->post_title]);
-			}
-		}
-		return $pagesResult;
-	}
-
 
 	/**
 	 * Get Generic text
@@ -735,6 +754,10 @@ class CFF_Feed_Builder
 			'location' => __('Location', 'custom-facebook-feed'),
 			'page' => __('Page', 'custom-facebook-feed'),
 			'copiedClipboard' => __('Copied to Clipboard', 'custom-facebook-feed'),
+			/* translators: %s: The feed shortcode. */
+			'embedUnavailable' => __('The Embed Feed modal needs WordPress 5.8 or newer. Use this shortcode instead: %s', 'custom-facebook-feed'),
+			'copyFailed' => __('Could not copy. Select the text and copy it manually.', 'custom-facebook-feed'),
+			'embedOpenFailed' => __('Could not open the Embed Feed modal. Use this shortcode instead: %s', 'custom-facebook-feed'),
 			'feedImported' => __('Feed imported successfully', 'custom-facebook-feed'),
 			'failedToImportFeed' => __('Failed to import feed', 'custom-facebook-feed'),
 			'timeline' => __('Timeline', 'custom-facebook-feed'),
@@ -864,6 +887,66 @@ class CFF_Feed_Builder
 		);
 	}
 
+
+	/**
+	 * The Embed modal's strings, translated in this plugin's text domain.
+	 *
+	 * The shared sb-customizer modal tags its strings `reviews-feed`, which this
+	 * plugin does not ship. They are listed here so they translate as
+	 * `custom-facebook-feed`, then mapped onto `reviews-feed` for the modal. Keep in
+	 * sync with the modal's strings when sb-customizer changes them.
+	 *
+	 * @return array<string, string> Source string => translation, translated ones only.
+	 */
+	public static function embed_modal_strings()
+	{
+		$strings = array(
+			'Back' => __('Back', 'custom-facebook-feed'),
+			'Choose a different page' => __('Choose a different page', 'custom-facebook-feed'),
+			'Page title' => __('Page title', 'custom-facebook-feed'),
+			'New page title' => __('New page title', 'custom-facebook-feed'),
+			'Cancel and search instead' => __('Cancel and search instead', 'custom-facebook-feed'),
+			'Search for a page or a post' => __('Search for a page or a post', 'custom-facebook-feed'),
+			'Nothing matched that search.' => __('Nothing matched that search.', 'custom-facebook-feed'),
+			'No pages or posts yet.' => __('No pages or posts yet.', 'custom-facebook-feed'),
+			'Create page' => __('Create page', 'custom-facebook-feed'),
+			'Create a new page' => __('Create a new page', 'custom-facebook-feed'),
+			'Embed Feed' => __('Embed Feed', 'custom-facebook-feed'),
+			'Embed feed' => __('Embed feed', 'custom-facebook-feed'),
+			'Save first. The shortcode and links become available once this exists on the site.' => __('Save first. The shortcode and links become available once this exists on the site.', 'custom-facebook-feed'),
+			'Post or a Page' => __('Post or a Page', 'custom-facebook-feed'),
+			'We will redirect you to Gutenberg editor' => __('We will redirect you to Gutenberg editor', 'custom-facebook-feed'),
+			'Create Page and Go' => __('Create Page and Go', 'custom-facebook-feed'),
+			'Add and Go to Page' => __('Add and Go to Page', 'custom-facebook-feed'),
+			/* translators: %s: the word draft. */
+			'Saved as a %s. Nothing is public until you publish it.' => __('Saved as a %s. Nothing is public until you publish it.', 'custom-facebook-feed'),
+			'draft' => __('draft', 'custom-facebook-feed'),
+			'Show this on every page' => __('Show this on every page', 'custom-facebook-feed'),
+			/* translators: %s: the block title. */
+			'Search “%s” and drop it in.' => __('Search “%s” and drop it in.', 'custom-facebook-feed'),
+			'Add it once in the Site Editor.' => __('Add it once in the Site Editor.', 'custom-facebook-feed'),
+			'Open Site Editor' => __('Open Site Editor', 'custom-facebook-feed'),
+			'Add to a Widget' => __('Add to a Widget', 'custom-facebook-feed'),
+			'Drop it into a sidebar or footer area.' => __('Drop it into a sidebar or footer area.', 'custom-facebook-feed'),
+			'Open Widgets' => __('Open Widgets', 'custom-facebook-feed'),
+			'Use a shortcode' => __('Use a shortcode', 'custom-facebook-feed'),
+			'Shortcode copied' => __('Shortcode copied', 'custom-facebook-feed'),
+			'Copy' => __('Copy', 'custom-facebook-feed'),
+			'Available once you save' => __('Available once you save', 'custom-facebook-feed'),
+			'The page could not be created. Please try again.' => __('The page could not be created. Please try again.', 'custom-facebook-feed'),
+			'Something went wrong. Please try again.' => __('Something went wrong. Please try again.', 'custom-facebook-feed'),
+			'Draft' => __('Draft', 'custom-facebook-feed'),
+			'Pending' => __('Pending', 'custom-facebook-feed'),
+			'Scheduled' => __('Scheduled', 'custom-facebook-feed'),
+			'Private' => __('Private', 'custom-facebook-feed'),
+			/* translators: %d: the post ID. */
+			'(no title) #%d' => __('(no title) #%d', 'custom-facebook-feed'),
+		);
+
+		return array_filter($strings, function ($translation, $text) {
+			return $translation !== $text;
+		}, ARRAY_FILTER_USE_BOTH);
+	}
 
 	/**
 	 * Select Source Screen Text

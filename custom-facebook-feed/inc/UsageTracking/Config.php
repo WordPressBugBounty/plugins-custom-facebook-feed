@@ -114,4 +114,24 @@ class Config {
 		}
 		return ! empty( $opt['enabled'] );
 	}
+
+	/**
+	 * Whether the site really opted in to usage tracking before the Data
+	 * Sharing consent update (SMASH-2630, SMASH-2686).
+	 *
+	 * 4.1.8 to 4.8.x stored enabled = true on any Settings save, so the flag
+	 * alone is not proof. A stored site token is: the tracker only registers
+	 * the site while enabled (and, from 4.12.0, with Data Sharing consent), and
+	 * from 4.9.0 the toggle showed the stored value. A real opt-in that never
+	 * registered is not carried over; the admin is asked again instead.
+	 *
+	 * @return bool
+	 */
+	public static function has_legacy_optin() {
+		if ( ! self::is_enabled() ) {
+			return false;
+		}
+		$token = get_option( self::OPTION_SITE_TOKEN, '' );
+		return is_string( $token ) && '' !== $token;
+	}
 }

@@ -1425,147 +1425,11 @@ Source Screen
 
 
 
-/*Embed Popup*/
-.cff-fb-embed-step-1{
-    margin-top: 36px;
-}
 
-.cff-fb-embed-step-1 > div{
-    padding: 0 20px;
-}
-.cff-fb-embed-step-1-top{
-    padding-bottom: 53px!important;
-    border-bottom: 1px solid #E8E8EB;
-    margin-bottom: 42px;
-}
-#cff-builder-app .cff-fb-embed-step-1 h4{
-    margin-bottom: 12px;
-}
-.cff-fb-embed-input-ctn{
-    display: flex;
-}
-.cff-fb-embed-input-ctn input,
-.cff-fb-embed-input-ctn input[type="text"]{
-    position: relative;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 16px;
-    line-height: 160%;
-    color: #141B38;
-    height: 44px;
-    width: 77%;
-    box-sizing: border-box;
-    border-radius: 0px;
-    border: 1px solid #D0D1D7!important;
-    border-right: 0px!important;
-
-}
-.cff-fb-embed-input-ctn input:focus, .cff-fb-embed-input-ctn .cff-fb-hd-btn:focus{
-    box-shadow: none!important;
-}
-.cff-fb-embed-input-ctn .cff-fb-hd-btn{
-    width: 23%;
-    border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
-}
-.cff-fb-embed-input-ctn svg{
-    width: 17px;
-    fill: currentColor;
-    float: left;
-    margin-right: 10px;
-}
-.cff-fb-embed-step-1-bottom h4{
-    text-align: center;
-}
-.cff-fb-embed-btns-ctn{
-    display: grid;
-    grid-template-columns: 49% 49%;
-    grid-column-gap: 2%;
-    margin-top: 14px;
-    margin-bottom: 60px;
-}
-.cff-fb-embed-btn{
-    cursor: pointer;
-    width: 100%;
-    height: 50px;
-    background: #F3F4F5;
-    border-radius: 2px;
-    border: 1px solid #DCDDE1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    padding: 0 20px;
-    position: relative;
-    color: #141B38;
-    font-size: 16px;
-    font-weight: 500;
-}
-.cff-fb-embed-btn .sb-icon-label svg{
-    fill: currentColor;
-    width: 18px;
-    margin-right: 10px;
-    float: left;
-}
-.cff-fb-embed-popup .sb-embed-breadcrumb {
-    display: flex;
-    align-items: center;
-    padding: 25px 30px 0;
-    margin-bottom: 2px;
-}
-.sb-embed-breadcrumb a {
-    font-style: normal;
-    font-weight: bold;
-    font-size: 10px;
-    line-height: 160%;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #434960;
-    cursor: pointer;
-}
-.sb-embed-breadcrumb a:hover {
-    color: #141B38;
-}
-.sb-embed-breadcrumb svg {
-    margin-right: 8px;
-}
-.cff-fb-embed-step-2 > div{
-    padding: 0 29px;
-}
 
 .sb-customizer-sidebar-cache-wrapper{
     margin-top: 20px;
     padding: 0 20px;
-}
-.cff-fb-embed-step-2-list{
-    margin-top: 25px;
-    border-top: 1px solid #DCDDE1;
-    padding-top: 14px !important;
-}
-.cff-fb-embed-step-2-list > strong{
-    text-transform: uppercase;
-    font-size: 12px;
-    color: #434960;
-    margin-bottom: 10px;
-}
-.cff-fb-embed-step-2-pages{
-    margin-top: 8px;
-    height: 250px;
-    overflow: auto;
-}
-.cff-fb-embed-step-2-pages .sb-control-toggle-icon svg {
-    width: 11px;
-}
-.cff-fb-embed-step-2-action{
-    padding: 10px 34px 10px 30px !important;
-    background: #F3F4F5;
-    box-shadow: 0px -4px 5px rgba(0, 0, 0, 0.1);
-}
-.cff-fb-embed-step-2-action a{
-    color: #fff;
-}
-.cff-fb-embed-step-2-action a[data-active="false"]{
-    opacity: .75;
 }
 
 /*Dialog Popup*/
@@ -4127,31 +3991,6 @@ width: calc(100% - 20px);
     }
     .cff-fb-header .sb-button-standard{
         padding: 10px 10px 10px 31px;
-    }
-    .cff-fb-embed-ctn.sb-fs-boss.cff-fb-center-boss .cff-fb-popup-inside {
-        top: 35px;
-    }
-    .cff-fb-embed-btns-ctn {
-        grid-template-columns: 100%;
-    }
-    .cff-fb-embed-btns-ctn .cff-fb-embed-btn {
-        margin-bottom: 10px;
-    }
-    .cff-fb-embed-ctn.sb-fs-boss.cff-fb-center-boss .cff-fb-popup-inside .cff-fb-embed-step-1-top {
-        margin-bottom: 10px;
-    }
-    .cff-fb-embed-ctn.sb-fs-boss.cff-fb-center-boss .cff-fb-popup-inside .cff-fb-embed-input-ctn {
-        flex-wrap: wrap;
-    }
-    .cff-fb-embed-input-ctn input, .cff-fb-embed-input-ctn input[type="text"] {
-        width: 100%;
-        border-right: 1px solid #D0D1D7!important;
-    }
-    .cff-fb-embed-input-ctn .cff-fb-hd-btn {
-        width: 32%;
-        max-width: 120px;
-        margin-top: 10px !important;
-        padding: 8px;
     }
     .sb-fs-boss.cff-fb-center-boss {
         z-index: 100001 !important;

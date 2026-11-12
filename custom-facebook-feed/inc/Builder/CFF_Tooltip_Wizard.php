@@ -84,12 +84,13 @@ class CFF_Tooltip_Wizard
 			'cff-admin-tooltip-wizard',
 			CFF_PLUGIN_URL . 'admin/builder/assets/js/tooltip-wizard.js',
 			[ 'jquery' ],
-			CFFVER
+			CFFVER . '.' . filemtime(CFF_PLUGIN_DIR . 'admin/builder/assets/js/tooltip-wizard.js')
 		);
 
 		$wp_localize_data = [];
 		if ($this->check_gutenberg_wizard()) {
 			$wp_localize_data['cff_wizard_gutenberg'] = true;
+			$wp_localize_data['cff_wizard_feed_id'] = absint($_GET['cff_wizard']);
 		}
 
 		wp_localize_script(

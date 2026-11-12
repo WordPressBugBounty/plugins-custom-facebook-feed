@@ -399,6 +399,10 @@ final class Custom_Facebook_Feed
 					'plugin_name'         => 'Facebook Feed',
 					'utm_slug'            => 'facebook',
 					'legacy_class'        => 'CFF_Consent',
+					// SMASH-2630: sites that had opted in to usage tracking keep
+					// sharing after the consent update (run once by the package).
+					// SMASH-2686: only with proof of a real opt-in, see has_legacy_optin().
+					'legacy_optin'        => array( '\CustomFacebookFeed\UsageTracking\Config', 'has_legacy_optin' ),
 					'show_reprompt_modal' => function ( $show ) {
 						// The filter is shared by every Smash Balloon plugin, so only gate on
 						// our own pages or a pending wizard hides the modal for all of them.

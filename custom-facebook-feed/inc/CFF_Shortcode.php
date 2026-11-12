@@ -821,7 +821,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 									}
 
 									$tag_name = $message_tag->name;
-									$tag_link = '<a href="https://facebook.com/' . $message_tag->id . '">' . $message_tag->name . '</a>';
+									$tag_link = CFF_Utils::cff_tag_link($message_tag->id, $message_tag->name);
 
 									$post_text_story = str_replace($tag_name, $tag_link, $post_text_story);
 								}
@@ -873,7 +873,11 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 												// Don't use the story tag in this case otherwise it changes '__ created an event' to '__ created an Name Of Event'
 												// Don't use the story tag if it's a page as it causes an issue when sharing a page: Smash Balloon Dev shared a Smash Balloon.
 										} else {
-											$b = '<a href="https://facebook.com/' . $message_tags_arr[$tag]['id'] . '" target="_blank">' . $message_tags_arr[$tag]['name'] . '</a>';
+											$b = CFF_Utils::cff_tag_link(
+												$message_tags_arr[$tag]['id'],
+												$message_tags_arr[$tag]['name'],
+												' target="_blank"'
+											);
 											$c = $message_tags_arr[$tag]['offset'];
 											$d = $message_tags_arr[$tag]['length'];
 											$post_text_story = CFF_Utils::cff_mb_substr_replace($post_text_story, $b, $c, $d);
@@ -911,7 +915,7 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 									}
 
 									$tag_name = $message_tag->name;
-									$tag_link = '<a href="https://facebook.com/' . $message_tag->id . '">' . $message_tag->name . '</a>';
+									$tag_link = CFF_Utils::cff_tag_link($message_tag->id, $message_tag->name);
 
 									$post_text_message = str_replace($tag_name, $tag_link, $post_text_message);
 								}
@@ -963,7 +967,10 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 										if ($message_tags_arr[$tag]['offset'] == $cff_msg_duplicate_offset) {
 											// If it has the same offset as another tag then don't display it
 										} else {
-											$b = '<a href="https://facebook.com/' . $message_tags_arr[$tag]['id'] . '">' . $message_tags_arr[$tag]['name'] . '</a>';
+											$b = CFF_Utils::cff_tag_link(
+												$message_tags_arr[$tag]['id'],
+												$message_tags_arr[$tag]['name']
+											);
 											$c = $message_tags_arr[$tag]['offset'];
 											$d = $message_tags_arr[$tag]['length'];
 											$post_text_message = CFF_Utils::cff_mb_substr_replace($post_text_message, $b, $c, $d);
@@ -1029,8 +1036,10 @@ class CFF_Shortcode extends CFF_Shortcode_Display
 							if ($cff_title_link) {
 								$cff_description_tagged = CFF_Utils::cff_wrap_span(htmlspecialchars($description_text));
 							} else {
-								$cff_description_text = CFF_Autolink::cff_autolink(htmlspecialchars($description_text), $link_color = $cff_posttext_link_color);
-								$cff_description_tagged = CFF_Utils::cff_desc_tags($cff_description_text);
+								$cff_description_tagged = CFF_Utils::cff_desc_tags_autolink(
+									$description_text,
+									$cff_posttext_link_color
+								);
 							}
 
 							$cff_description .= $cff_description_tagged;

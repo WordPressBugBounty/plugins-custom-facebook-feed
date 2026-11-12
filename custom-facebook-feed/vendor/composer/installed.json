@@ -219,18 +219,53 @@
             "install-path": "..\/psr\/container"
         },
         {
+            "name": "smashballoon\/customizer",
+            "version": "v2.x-dev",
+            "version_normalized": "2.9999999.9999999.9999999-dev",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:awesomemotive\/sb-customizer.git",
+                "reference": "c4c88cafc16ed70f90f0789a6bf6cc2b5328ec27"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https:\/\/api.github.com\/repos\/awesomemotive\/sb-customizer\/zipball\/c4c88cafc16ed70f90f0789a6bf6cc2b5328ec27",
+                "reference": "c4c88cafc16ed70f90f0789a6bf6cc2b5328ec27",
+                "shasum": ""
+            },
+            "require": {
+                "smashballoon\/framework": "dev-master",
+                "smashballoon\/stubs": "dev-master"
+            },
+            "time": "2026-11-11T09:57:31+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "FacebookFeed\\Vendor\\Smashballoon\\Customizer\\V2\\": "app\/V2"
+                }
+            },
+            "authors": [
+                {
+                    "name": "SmashBalloon"
+                }
+            ],
+            "description": "The SmashBalloon customizer library.",
+            "install-path": "..\/smashballoon\/customizer"
+        },
+        {
             "name": "smashballoon\/framework",
             "version": "dev-master",
             "version_normalized": "dev-master",
             "source": {
                 "type": "git",
                 "url": "git@github.com:awesomemotive\/sb-common.git",
-                "reference": "09e75993e5aa3db956df6216ed141433829b5dbe"
+                "reference": "e295f26a9a18f268b5842093e4d2dd5814db4430"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/awesomemotive\/sb-common\/zipball\/09e75993e5aa3db956df6216ed141433829b5dbe",
-                "reference": "09e75993e5aa3db956df6216ed141433829b5dbe",
+                "url": "https:\/\/api.github.com\/repos\/awesomemotive\/sb-common\/zipball\/e295f26a9a18f268b5842093e4d2dd5814db4430",
+                "reference": "e295f26a9a18f268b5842093e4d2dd5814db4430",
                 "shasum": ""
             },
             "require": {
@@ -247,7 +282,7 @@
                 "phpcompatibility\/php-compatibility": "^9.3",
                 "squizlabs\/php_codesniffer": "^3.7"
             },
-            "time": "2026-10-29T11:39:29+00:00",
+            "time": "2026-11-10T13:19:17+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
@@ -277,6 +312,39 @@
             ],
             "description": "WordPress plugin framework. Developed by SmashBalloon Team.",
             "install-path": "..\/smashballoon\/framework"
+        },
+        {
+            "name": "smashballoon\/stubs",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:awesomemotive\/sb-stubs.git",
+                "reference": "063c3e588e897985d83cb65958c45e12281263ba"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https:\/\/api.github.com\/repos\/awesomemotive\/sb-stubs\/zipball\/063c3e588e897985d83cb65958c45e12281263ba",
+                "reference": "063c3e588e897985d83cb65958c45e12281263ba",
+                "shasum": ""
+            },
+            "time": "2022-06-15T20:49:33+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "FacebookFeed\\Vendor\\Smashballoon\\Stubs\\": "src\/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Ahmed Hussein",
+                    "email": "ahussein@awesomemotive.com"
+                }
+            ],
+            "description": "Shared common stubs.",
+            "install-path": "..\/smashballoon\/stubs"
         }
     ],
     "dev": false,
